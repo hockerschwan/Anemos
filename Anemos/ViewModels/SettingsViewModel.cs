@@ -1,0 +1,91 @@
+﻿using System.Diagnostics;
+using System.Reflection;
+using System.Security.Principal;
+using Anemos.Contracts.Services;
+using Anemos.Helpers;
+using Anemos.Models;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Windows.ApplicationModel;
+
+namespace Anemos.ViewModels;
+
+public partial class SettingsViewModel : ObservableRecipient
+{
+    private readonly ISettingsService _settingsService;
+
+    public SettingsModel Settings => _settingsService.Settings;
+
+    public readonly bool IsElevated;
+
+    public bool IsNotElevated => !IsElevated;
+
+    private string _versionDescription;
+    public string VersionDescription
+    {
+        get => _versionDescription;
+        set => SetProperty(ref _versionDescription, value);
+    }
+
+    public SettingsViewModel(ISettingsService settingsService)
+    {
+        _settingsService = settingsService;
+        _versionDescription = GetVersionDescription();
+
+        using var identity = WindowsIdentity.GetCurrent();
+        WindowsPrincipal principal = new(identity);
+        IsElevated = principal.IsInRole(WindowsBuiltInRole.Administrator);
+    }
+
+    private static string GetVersionDescription()
+    {
+        System.Version version;
+
+        if (RuntimeHelper.IsMSIX)
+        {
+            var packageVersion = Package.Current.Id.Version;
+
+            version = new(packageVersion.Major, packageVersion.Minor, packageVersion.Build, packageVersion.Revision);
+        }
+        else
+        {
+            version = Assembly.GetExecutingAssembly().GetName().Version!;
+        }
+
+        return $"{"AppDisplayName".GetLocalized()} - {version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
+    }
+
+    [RelayCommand]
+    private static void OpenSettingsFolder()
+    {
+        Process.Start("explorer.exe", App.Current.SettingsFolder);
+    }
+
+    [RelayCommand]
+    private void CreateTask(bool createTask)
+    {
+        if (!IsElevated) { return; }
+
+        var taskName = App.Current.AppName;
+        var fullPath = Process.GetCurrentProcess().MainModule?.FileName!;
+
+        var info = new ProcessStartInfo()
+        {
+            FileName = "schtasks",
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            CreateNoWindow = true,
+        };
+        if (createTask)
+        {
+            info.Arguments = $"/create /sc onlogon /tn \"{taskName}\" /tr \"{fullPath}\" /rl highest";
+        }
+        else
+        {
+            info.Arguments = $"/delete /tn \"{taskName}\" /f";
+        }
+
+        var proc = new Process { StartInfo = info };
+        proc.Start();
+    }
+}

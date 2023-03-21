@@ -8,13 +8,17 @@
 	xmlns:tb="using:H.NotifyIcon"
 	mc:Ignorable="d">
 	<UserControl.Resources>
-		<XamlUICommand x:Key="ShowWindowCommand" ExecuteRequested="ShowWindowCommand_ExecuteRequested" />
+		<XamlUICommand
+			x:Key="ShowWindowCommand"
+			ExecuteRequested="ShowWindowCommand_ExecuteRequested" />
 		<XamlUICommand
 			x:Key="ExitApplicationCommand"
 			x:Uid="TrayIcon_Exit"
 			Description="Exit"
 			ExecuteRequested="ExitApplicationCommand_ExecuteRequested" />
-		<MenuFlyout x:Key="TrayContextFlyout" AreOpenCloseAnimationsEnabled="False">
+		<MenuFlyout
+			x:Key="TrayContextFlyout"
+			AreOpenCloseAnimationsEnabled="False">
 			<MenuFlyoutItem Command="{StaticResource ExitApplicationCommand}" />
 		</MenuFlyout>
 	</UserControl.Resources>

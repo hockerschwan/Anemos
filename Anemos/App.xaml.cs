@@ -77,6 +77,8 @@ public partial class App : Application
                 // Views and ViewModels
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<MainPage>();
+                services.AddSingleton<SettingsViewModel>();
+                services.AddSingleton<SettingsPage>();
                 services.AddSingleton<ShellPage>();
                 services.AddSingleton<ShellViewModel>();
 

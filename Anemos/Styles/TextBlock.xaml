@@ -1,6 +1,10 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+﻿<ResourceDictionary
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-	<Style x:Key="PageTitleStyle" TargetType="TextBlock">
+	<Style
+		x:Key="PageTitleStyle"
+		TargetType="TextBlock">
 		<Setter Property="VerticalAlignment" Value="Center" />
 		<Setter Property="FontWeight" Value="SemiLight" />
 		<Setter Property="FontSize" Value="{StaticResource LargeFontSize}" />
@@ -8,7 +12,9 @@
 		<Setter Property="TextWrapping" Value="NoWrap" />
 	</Style>
 
-	<Style x:Key="BodyTextStyle" TargetType="TextBlock">
+	<Style
+		x:Key="BodyTextStyle"
+		TargetType="TextBlock">
 		<Setter Property="FontWeight" Value="Normal" />
 		<Setter Property="FontSize" Value="{StaticResource MediumFontSize}" />
 		<Setter Property="TextTrimming" Value="CharacterEllipsis" />

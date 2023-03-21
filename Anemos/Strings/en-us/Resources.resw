@@ -120,6 +120,27 @@
   <data name="AppDisplayName" xml:space="preserve">
     <value>Anemos</value>
   </data>
+  <data name="Settings_ProjectLink.NavigateUri" xml:space="preserve">
+    <value>https://YourProjectUrlGoesHere/</value>
+  </data>
+  <data name="Settings_ProjectLinkText.Text" xml:space="preserve">
+    <value>Project page</value>
+  </data>
+  <data name="Settings_SettingsFolderText.Text" xml:space="preserve">
+    <value>Open settings folder</value>
+  </data>
+  <data name="Settings_StartMinimizedCheckBox.Content" xml:space="preserve">
+    <value>Start minimized</value>
+  </data>
+  <data name="Settings_StartWithLogInCheckBox.Content" xml:space="preserve">
+    <value>Start at log in</value>
+  </data>
+  <data name="Settings_StartWithLogInCheckBoxNotAdmin.Text" xml:space="preserve">
+    <value>Needs admin rights</value>
+  </data>
+  <data name="Settings_Title.Text" xml:space="preserve">
+    <value>Settings</value>
+  </data>
   <data name="Shell_Main.Content" xml:space="preserve">
     <value>Main</value>
   </data>
