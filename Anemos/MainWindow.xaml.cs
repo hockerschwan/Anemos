@@ -1,0 +1,141 @@
+﻿using System.Timers;
+using Anemos.Contracts.Services;
+using Anemos.Helpers;
+using Anemos.Models;
+using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.UI.Xaml;
+using PInvoke;
+
+namespace Anemos;
+
+public sealed partial class MainWindow : WindowEx
+{
+    private readonly IMessenger _messenger = App.GetService<IMessenger>();
+
+    private readonly ISettingsService _settingsService = App.GetService<ISettingsService>();
+
+    private readonly Settings_Window _windowSettings;
+
+    private readonly System.Timers.Timer _timer = new(250);
+
+    public bool IsMaximized
+    {
+        get
+        {
+            var placement = User32.GetWindowPlacement(this.GetWindowHandle());
+            return placement.showCmd == User32.WindowShowStyle.SW_SHOWMAXIMIZED;
+        }
+    }
+
+    public bool IsMinimized
+    {
+        get
+        {
+            var placement = User32.GetWindowPlacement(this.GetWindowHandle());
+            return placement.showCmd == User32.WindowShowStyle.SW_SHOWMINIMIZED;
+        }
+    }
+
+    public MainWindow()
+    {
+        _windowSettings = _settingsService.Settings.Window;
+
+        InitializeComponent();
+
+        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets/WindowIcon.ico"));
+        Content = null;
+        Title = "AppDisplayName".GetLocalized();
+
+        this.MoveAndResize(_windowSettings.X, _windowSettings.Y, _windowSettings.Width, _windowSettings.Height);
+        if (_windowSettings.Maximized)
+        {
+            this.Maximize();
+        }
+
+        Closed += MainWindow_Closed;
+        SizeChanged += MainWindow_SizeChanged;
+        PositionChanged += MainWindow_PositionChanged;
+
+        _timer.AutoReset = false;
+        _timer.Elapsed += Timer_Elapsed;
+    }
+
+    private void MainWindow_Closed(object sender, WindowEventArgs args)
+    {
+        if (!App.HasShutdownRequested)
+        {
+            this.Hide();
+            _messenger.Send(new WindowVisibilityChangedMessage(false));
+            args.Handled = true;
+        }
+    }
+
+    private void MainWindow_PositionChanged(object? sender, Windows.Graphics.PointInt32 e)
+    {
+        _timer.Stop();
+        _timer.Start();
+    }
+
+    private void MainWindow_SizeChanged(object sender, WindowSizeChangedEventArgs args)
+    {
+        _timer.Stop();
+        _timer.Start();
+    }
+
+    private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
+    {
+        OnPositionAndSizeChanged();
+    }
+
+    private void OnPositionAndSizeChanged()
+    {
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            if (IsMinimized)
+            {
+                _messenger.Send(new WindowVisibilityChangedMessage(false));
+                return;
+            }
+
+            _messenger.Send(new WindowVisibilityChangedMessage(true));
+
+            if (IsMaximized)
+            {
+                if (_windowSettings.Maximized) { return; }
+
+                _windowSettings.Maximized = true;
+            }
+            else
+            {
+                User32.GetWindowRect(this.GetWindowHandle(), out var rect);
+
+                if (IsWindowIdenticalToSettings(rect)) { return; }
+
+                var dpi = GetDpi();
+
+                _windowSettings.Maximized = false;
+                _windowSettings.X = rect.left;
+                _windowSettings.Y = rect.top;
+                _windowSettings.Width = (int)((rect.right - rect.left) / dpi);
+                _windowSettings.Height = (int)((rect.bottom - rect.top) / dpi);
+            }
+
+            _settingsService.Save();
+        });
+    }
+
+    private bool IsWindowIdenticalToSettings(RECT rect)
+    {
+        return IsMaximized == _windowSettings.Maximized &&
+               rect.left == _windowSettings.X &&
+               rect.top == _windowSettings.Y &&
+               Width == _windowSettings.Width &&
+               Height == _windowSettings.Height;
+    }
+
+    private double GetDpi()
+    {
+        var dpi = User32.GetDpiForWindow(this.GetWindowHandle());
+        return dpi / 96.0;
+    }
+}
