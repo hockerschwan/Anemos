@@ -16,3 +16,8 @@ public class WindowVisibilityChangedMessage : ValueChangedMessage<bool>
 {
     public WindowVisibilityChangedMessage(bool isOpen) : base(isOpen) { }
 }
+
+public class LhwmUpdateDoneMessage : ValueChangedMessage<object?>
+{
+    public LhwmUpdateDoneMessage() : base(null) { }
+}

@@ -141,6 +141,9 @@
   <data name="Settings_Title.Text" xml:space="preserve">
     <value>Settings</value>
   </data>
+  <data name="Settings_UpdateInterval.Header" xml:space="preserve">
+    <value>Update interval [s]</value>
+  </data>
   <data name="Shell_Main.Content" xml:space="preserve">
     <value>Main</value>
   </data>

@@ -4,6 +4,8 @@ namespace Anemos.Models;
 
 public partial class SettingsModel : ObservableObject
 {
+    public Settings_Window Window { get; set; } = new();
+
     private bool _startMinimized = false;
     public bool StartMinimized
     {
@@ -18,7 +20,12 @@ public partial class SettingsModel : ObservableObject
         set => SetProperty(ref _startWithLogIn, value);
     }
 
-    public Settings_Window Window { get; set; } = new();
+    private int _updateInterval = 2;
+    public int UpdateInterval
+    {
+        get => _updateInterval;
+        set => SetProperty(ref _updateInterval, value);
+    }
 }
 
 public class Settings_Window

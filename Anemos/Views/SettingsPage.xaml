@@ -58,6 +58,18 @@
 						</Border>
 					</StackPanel>
 				</StackPanel>
+				<StackPanel Margin="{StaticResource SmallTopBottomMargin}">
+					<NumberBox
+						x:Uid="Settings_UpdateInterval"
+						Margin="{StaticResource SmallTopMargin}"
+						HorizontalAlignment="Left"
+						LargeChange="10"
+						Maximum="3600"
+						Minimum="1"
+						SmallChange="1"
+						SpinButtonPlacementMode="Inline"
+						Value="{x:Bind ViewModel.Settings.UpdateInterval, Mode=TwoWay}" />
+				</StackPanel>
 			</StackPanel>
 
 			<StackPanel

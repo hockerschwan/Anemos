@@ -18,8 +18,7 @@ public partial class App : Application
         get;
     }
 
-    public static T GetService<T>()
-        where T : class
+    public static T GetService<T>() where T : class
     {
         if (Current!.Host.Services.GetService(typeof(T)) is not T service)
         {
@@ -55,6 +54,7 @@ public partial class App : Application
         CheckLocalFolder();
 
         var settingsService = new SettingsService(SettingsFolder);
+        var lhwmService = new LhwmService(settingsService);
 
         Host = Microsoft.Extensions.Hosting.Host.
             CreateDefaultBuilder().
@@ -73,6 +73,7 @@ public partial class App : Application
 
                 services.AddSingleton(_messenger);
                 services.AddSingleton<ISettingsService>(settingsService);
+                services.AddSingleton<ILhwmService>(lhwmService);
 
                 // Views and ViewModels
                 services.AddSingleton<MainViewModel>();
@@ -91,6 +92,7 @@ public partial class App : Application
         _servicesToShutDown.AddRange(new Type[]
         {
             typeof(SettingsService),
+            typeof(LhwmService),
         });
         _messenger.Register<ServiceShutDownMessage>(this, ServiceShutDownMessageHandler);
     }
@@ -106,7 +108,7 @@ public partial class App : Application
         base.OnLaunched(args);
 
         await GetService<ISettingsService>().LoadAsync();
-        await App.GetService<IActivationService>().ActivateAsync(args);
+        await GetService<IActivationService>().ActivateAsync(args);
     }
 
     private void CheckLocalFolder()
@@ -128,10 +130,7 @@ public partial class App : Application
 
     public static void ShowWindow()
     {
-        if (MainWindow == null)
-        {
-            return;
-        }
+        if (MainWindow == null) { return; }
 
         MainWindow.DispatcherQueue.TryEnqueue(() =>
         {
@@ -175,6 +174,8 @@ public partial class App : Application
             }
             await Task.Delay(100);
         }
+
+        GetService<ILhwmService>().Close();
 
         Current.Exit();
     }
