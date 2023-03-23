@@ -77,7 +77,7 @@ public class LhwmService : ObservableRecipient, ILhwmService
         Scan();
     }
 
-    public async Task InitAsync()
+    public async Task InitializeAsync()
     {
         _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
 
@@ -177,10 +177,7 @@ public class LhwmService : ObservableRecipient, ILhwmService
 
         while (true)
         {
-            if (!_isUpdating)
-            {
-                break;
-            }
+            if (!_isUpdating) { break; }
             await Task.Delay(100);
         }
 

@@ -26,6 +26,8 @@ public partial class SettingsModel : ObservableObject
         get => _updateInterval;
         set => SetProperty(ref _updateInterval, value);
     }
+
+    public SensorSettings SensorSettings { get; set; } = new();
 }
 
 public class Settings_Window
@@ -35,4 +37,18 @@ public class Settings_Window
     public int Y { get; set; } = 100;
     public int Width { get; set; } = 900;
     public int Height { get; set; } = 720;
+}
+
+public class SensorSettings
+{
+    public IEnumerable<SensorSettings_Sensor> Sensors { get; set; } = Enumerable.Empty<SensorSettings_Sensor>();
+}
+
+public class SensorSettings_Sensor
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public int SampleSize { get; set; } = 1;
+    public CustomSensorCalcMethod CalcMethod { get; set; } = CustomSensorCalcMethod.Max;
+    public IEnumerable<string> SourceIds { get; set; } = Enumerable.Empty<string>();
 }

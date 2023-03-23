@@ -55,6 +55,7 @@ public partial class App : Application
 
         var settingsService = new SettingsService(SettingsFolder);
         var lhwmService = new LhwmService(settingsService);
+        var sensorService = new SensorService(settingsService, lhwmService);
 
         Host = Microsoft.Extensions.Hosting.Host.
             CreateDefaultBuilder().
@@ -74,6 +75,7 @@ public partial class App : Application
                 services.AddSingleton(_messenger);
                 services.AddSingleton<ISettingsService>(settingsService);
                 services.AddSingleton<ILhwmService>(lhwmService);
+                services.AddSingleton<ISensorService>(sensorService);
 
                 // Views and ViewModels
                 services.AddSingleton<MainViewModel>();

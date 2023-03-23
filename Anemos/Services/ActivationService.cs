@@ -12,16 +12,19 @@ public class ActivationService : IActivationService
     private readonly ActivationHandler<LaunchActivatedEventArgs> _defaultHandler;
     private readonly IEnumerable<IActivationHandler> _activationHandlers;
     private readonly ILhwmService _lhwmService;
+    private readonly ISensorService _sensorService;
     private UIElement? _shell = null;
 
     public ActivationService(
         ActivationHandler<LaunchActivatedEventArgs> defaultHandler,
         IEnumerable<IActivationHandler> activationHandlers,
-        ILhwmService lhwmService)
+        ILhwmService lhwmService,
+        ISensorService sensorService)
     {
         _defaultHandler = defaultHandler;
         _activationHandlers = activationHandlers;
         _lhwmService = lhwmService;
+        _sensorService = sensorService;
     }
 
     public async Task ActivateAsync(object activationArgs)
@@ -63,7 +66,8 @@ public class ActivationService : IActivationService
 
     private async Task InitializeAsync()
     {
-        await _lhwmService.InitAsync();
+        await _lhwmService.InitializeAsync();
+        await _sensorService.InitializeAsync();
         await Task.CompletedTask;
     }
 

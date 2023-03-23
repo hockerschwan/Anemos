@@ -18,7 +18,7 @@ public interface ILhwmService
 
     IEnumerable<ISensor> GetSensors(SensorType sensorType);
 
-    Task InitAsync();
+    Task InitializeAsync();
 
     void Close();
 }
