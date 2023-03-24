@@ -13,18 +13,21 @@ public class ActivationService : IActivationService
     private readonly IEnumerable<IActivationHandler> _activationHandlers;
     private readonly ILhwmService _lhwmService;
     private readonly ISensorService _sensorService;
+    private readonly ICurveService _curveService;
     private UIElement? _shell = null;
 
     public ActivationService(
         ActivationHandler<LaunchActivatedEventArgs> defaultHandler,
         IEnumerable<IActivationHandler> activationHandlers,
         ILhwmService lhwmService,
-        ISensorService sensorService)
+        ISensorService sensorService,
+        ICurveService curveService)
     {
         _defaultHandler = defaultHandler;
         _activationHandlers = activationHandlers;
         _lhwmService = lhwmService;
         _sensorService = sensorService;
+        _curveService = curveService;
     }
 
     public async Task ActivateAsync(object activationArgs)
@@ -42,8 +45,10 @@ public class ActivationService : IActivationService
         // Handle activation via ActivationHandlers.
         await HandleActivationAsync(activationArgs);
 
-        // Activate the MainWindow.
-        App.MainWindow.Activate();
+        if (!App.GetService<ISettingsService>().Settings.StartMinimized)
+        {
+            App.MainWindow.Activate();
+        }
 
         // Execute tasks after activation.
         await StartupAsync();
@@ -68,6 +73,7 @@ public class ActivationService : IActivationService
     {
         await _lhwmService.InitializeAsync();
         await _sensorService.InitializeAsync();
+        await _curveService.InitializeAsync();
         await Task.CompletedTask;
     }
 

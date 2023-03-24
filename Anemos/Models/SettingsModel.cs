@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Anemos.Helpers;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Anemos.Models;
 
@@ -28,6 +29,8 @@ public partial class SettingsModel : ObservableObject
     }
 
     public SensorSettings SensorSettings { get; set; } = new();
+
+    public CurveSettings CurveSettings { get; set; } = new();
 }
 
 public class Settings_Window
@@ -37,6 +40,19 @@ public class Settings_Window
     public int Y { get; set; } = 100;
     public int Width { get; set; } = 900;
     public int Height { get; set; } = 720;
+}
+
+public class CurveSettings
+{
+    public IEnumerable<CurveSettings_Curve> Curves { get; set; } = Enumerable.Empty<CurveSettings_Curve>();
+}
+
+public class CurveSettings_Curve
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string SourceId { get; set; } = string.Empty;
+    public IEnumerable<Point2> Points { get; set; } = Enumerable.Empty<Point2>();
 }
 
 public class SensorSettings

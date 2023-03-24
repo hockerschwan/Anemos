@@ -42,7 +42,7 @@ public partial class SettingsService : ObservableRecipient, ISettingsService
         {
             SaveToFile().Wait();
         }
-        Log.Debug("[Settings] Started");
+        Log.Information("[Settings] Started");
     }
 
     public async Task LoadAsync()
@@ -55,7 +55,7 @@ public partial class SettingsService : ObservableRecipient, ISettingsService
 
         _timer.AutoReset = false;
         _timer.Elapsed += Timer_Elapsed;
-        Log.Debug("[Settings] Loaded");
+        Log.Information("[Settings] Loaded");
     }
 
     private async void AppExitMessageHandler(object recipient, AppExitMessage message)

@@ -72,9 +72,9 @@ public class LhwmService : ObservableRecipient, ILhwmService
 
         _computer.Open();
         _computer.Accept(_updateVisitor);
-        Log.Information("[LHWM] Opened");
 
         Scan();
+        Log.Information("[LHWM] Started");
     }
 
     public async Task InitializeAsync()
@@ -87,7 +87,7 @@ public class LhwmService : ObservableRecipient, ILhwmService
         _timer.Start();
 
         await Task.CompletedTask;
-        Log.Debug("[LHWM] Loaded");
+        Log.Information("[LHWM] Loaded");
     }
 
     private void Settings_PropertyChanged(object? sender, PropertyChangedEventArgs e)

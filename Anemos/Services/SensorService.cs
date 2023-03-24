@@ -34,14 +34,14 @@ public class SensorService : ObservableRecipient, ISensorService
         _lhwmService = lhwmService;
 
         Scan();
-        Log.Debug("[SensorService] Started");
+        Log.Information("[SensorService] Started");
     }
 
     public async Task InitializeAsync()
     {
         await Task.Run(Load);
         Update();
-        Log.Debug("[SensorService] Loaded");
+        Log.Information("[SensorService] Loaded");
         await Task.CompletedTask;
     }
 

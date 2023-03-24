@@ -37,3 +37,18 @@ public class CustomSensorsChangedMessage : PropertyChangedMessage<IEnumerable<Se
         IEnumerable<SensorModelBase> newValue)
         : base(sender, propertyName, oldValue, newValue) { }
 }
+
+public class CurvesUpdateDoneMessage : ValueChangedMessage<object?>
+{
+    public CurvesUpdateDoneMessage() : base(null) { }
+}
+
+public class CurvesChangedMessage : PropertyChangedMessage<IEnumerable<CurveModel>>
+{
+    public CurvesChangedMessage(
+        object sender,
+        string? propertyName,
+        IEnumerable<CurveModel> oldValue,
+        IEnumerable<CurveModel> newValue)
+        : base(sender, propertyName, oldValue, newValue) { }
+}

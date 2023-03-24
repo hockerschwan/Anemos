@@ -56,6 +56,7 @@ public partial class App : Application
         var settingsService = new SettingsService(SettingsFolder);
         var lhwmService = new LhwmService(settingsService);
         var sensorService = new SensorService(settingsService, lhwmService);
+        var curveService = new CurveService(settingsService, sensorService);
 
         Host = Microsoft.Extensions.Hosting.Host.
             CreateDefaultBuilder().
@@ -76,6 +77,7 @@ public partial class App : Application
                 services.AddSingleton<ISettingsService>(settingsService);
                 services.AddSingleton<ILhwmService>(lhwmService);
                 services.AddSingleton<ISensorService>(sensorService);
+                services.AddSingleton<ICurveService>(curveService);
 
                 // Views and ViewModels
                 services.AddSingleton<MainViewModel>();
@@ -97,6 +99,8 @@ public partial class App : Application
         {
             typeof(SettingsService),
             typeof(LhwmService),
+            typeof(SensorService),
+            typeof(CurveService),
         });
         _messenger.Register<ServiceShutDownMessage>(this, ServiceShutDownMessageHandler);
     }
@@ -172,10 +176,7 @@ public partial class App : Application
 
         while (true)
         {
-            if (!_servicesToShutDown.Any())
-            {
-                break;
-            }
+            if (!_servicesToShutDown.Any()) { break; }
             await Task.Delay(100);
         }
 
