@@ -21,4 +21,21 @@
 		<Setter Property="TextWrapping" Value="Wrap" />
 	</Style>
 
+	<Style
+		x:Key="MonoTextStyle"
+		TargetType="TextBlock">
+		<Setter Property="FontFamily" Value="Consolas" />
+	</Style>
+	<Style
+		x:Key="MonoMediumTextStyle"
+		TargetType="TextBlock">
+		<Setter Property="FontFamily" Value="Consolas" />
+		<Setter Property="FontSize" Value="{StaticResource MediumFontSize}" />
+	</Style>
+	<Style
+		x:Key="MonoLargeTextStyle"
+		TargetType="TextBlock">
+		<Setter Property="FontFamily" Value="Consolas" />
+		<Setter Property="FontSize" Value="{StaticResource LargeFontSize}" />
+	</Style>
 </ResourceDictionary>

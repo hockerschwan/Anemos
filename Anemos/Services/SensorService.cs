@@ -1,5 +1,4 @@
-﻿using Anemos.Contracts.Models;
-using Anemos.Contracts.Services;
+﻿using Anemos.Contracts.Services;
 using Anemos.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
@@ -14,11 +13,11 @@ public class SensorService : ObservableRecipient, ISensorService
 
     private readonly ILhwmService _lhwmService;
 
-    public List<ISensorModel> PhysicalSensors { get; } = new();
+    public List<SensorModelBase> PhysicalSensors { get; } = new();
 
-    public List<ISensorModel> CustomSensors { get; } = new();
+    public List<SensorModelBase> CustomSensors { get; } = new();
 
-    public List<ISensorModel> Sensors => PhysicalSensors.Concat(CustomSensors).ToList();
+    public List<SensorModelBase> Sensors => PhysicalSensors.Concat(CustomSensors).ToList();
 
     private bool _isUpdating;
 
@@ -74,12 +73,12 @@ public class SensorService : ObservableRecipient, ISensorService
         );
     }
 
-    public ISensorModel? GetSensor(string id)
+    public SensorModelBase? GetSensor(string id)
     {
         return Sensors.SingleOrDefault(m => m?.Id == id, null);
     }
 
-    public IEnumerable<ISensorModel> GetSensors(IEnumerable<string> idList)
+    public IEnumerable<SensorModelBase> GetSensors(IEnumerable<string> idList)
     {
         return Sensors.Where(tm => idList.Contains(tm.Id));
     }

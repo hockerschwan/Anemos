@@ -19,6 +19,9 @@
 	<FileVersion>0.0.1.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Styles\Theme.xaml" />
+  </ItemGroup>
+  <ItemGroup>
 	<Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 
@@ -28,6 +31,7 @@
 
   <ItemGroup>
 	<PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
+	<PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
 	<PackageReference Include="FontAwesome6.Fonts.WinUI" Version="2.5.1" />
 	<PackageReference Include="H.NotifyIcon.WinUI" Version="2.0.99" />
 	<PackageReference Include="LibreHardwareMonitorLib" Version="0.9.3-pre214" />
@@ -40,7 +44,13 @@
 	<PackageReference Include="WinUIEx" Version="2.1" />
 	<PackageReference Include="ZetaIpc" Version="1.0.4.12" />
   </ItemGroup>
-  
+
+  <ItemGroup>
+    <Page Update="Styles\Theme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
   <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
 	<HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
   </PropertyGroup>

@@ -80,6 +80,8 @@ public partial class App : Application
                 // Views and ViewModels
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<MainPage>();
+                services.AddSingleton<SensorsViewModel>();
+                services.AddSingleton<SensorsPage>();
                 services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<SettingsPage>();
                 services.AddSingleton<ShellPage>();

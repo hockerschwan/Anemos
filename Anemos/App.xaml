@@ -10,6 +10,7 @@
 				<ResourceDictionary Source="/Styles/ScrollViewer.xaml" />
 				<ResourceDictionary Source="/Styles/Thickness.xaml" />
 				<ResourceDictionary Source="/Styles/TextBlock.xaml" />
+				<ResourceDictionary Source="/Styles/Theme.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 			<SolidColorBrush x:Key="WindowCaptionBackground">Transparent</SolidColorBrush>
 			<SolidColorBrush x:Key="WindowCaptionBackgroundDisabled">Transparent</SolidColorBrush>

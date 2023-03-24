@@ -1,19 +1,14 @@
-﻿using Anemos.Contracts.Models;
-using CommunityToolkit.Mvvm.ComponentModel;
-using LibreHardwareMonitor.Hardware;
+﻿using LibreHardwareMonitor.Hardware;
 
 namespace Anemos.Models;
 
-public class HWSensorModel : ObservableObject, ISensorModel
+public class HWSensorModel : SensorModelBase
 {
     private readonly ISensor _iSensor;
 
-    private readonly string _id;
-    public string Id => _id;
+    public override string Name => _iSensor.Name.ToString();
 
-    public string Name => _iSensor.Name.ToString();
-
-    public string LongName
+    public override string LongName
     {
         get
         {
@@ -25,13 +20,6 @@ public class HWSensorModel : ObservableObject, ISensorModel
         }
     }
 
-    private decimal? _value;
-    public decimal? Value
-    {
-        get => _value;
-        set => SetProperty(ref _value, value);
-    }
-
     public HWSensorModel(ISensor sensor)
     {
         _iSensor = sensor;
@@ -39,7 +27,7 @@ public class HWSensorModel : ObservableObject, ISensorModel
         Update();
     }
 
-    public void Update()
+    public override void Update()
     {
         Value = _iSensor.Value == null ? null : decimal.Round((decimal)_iSensor.Value, 1);
     }

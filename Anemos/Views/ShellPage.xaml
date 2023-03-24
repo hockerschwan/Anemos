@@ -25,6 +25,13 @@
 							Glyph="&#xe7c3;" />
 					</NavigationViewItem.Icon>
 				</NavigationViewItem>
+				<NavigationViewItem
+					x:Uid="Shell_Sensors"
+					helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.SensorsViewModel">
+					<NavigationViewItem.Icon>
+						<fa:FontAwesome Icon="Solid_TemperatureHalf" />
+					</NavigationViewItem.Icon>
+				</NavigationViewItem>
 			</NavigationView.MenuItems>
 			<NavigationView.FooterMenuItems>
 				<NavigationViewItem helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.SettingsViewModel">

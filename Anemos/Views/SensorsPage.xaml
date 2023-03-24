@@ -1,0 +1,45 @@
+<Page
+	x:Class="Anemos.Views.SensorsPage"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+	xmlns:converters="using:Anemos.Converters"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:fa="using:FontAwesome6.Fonts"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+	NavigationCacheMode="Required"
+	mc:Ignorable="d">
+	<UserControl.Resources>
+		<converters:BoolToVisibilityConverter x:Key="VisibilityConverter" />
+	</UserControl.Resources>
+
+	<controls:DockPanel
+		LastChildFill="True"
+		Visibility="{x:Bind ViewModel.IsVisible, Converter={StaticResource VisibilityConverter}, Mode=OneWay}">
+		<StackPanel
+			Padding="10"
+			controls:DockPanel.Dock="Top"
+			Background="{ThemeResource CommandBarBackground}">
+			<Button
+				Command="{x:Bind ViewModel.AddCustomSensorCommand}"
+				ToolTipService.Placement="Mouse">
+				<ToolTipService.ToolTip>
+					<ToolTip x:Uid="Sensors_AddSensor" />
+				</ToolTipService.ToolTip>
+				<fa:FontAwesome Icon="Solid_Plus" />
+			</Button>
+		</StackPanel>
+		<ScrollViewer
+			Padding="5"
+			Style="{StaticResource TraditionalScrollViewerStyle}">
+			<controls:AdaptiveGridView
+				DesiredWidth="600"
+				IsItemClickEnabled="False"
+				ItemHeight="200"
+				ItemsSource="{x:Bind ViewModel.Views, Mode=OneWay}"
+				SelectionMode="None"
+				StretchContentForSingleRow="False" />
+		</ScrollViewer>
+	</controls:DockPanel>
+</Page>

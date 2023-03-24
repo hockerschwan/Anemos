@@ -1,6 +1,4 @@
-﻿using Anemos.Contracts.Models;
-using Anemos.Contracts.Services;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Anemos.Contracts.Services;
 
 namespace Anemos.Models;
 
@@ -18,15 +16,11 @@ public class CustomSensorArg
     public IEnumerable<string> SourceIds = Enumerable.Empty<string>();
 }
 
-public class CustomSensorModel : ObservableObject, ISensorModel
+public class CustomSensorModel : SensorModelBase
 {
     private readonly ISensorService _sensorService = App.GetService<ISensorService>();
 
-    private readonly string _id;
-    public string Id => _id;
-
-    private string _name = string.Empty;
-    public string Name
+    public override string Name
     {
         get => _name;
         set
@@ -39,20 +33,13 @@ public class CustomSensorModel : ObservableObject, ISensorModel
         }
     }
 
-    public string LongName => Name;
-
-    private decimal? _value;
-    public decimal? Value
-    {
-        get => _value;
-        private set => SetProperty(ref _value, value);
-    }
+    public override string LongName => Name;
 
     private List<string> _sourceIds = new();
     public List<string> SourceIds
     {
         get => _sourceIds;
-        private set
+        set
         {
             if (SetProperty(ref _sourceIds, value))
             {
@@ -63,7 +50,7 @@ public class CustomSensorModel : ObservableObject, ISensorModel
         }
     }
 
-    public IEnumerable<ISensorModel> SourceModels => _sensorService.GetSensors(SourceIds);
+    public IEnumerable<SensorModelBase> SourceModels => _sensorService.GetSensors(SourceIds);
 
     private LimitedQueue<decimal> _data = new(1);
 
@@ -115,7 +102,7 @@ public class CustomSensorModel : ObservableObject, ISensorModel
         Update();
     }
 
-    public void Update()
+    public override void Update()
     {
         Value = CalcValue();
     }
@@ -169,7 +156,7 @@ public class CustomSensorModel : ObservableObject, ISensorModel
         return decimal.Round(value.Value, 1);
     }
 
-    private static decimal? Average(IEnumerable<ISensorModel> sensors)
+    private static decimal? Average(IEnumerable<SensorModelBase> sensors)
     {
         var validSensors = sensors.Where(s => s.Value != null).ToList();
         if (validSensors.Any())

@@ -1,30 +1,29 @@
-﻿using Anemos.Contracts.Models;
-using Anemos.Models;
+﻿using Anemos.Models;
 
 namespace Anemos.Contracts.Services;
 
 public interface ISensorService
 {
-    List<ISensorModel> PhysicalSensors
+    List<SensorModelBase> PhysicalSensors
     {
         get;
     }
 
-    List<ISensorModel> CustomSensors
+    List<SensorModelBase> CustomSensors
     {
         get;
     }
 
-    List<ISensorModel> Sensors
+    List<SensorModelBase> Sensors
     {
         get;
     }
 
     Task InitializeAsync();
 
-    ISensorModel? GetSensor(string id);
+    SensorModelBase? GetSensor(string id);
 
-    IEnumerable<ISensorModel> GetSensors(IEnumerable<string> idList);
+    IEnumerable<SensorModelBase> GetSensors(IEnumerable<string> idList);
 
     void AddCustomSensor(CustomSensorArg arg);
 

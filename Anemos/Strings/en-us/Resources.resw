@@ -120,6 +120,30 @@
   <data name="AppDisplayName" xml:space="preserve">
     <value>Anemos</value>
   </data>
+  <data name="CustomSensor_AddSource.Content" xml:space="preserve">
+    <value>Add Source</value>
+  </data>
+  <data name="CustomSensor_CalcMethod_Average" xml:space="preserve">
+    <value>Average</value>
+  </data>
+  <data name="CustomSensor_CalcMethod_Max" xml:space="preserve">
+    <value>Max</value>
+  </data>
+  <data name="CustomSensor_CalcMethod_Min" xml:space="preserve">
+    <value>Min</value>
+  </data>
+  <data name="CustomSensor_CalcMethod_MovingAverage" xml:space="preserve">
+    <value>Moving Average</value>
+  </data>
+  <data name="CustomSensor_MASampleSize.Text" xml:space="preserve">
+    <value>Sample size</value>
+  </data>
+  <data name="Sensors_AddSensor.Content" xml:space="preserve">
+    <value>Add Sensor</value>
+  </data>
+  <data name="Sensors_NewSensorName" xml:space="preserve">
+    <value>New Sensor</value>
+  </data>
   <data name="Settings_ProjectLink.NavigateUri" xml:space="preserve">
     <value>https://YourProjectUrlGoesHere/</value>
   </data>
@@ -146,6 +170,9 @@
   </data>
   <data name="Shell_Main.Content" xml:space="preserve">
     <value>Main</value>
+  </data>
+  <data name="Shell_Sensors.Content" xml:space="preserve">
+    <value>Sensors</value>
   </data>
   <data name="TrayIcon_Exit.Label" xml:space="preserve">
     <value>Exit</value>

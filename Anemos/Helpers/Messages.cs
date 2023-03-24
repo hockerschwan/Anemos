@@ -1,4 +1,4 @@
-﻿using Anemos.Contracts.Models;
+﻿using Anemos.Models;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 
 namespace Anemos;
@@ -28,12 +28,12 @@ public class CustomSensorsUpdateDoneMessage : ValueChangedMessage<object?>
     public CustomSensorsUpdateDoneMessage() : base(null) { }
 }
 
-public class CustomSensorsChangedMessage : PropertyChangedMessage<IEnumerable<ISensorModel>>
+public class CustomSensorsChangedMessage : PropertyChangedMessage<IEnumerable<SensorModelBase>>
 {
     public CustomSensorsChangedMessage(
         object sender,
         string? propertyName,
-        IEnumerable<ISensorModel> oldValue,
-        IEnumerable<ISensorModel> newValue)
+        IEnumerable<SensorModelBase> oldValue,
+        IEnumerable<SensorModelBase> newValue)
         : base(sender, propertyName, oldValue, newValue) { }
 }
