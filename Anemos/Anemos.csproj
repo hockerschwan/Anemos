@@ -19,7 +19,7 @@
 	<FileVersion>0.0.1.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Styles\Theme.xaml" />
+    <None Remove="Views\CurvesPage.xaml" />
   </ItemGroup>
   <ItemGroup>
 	<Manifest Include="$(ApplicationManifest)" />
@@ -34,6 +34,7 @@
 	<PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
 	<PackageReference Include="FontAwesome6.Fonts.WinUI" Version="2.5.1" />
 	<PackageReference Include="H.NotifyIcon.WinUI" Version="2.0.99" />
+	<PackageReference Include="H.OxyPlot.WinUI" Version="0.9.30" />
 	<PackageReference Include="LibreHardwareMonitorLib" Version="0.9.3-pre214" />
 	<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
 	<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.2.230313.1" />

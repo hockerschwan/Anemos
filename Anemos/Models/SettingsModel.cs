@@ -28,9 +28,58 @@ public partial class SettingsModel : ObservableObject
         set => SetProperty(ref _updateInterval, value);
     }
 
-    public SensorSettings SensorSettings { get; set; } = new();
+    private int _curveMaxTemp = 100;
+    public int CurveMaxTemp
+    {
+        get => _curveMaxTemp;
+        set => SetProperty(ref _curveMaxTemp, value);
+    }
+
+    private int _curveMinTemp = 20;
+    public int CurveMinTemp
+    {
+        get => _curveMinTemp;
+        set => SetProperty(ref _curveMinTemp, value);
+    }
+
+    private string _chartLineColor = "#6495ED";
+    public string ChartLineColor
+    {
+        get => _chartLineColor;
+        set => SetProperty(ref _chartLineColor, value);
+    }
+
+    private string _chartMarkerColor = "#FFA500";
+    public string ChartMarkerColor
+    {
+        get => _chartMarkerColor;
+        set => SetProperty(ref _chartMarkerColor, value);
+    }
+
+    private string _chartBGColor = "#000000";
+    public string ChartBGColor
+    {
+        get => _chartBGColor;
+        set => SetProperty(ref _chartBGColor, value);
+    }
+
+    private string _chartGridColor = "#808080";
+    public string ChartGridColor
+    {
+        get => _chartGridColor;
+        set => SetProperty(ref _chartGridColor, value);
+    }
+
+    private string _chartTextColor = "#D3D3D3";
+    public string ChartTextColor
+    {
+        get => _chartTextColor;
+        set => SetProperty(ref _chartTextColor, value);
+    }
 
     public CurveSettings CurveSettings { get; set; } = new();
+
+    public SensorSettings SensorSettings { get; set; } = new();
 }
 
 public class Settings_Window

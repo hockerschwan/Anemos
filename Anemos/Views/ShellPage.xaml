@@ -26,6 +26,13 @@
 					</NavigationViewItem.Icon>
 				</NavigationViewItem>
 				<NavigationViewItem
+					x:Uid="Shell_Curves"
+					helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.CurvesViewModel">
+					<NavigationViewItem.Icon>
+						<fa:FontAwesome Icon="Solid_ChartLine" />
+					</NavigationViewItem.Icon>
+				</NavigationViewItem>
+				<NavigationViewItem
 					x:Uid="Shell_Sensors"
 					helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.SensorsViewModel">
 					<NavigationViewItem.Icon>

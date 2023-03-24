@@ -120,6 +120,15 @@
   <data name="AppDisplayName" xml:space="preserve">
     <value>Anemos</value>
   </data>
+  <data name="Curves_AddChart.Content" xml:space="preserve">
+    <value>Add Chart</value>
+  </data>
+  <data name="Curves_NewCurveName" xml:space="preserve">
+    <value>New Curve</value>
+  </data>
+  <data name="Curve_EditCurve.Content" xml:space="preserve">
+    <value>Edit</value>
+  </data>
   <data name="CustomSensor_AddSource.Content" xml:space="preserve">
     <value>Add Source</value>
   </data>
@@ -167,6 +176,9 @@
   </data>
   <data name="Settings_UpdateInterval.Header" xml:space="preserve">
     <value>Update interval [s]</value>
+  </data>
+  <data name="Shell_Curves.Content" xml:space="preserve">
+    <value>Curves</value>
   </data>
   <data name="Shell_Main.Content" xml:space="preserve">
     <value>Main</value>
