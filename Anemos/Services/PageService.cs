@@ -14,7 +14,7 @@ public class PageService : IPageService
 
     public PageService()
     {
-        Configure<MainViewModel, MainPage>();
+        Configure<FansViewModel, FansPage>();
         Configure<CurvesViewModel, CurvesPage>();
         Configure<SensorsViewModel, SensorsPage>();
         Configure<SettingsViewModel, SettingsPage>();

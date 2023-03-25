@@ -28,6 +28,13 @@ public partial class SettingsModel : ObservableObject
         set => SetProperty(ref _updateInterval, value);
     }
 
+    private int _fanHistory = 120;
+    public int FanHistory
+    {
+        get => _fanHistory;
+        set => SetProperty(ref _fanHistory, value);
+    }
+
     private int _curveMaxTemp = 100;
     public int CurveMaxTemp
     {
@@ -77,6 +84,8 @@ public partial class SettingsModel : ObservableObject
         set => SetProperty(ref _chartTextColor, value);
     }
 
+    public FanSettings FanSettings { get; set; } = new();
+
     public CurveSettings CurveSettings { get; set; } = new();
 
     public SensorSettings SensorSettings { get; set; } = new();
@@ -89,6 +98,38 @@ public class Settings_Window
     public int Y { get; set; } = 100;
     public int Width { get; set; } = 900;
     public int Height { get; set; } = 720;
+}
+
+public class FanSettings
+{
+    public IEnumerable<FanSettings_Fan> Fans { get; set; } = Enumerable.Empty<FanSettings_Fan>();
+    public string CurrentProfile { get; set; } = string.Empty;
+    public IEnumerable<FanSettings_Profile> Profiles { get; set; } = Enumerable.Empty<FanSettings_Profile>();
+}
+
+public class FanSettings_Fan
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+}
+
+public class FanSettings_Profile
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public IEnumerable<FanSettings_ProfileItem> ProfileItems { get; set; } = Enumerable.Empty<FanSettings_ProfileItem>();
+}
+
+public class FanSettings_ProfileItem
+{
+    public string Id { get; set; } = string.Empty;
+    public FanControlModes Mode { get; set; } = FanControlModes.Device;
+    public string CurveId { get; set; } = string.Empty;
+    public int ConstantSpeed { get; set; } = 50;
+    public int MaxSpeed { get; set; } = 100;
+    public int MinSpeed { get; set; } = 0;
+    public int DeltaLimitUp { get; set; } = 0;
+    public int DeltaLimitDown { get; set; } = 0;
 }
 
 public class CurveSettings

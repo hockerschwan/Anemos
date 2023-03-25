@@ -17,12 +17,10 @@
 			SelectedItem="{x:Bind ViewModel.Selected, Mode=OneWay}">
 			<NavigationView.MenuItems>
 				<NavigationViewItem
-					x:Uid="Shell_Main"
-					helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.MainViewModel">
+					x:Uid="Shell_Fans"
+					helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.FansViewModel">
 					<NavigationViewItem.Icon>
-						<FontIcon
-							FontFamily="{StaticResource SymbolThemeFontFamily}"
-							Glyph="&#xe7c3;" />
+						<fa:FontAwesome Icon="Solid_Wind" />
 					</NavigationViewItem.Icon>
 				</NavigationViewItem>
 				<NavigationViewItem

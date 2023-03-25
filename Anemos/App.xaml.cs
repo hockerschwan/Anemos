@@ -57,6 +57,7 @@ public partial class App : Application
         var lhwmService = new LhwmService(settingsService);
         var sensorService = new SensorService(settingsService, lhwmService);
         var curveService = new CurveService(settingsService, sensorService);
+        var fanService = new FanService(settingsService, lhwmService);
 
         Host = Microsoft.Extensions.Hosting.Host.
             CreateDefaultBuilder().
@@ -78,10 +79,12 @@ public partial class App : Application
                 services.AddSingleton<ILhwmService>(lhwmService);
                 services.AddSingleton<ISensorService>(sensorService);
                 services.AddSingleton<ICurveService>(curveService);
+                services.AddSingleton<IFanService>(fanService);
 
                 // Views and ViewModels
-                services.AddSingleton<MainViewModel>();
-                services.AddSingleton<MainPage>();
+                services.AddSingleton<FanOptionsViewModel>();
+                services.AddSingleton<FansViewModel>();
+                services.AddSingleton<FansPage>();
                 services.AddSingleton<CurveEditorViewModel>();
                 services.AddSingleton<CurvesViewModel>();
                 services.AddSingleton<CurvesPage>();
@@ -104,6 +107,7 @@ public partial class App : Application
             typeof(LhwmService),
             typeof(SensorService),
             typeof(CurveService),
+            typeof(FanService),
         });
         _messenger.Register<ServiceShutDownMessage>(this, ServiceShutDownMessageHandler);
     }

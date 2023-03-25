@@ -19,6 +19,9 @@
 	<FileVersion>0.0.1.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Views\FanProfileNameEditorDialog.xaml" />
+  </ItemGroup>
+  <ItemGroup>
 	<Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 
@@ -41,6 +44,12 @@
 	<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
 	<PackageReference Include="WinUIEx" Version="2.1" />
 	<PackageReference Include="ZetaIpc" Version="1.0.4.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\FanProfileNameEditorDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">

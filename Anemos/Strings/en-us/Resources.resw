@@ -156,6 +156,49 @@
   <data name="Dialog_OK" xml:space="preserve">
     <value>OK</value>
   </data>
+  <data name="FanOptionsDialog_DeltaLimitDown.Text" xml:space="preserve">
+    <value>Speed Change Down [%]</value>
+  </data>
+  <data name="FanOptionsDialog_DeltaLimitHelp.Content" xml:space="preserve">
+    <value>0 = No limit</value>
+  </data>
+  <data name="FanOptionsDialog_DeltaLimitUp.Text" xml:space="preserve">
+    <value>Speed Change Up [%]</value>
+  </data>
+  <data name="FanOptionsDialog_MaxSpeed.Text" xml:space="preserve">
+    <value>Max Speed [%]</value>
+  </data>
+  <data name="FanOptionsDialog_MinSpeed.Text" xml:space="preserve">
+    <value>Min Speed [%]</value>
+  </data>
+  <data name="FanOptionsDialog_Title" xml:space="preserve">
+    <value>Fan Options</value>
+  </data>
+  <data name="FanProfileNameEditorDialog_Title" xml:space="preserve">
+    <value>Edit Profile Name</value>
+  </data>
+  <data name="Fans_AddProfile.Content" xml:space="preserve">
+    <value>Add Profile</value>
+  </data>
+  <data name="Fans_DeleteProfile.Content" xml:space="preserve">
+    <value>Delete Profile</value>
+  </data>
+  <data name="Fans_DuplicateName" xml:space="preserve">
+    <value>Copy of $</value>
+    <comment>$ will be replaced by profile name</comment>
+  </data>
+  <data name="Fans_DuplicateProfile.Content" xml:space="preserve">
+    <value>Duplicate</value>
+  </data>
+  <data name="Fans_EditProfileName.Content" xml:space="preserve">
+    <value>Edit Profile Name</value>
+  </data>
+  <data name="Fans_NewProfileName" xml:space="preserve">
+    <value>New Profile</value>
+  </data>
+  <data name="Fan_Options.Content" xml:space="preserve">
+    <value>Advanced Options</value>
+  </data>
   <data name="Sensors_AddSensor.Content" xml:space="preserve">
     <value>Add Sensor</value>
   </data>
@@ -186,8 +229,11 @@
   <data name="Settings_CurveMinTemperature.Header" xml:space="preserve">
     <value>Curve Chart Min Temperature [℃]</value>
   </data>
+  <data name="Settings_FanHistory.Header" xml:space="preserve">
+    <value>Fan History Items</value>
+  </data>
   <data name="Settings_ProjectLink.NavigateUri" xml:space="preserve">
-    <value>https://YourProjectUrlGoesHere/</value>
+    <value>https://github.com/hockerschwan/Anemos</value>
   </data>
   <data name="Settings_ProjectLinkText.Text" xml:space="preserve">
     <value>Project page</value>
@@ -213,8 +259,8 @@
   <data name="Shell_Curves.Content" xml:space="preserve">
     <value>Curves</value>
   </data>
-  <data name="Shell_Main.Content" xml:space="preserve">
-    <value>Main</value>
+  <data name="Shell_Fans.Content" xml:space="preserve">
+    <value>Fans</value>
   </data>
   <data name="Shell_Sensors.Content" xml:space="preserve">
     <value>Sensors</value>

@@ -68,3 +68,28 @@ public class CurveEditorResultMessage : ValueChangedMessage<IEnumerable<Point2>>
 {
     public CurveEditorResultMessage(IEnumerable<Point2> points) : base(points) { }
 }
+
+public class FanProfileChangedMessage : ValueChangedMessage<FanProfile>
+{
+    public FanProfileChangedMessage(FanProfile newProfile) : base(newProfile) { }
+}
+
+public class OpenFanOptionsMessage : ValueChangedMessage<string>
+{
+    public OpenFanOptionsMessage(string fanId) : base(fanId) { }
+}
+
+public class FanOptionsResultMessage : ValueChangedMessage<FanOptionsResult>
+{
+    public FanOptionsResultMessage(FanOptionsResult result) : base(result) { }
+}
+
+public class OpenFanProfileNameEditorMessage : ValueChangedMessage<object?>
+{
+    public OpenFanProfileNameEditorMessage() : base(null) { }
+}
+
+public class FanProfileNameEditorResultMessage : ValueChangedMessage<string>
+{
+    public FanProfileNameEditorResultMessage(string newName) : base(newName) { }
+}
