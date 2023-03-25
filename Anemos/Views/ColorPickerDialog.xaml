@@ -1,0 +1,36 @@
+<ContentDialog
+	x:Class="Anemos.Views.ColorPickerDialog"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d">
+	<ScrollViewer
+		Style="{StaticResource TraditionalScrollViewerStyle}"
+		VerticalScrollBarVisibility="Auto">
+		<ColorPicker
+			x:Name="Picker"
+			Margin="0,0,10,0"
+			ColorSpectrumShape="Box"
+			IsAlphaEnabled="True"
+			IsAlphaSliderVisible="True"
+			IsAlphaTextInputVisible="True"
+			IsColorChannelTextInputVisible="True"
+			IsColorSliderVisible="True"
+			IsHexInputVisible="True"
+			IsMoreButtonVisible="False" />
+		<VisualStateManager.VisualStateGroups>
+			<VisualStateGroup>
+				<VisualState>
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowHeight="640" />
+					</VisualState.StateTriggers>
+
+					<VisualState.Setters>
+						<Setter Target="Picker.IsMoreButtonVisible" Value="False" />
+					</VisualState.Setters>
+				</VisualState>
+			</VisualStateGroup>
+		</VisualStateManager.VisualStateGroups>
+	</ScrollViewer>
+</ContentDialog>

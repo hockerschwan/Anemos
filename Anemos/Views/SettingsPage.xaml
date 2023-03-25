@@ -20,6 +20,16 @@
 			<Setter Property="Padding" Value="4" />
 			<Setter Property="CornerRadius" Value="3" />
 		</Style>
+		<Style
+			x:Key="ColorPickerButton"
+			TargetType="Border">
+			<Setter Property="Width" Value="30" />
+			<Setter Property="Height" Value="30" />
+			<Setter Property="CornerRadius" Value="5" />
+			<Setter Property="BorderBrush" Value="{ThemeResource ControlStrongStrokeColorDefaultBrush}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="UseSystemFocusVisuals" Value="True" />
+		</Style>
 	</Page.Resources>
 
 	<ScrollViewer
@@ -30,11 +40,13 @@
 			Padding="20"
 			Orientation="Vertical"
 			Spacing="20">
-			<StackPanel Spacing="5">
+			<StackPanel
+				Margin="{StaticResource SmallBottomMargin}"
+				Spacing="5">
 				<TextBlock
 					x:Uid="Settings_Title"
 					Style="{ThemeResource SubtitleTextBlockStyle}" />
-				<StackPanel Margin="{StaticResource SmallTopBottomMargin}">
+				<StackPanel>
 					<CheckBox
 						x:Uid="Settings_StartMinimizedCheckBox"
 						IsChecked="{x:Bind ViewModel.Settings.StartMinimized, Mode=TwoWay}" />
@@ -58,7 +70,7 @@
 						</Border>
 					</StackPanel>
 				</StackPanel>
-				<StackPanel Margin="{StaticResource SmallTopBottomMargin}">
+				<StackPanel Margin="{StaticResource XSmallTopMargin}">
 					<NumberBox
 						x:Uid="Settings_UpdateInterval"
 						Margin="{StaticResource SmallTopMargin}"
@@ -69,39 +81,148 @@
 						SmallChange="1"
 						SpinButtonPlacementMode="Inline"
 						Value="{x:Bind ViewModel.Settings.UpdateInterval, Mode=TwoWay}" />
+					<NumberBox
+						x:Uid="Settings_CurveMaxTemperature"
+						Margin="{StaticResource SmallTopMargin}"
+						HorizontalAlignment="Left"
+						LargeChange="10"
+						Maximum="150"
+						Minimum="-273"
+						SmallChange="1"
+						SpinButtonPlacementMode="Inline"
+						Value="{x:Bind ViewModel.Settings.CurveMaxTemp, Mode=TwoWay}" />
+					<NumberBox
+						x:Uid="Settings_CurveMinTemperature"
+						Margin="{StaticResource SmallTopMargin}"
+						HorizontalAlignment="Left"
+						LargeChange="10"
+						Maximum="150"
+						Minimum="-273"
+						SmallChange="1"
+						SpinButtonPlacementMode="Inline"
+						Value="{x:Bind ViewModel.Settings.CurveMinTemp, Mode=TwoWay}" />
 				</StackPanel>
+				<Button
+					Margin="{StaticResource MediumTopMargin}"
+					Command="{x:Bind ViewModel.OpenSettingsFolderCommand}">
+					<StackPanel
+						Orientation="Horizontal"
+						Spacing="8">
+						<fa:FontAwesome Icon="Solid_Folder" />
+						<TextBlock x:Uid="Settings_SettingsFolderText" />
+					</StackPanel>
+				</Button>
 			</StackPanel>
 
 			<StackPanel
 				x:Name="ContentArea2"
 				Orientation="Vertical"
 				Spacing="20">
-				<StackPanel>
-					<StackPanel Margin="{StaticResource XSmallTopMargin}">
+				<StackPanel Margin="{StaticResource SmallBottomMargin}">
+					<TextBlock
+						x:Uid="Settings_Colors"
+						Style="{ThemeResource SubtitleTextBlockStyle}" />
+					<Grid
+						Margin="{StaticResource XSmallTopMargin}"
+						ColumnSpacing="10"
+						RowSpacing="5">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition />
+							<RowDefinition />
+							<RowDefinition />
+							<RowDefinition />
+							<RowDefinition />
+						</Grid.RowDefinitions>
+						<Border
+							x:Name="ChartLineColorBox"
+							Grid.Row="0"
+							Grid.Column="0"
+							Background="{x:Bind ViewModel.ChartLineColor, Mode=OneWay}"
+							IsTabStop="True"
+							KeyDown="ColorBox_KeyDown"
+							PointerPressed="ColorBox_PointerPressed"
+							Style="{StaticResource ColorPickerButton}" />
 						<TextBlock
-							Style="{ThemeResource BodyTextBlockStyle}"
-							Text="{x:Bind ViewModel.VersionDescription, Mode=OneWay}" />
-						<HyperlinkButton
-							x:Uid="Settings_ProjectLink"
-							Margin="{StaticResource SettingsPageHyperlinkButtonMargin}">
-							<StackPanel
-								Orientation="Horizontal"
-								Spacing="8">
-								<fa:FontAwesome Icon="Brands_Github" />
-								<TextBlock x:Uid="Settings_ProjectLinkText" />
-							</StackPanel>
-						</HyperlinkButton>
-					</StackPanel>
-					<Button
-						Margin="{StaticResource MediumTopMargin}"
-						Command="{x:Bind ViewModel.OpenSettingsFolderCommand}">
+							x:Uid="Settings_ChartLineColor"
+							Grid.Row="0"
+							Grid.Column="1"
+							VerticalAlignment="Center" />
+						<Border
+							x:Name="ChartMarkerColorBox"
+							Grid.Row="1"
+							Grid.Column="0"
+							Background="{x:Bind ViewModel.ChartMarkerColor, Mode=OneWay}"
+							IsTabStop="True"
+							KeyDown="ColorBox_KeyDown"
+							PointerPressed="ColorBox_PointerPressed"
+							Style="{StaticResource ColorPickerButton}" />
+						<TextBlock
+							x:Uid="Settings_ChartMarkerColor"
+							Grid.Row="1"
+							Grid.Column="1"
+							VerticalAlignment="Center" />
+						<Border
+							x:Name="ChartBGColorBox"
+							Grid.Row="2"
+							Grid.Column="0"
+							Background="{x:Bind ViewModel.ChartBGColor, Mode=OneWay}"
+							IsTabStop="True"
+							KeyDown="ColorBox_KeyDown"
+							PointerPressed="ColorBox_PointerPressed"
+							Style="{StaticResource ColorPickerButton}" />
+						<TextBlock
+							x:Uid="Settings_ChartBGColor"
+							Grid.Row="2"
+							Grid.Column="1"
+							VerticalAlignment="Center" />
+						<Border
+							x:Name="ChartGridColorBox"
+							Grid.Row="3"
+							Grid.Column="0"
+							Background="{x:Bind ViewModel.ChartGridColor, Mode=OneWay}"
+							IsTabStop="True"
+							KeyDown="ColorBox_KeyDown"
+							PointerPressed="ColorBox_PointerPressed"
+							Style="{StaticResource ColorPickerButton}" />
+						<TextBlock
+							x:Uid="Settings_ChartGridColor"
+							Grid.Row="3"
+							Grid.Column="1"
+							VerticalAlignment="Center" />
+						<Border
+							x:Name="ChartTextColorBox"
+							Grid.Row="4"
+							Grid.Column="0"
+							Background="{x:Bind ViewModel.ChartTextColor, Mode=OneWay}"
+							IsTabStop="True"
+							KeyDown="ColorBox_KeyDown"
+							PointerPressed="ColorBox_PointerPressed"
+							Style="{StaticResource ColorPickerButton}" />
+						<TextBlock
+							x:Uid="Settings_ChartTextColor"
+							Grid.Row="4"
+							Grid.Column="1"
+							VerticalAlignment="Center" />
+					</Grid>
+				</StackPanel>
+				<StackPanel>
+					<TextBlock
+						Style="{ThemeResource SubtitleTextBlockStyle}"
+						Text="{x:Bind ViewModel.VersionDescription, Mode=OneWay}" />
+					<HyperlinkButton
+						x:Uid="Settings_ProjectLink"
+						Margin="{StaticResource SettingsPageHyperlinkButtonMargin}">
 						<StackPanel
 							Orientation="Horizontal"
 							Spacing="8">
-							<fa:FontAwesome Icon="Solid_Folder" />
-							<TextBlock x:Uid="Settings_SettingsFolderText" />
+							<fa:FontAwesome Icon="Brands_Github" />
+							<TextBlock x:Uid="Settings_ProjectLinkText" />
 						</StackPanel>
-					</Button>
+					</HyperlinkButton>
 				</StackPanel>
 			</StackPanel>
 		</StackPanel>
@@ -110,7 +231,7 @@
 			<VisualStateGroup>
 				<VisualState>
 					<VisualState.StateTriggers>
-						<AdaptiveTrigger MinWindowWidth="640" />
+						<AdaptiveTrigger MinWindowWidth="560" />
 					</VisualState.StateTriggers>
 
 					<VisualState.Setters>
@@ -120,7 +241,7 @@
 				</VisualState>
 				<VisualState>
 					<VisualState.StateTriggers>
-						<AdaptiveTrigger MinWindowWidth="960" />
+						<AdaptiveTrigger MinWindowWidth="840" />
 					</VisualState.StateTriggers>
 
 					<VisualState.Setters>

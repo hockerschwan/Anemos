@@ -18,6 +18,11 @@ public class WindowVisibilityChangedMessage : ValueChangedMessage<bool>
     public WindowVisibilityChangedMessage(bool isOpen) : base(isOpen) { }
 }
 
+public class ColorPickerResultMessage : ValueChangedMessage<Windows.UI.Color>
+{
+    public ColorPickerResultMessage(Windows.UI.Color color) : base(color) { }
+}
+
 public class LhwmUpdateDoneMessage : ValueChangedMessage<object?>
 {
     public LhwmUpdateDoneMessage() : base(null) { }

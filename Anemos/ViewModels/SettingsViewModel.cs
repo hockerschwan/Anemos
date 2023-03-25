@@ -4,8 +4,11 @@ using System.Security.Principal;
 using Anemos.Contracts.Services;
 using Anemos.Helpers;
 using Anemos.Models;
+using Anemos.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.WinUI.Helpers;
+using Microsoft.UI.Xaml.Media;
 using Windows.ApplicationModel;
 
 namespace Anemos.ViewModels;
@@ -19,6 +22,73 @@ public partial class SettingsViewModel : ObservableRecipient
     public readonly bool IsElevated;
 
     public bool IsNotElevated => !IsElevated;
+
+    public ColorPickerDialog ColorPicker { get; } = new();
+
+    private SolidColorBrush _chartLineColor = new();
+    public SolidColorBrush ChartLineColor
+    {
+        get => _chartLineColor;
+        set
+        {
+            if (SetProperty(ref _chartLineColor, value))
+            {
+                _settingsService.Settings.ChartLineColor = value.Color.ToString();
+            }
+        }
+    }
+
+    private SolidColorBrush _chartMarkerColor = new();
+    public SolidColorBrush ChartMarkerColor
+    {
+        get => _chartMarkerColor;
+        set
+        {
+            if (SetProperty(ref _chartMarkerColor, value))
+            {
+                _settingsService.Settings.ChartMarkerColor = value.Color.ToString();
+            }
+        }
+    }
+
+    private SolidColorBrush _chartBGColor = new();
+    public SolidColorBrush ChartBGColor
+    {
+        get => _chartBGColor;
+        set
+        {
+            if (SetProperty(ref _chartBGColor, value))
+            {
+                _settingsService.Settings.ChartBGColor = value.Color.ToString();
+            }
+        }
+    }
+
+    private SolidColorBrush _chartGridColor = new();
+    public SolidColorBrush ChartGridColor
+    {
+        get => _chartGridColor;
+        set
+        {
+            if (SetProperty(ref _chartGridColor, value))
+            {
+                _settingsService.Settings.ChartGridColor = value.Color.ToString();
+            }
+        }
+    }
+
+    private SolidColorBrush _chartTextColor = new();
+    public SolidColorBrush ChartTextColor
+    {
+        get => _chartTextColor;
+        set
+        {
+            if (SetProperty(ref _chartTextColor, value))
+            {
+                _settingsService.Settings.ChartTextColor = value.Color.ToString();
+            }
+        }
+    }
 
     private string _versionDescription;
     public string VersionDescription
@@ -35,6 +105,12 @@ public partial class SettingsViewModel : ObservableRecipient
         using var identity = WindowsIdentity.GetCurrent();
         WindowsPrincipal principal = new(identity);
         IsElevated = principal.IsInRole(WindowsBuiltInRole.Administrator);
+
+        _chartLineColor.Color = ColorHelper.ToColor(_settingsService.Settings.ChartLineColor);
+        _chartMarkerColor.Color = ColorHelper.ToColor(_settingsService.Settings.ChartMarkerColor);
+        _chartBGColor.Color = ColorHelper.ToColor(_settingsService.Settings.ChartBGColor);
+        _chartGridColor.Color = ColorHelper.ToColor(_settingsService.Settings.ChartGridColor);
+        _chartTextColor.Color = ColorHelper.ToColor(_settingsService.Settings.ChartTextColor);
     }
 
     private static string GetVersionDescription()

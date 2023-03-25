@@ -147,11 +147,41 @@
   <data name="CustomSensor_MASampleSize.Text" xml:space="preserve">
     <value>Sample size</value>
   </data>
+  <data name="Dialog_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Dialog_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
   <data name="Sensors_AddSensor.Content" xml:space="preserve">
     <value>Add Sensor</value>
   </data>
   <data name="Sensors_NewSensorName" xml:space="preserve">
     <value>New Sensor</value>
+  </data>
+  <data name="Settings_ChartBGColor.Text" xml:space="preserve">
+    <value>Chart Background color</value>
+  </data>
+  <data name="Settings_ChartGridColor.Text" xml:space="preserve">
+    <value>Chart grid color</value>
+  </data>
+  <data name="Settings_ChartLineColor.Text" xml:space="preserve">
+    <value>Chart line color</value>
+  </data>
+  <data name="Settings_ChartMarkerColor.Text" xml:space="preserve">
+    <value>Chart marker color</value>
+  </data>
+  <data name="Settings_ChartTextColor.Text" xml:space="preserve">
+    <value>Chart text color</value>
+  </data>
+  <data name="Settings_Colors.Text" xml:space="preserve">
+    <value>Colors</value>
+  </data>
+  <data name="Settings_CurveMaxTemperature.Header" xml:space="preserve">
+    <value>Curve Chart Max Temperature [℃]</value>
+  </data>
+  <data name="Settings_CurveMinTemperature.Header" xml:space="preserve">
+    <value>Curve Chart Min Temperature [℃]</value>
   </data>
   <data name="Settings_ProjectLink.NavigateUri" xml:space="preserve">
     <value>https://YourProjectUrlGoesHere/</value>
