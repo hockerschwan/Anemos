@@ -280,4 +280,10 @@ public partial class CurveViewModel : ObservableRecipient
 
         _curveService.RemoveCurve(Model.Id);
     }
+
+    [RelayCommand]
+    private void OpenEditor()
+    {
+        Messenger.Send(new OpenCurveEditorMessage(Model.Id));
+    }
 }

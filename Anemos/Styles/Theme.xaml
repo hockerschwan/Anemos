@@ -5,13 +5,13 @@
 		<ResourceDictionary x:Key="Light">
 			<SolidColorBrush
 				x:Key="NavigationViewTopPaneBackground"
-				Color="#a7b9f1" />
+				Color="#d3dcf8" />
 			<SolidColorBrush
 				x:Key="NavigationViewSelectionIndicatorForeground"
 				Color="{StaticResource TextFillColorTertiary}" />
 			<SolidColorBrush
 				x:Key="CommandBarBackground"
-				Color="#7b97ea" />
+				Color="#bdcbf5" />
 			<SolidColorBrush
 				x:Key="PageItemsBorder"
 				Color="Gray" />
@@ -19,13 +19,13 @@
 		<ResourceDictionary x:Key="Dark">
 			<SolidColorBrush
 				x:Key="NavigationViewTopPaneBackground"
-				Color="#1f49c7" />
+				Color="#07102c" />
 			<SolidColorBrush
 				x:Key="NavigationViewSelectionIndicatorForeground"
 				Color="{StaticResource TextFillColorTertiary}" />
 			<SolidColorBrush
 				x:Key="CommandBarBackground"
-				Color="#18399a" />
+				Color="#0a1842" />
 			<SolidColorBrush
 				x:Key="PageItemsBorder"
 				Color="DimGray" />

@@ -82,6 +82,7 @@ public partial class App : Application
                 // Views and ViewModels
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<MainPage>();
+                services.AddSingleton<CurveEditorViewModel>();
                 services.AddSingleton<CurvesViewModel>();
                 services.AddSingleton<CurvesPage>();
                 services.AddSingleton<SensorsViewModel>();

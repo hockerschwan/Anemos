@@ -28,6 +28,11 @@ public partial class CurvesViewModel : ObservableRecipient
         get;
     }
 
+    public CurveEditorDialog Editor
+    {
+        get;
+    }
+
     private bool _isVisible = true;
     public bool IsVisible
     {
@@ -45,6 +50,7 @@ public partial class CurvesViewModel : ObservableRecipient
         Models = _curveService.Curves.ToList();
         ViewModels = new(Models.Select(m => new CurveViewModel(m)));
         Views = new(ViewModels.Select(vm => new CurveView(vm)));
+        Editor = new();
     }
 
     private void WindowVisibilityChangedMessageHandler(object recipient, WindowVisibilityChangedMessage message)

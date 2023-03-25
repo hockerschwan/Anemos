@@ -78,7 +78,8 @@
 					<Button
 						x:Uid="Curve_EditCurve"
 						Padding="6,4"
-						HorizontalAlignment="Right" />
+						HorizontalAlignment="Right"
+						Command="{x:Bind ViewModel.OpenEditorCommand}" />
 				</controls:DockPanel>
 
 				<ComboBox

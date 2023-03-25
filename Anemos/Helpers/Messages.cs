@@ -1,4 +1,5 @@
-﻿using Anemos.Models;
+﻿using Anemos.Helpers;
+using Anemos.Models;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 
 namespace Anemos;
@@ -56,4 +57,14 @@ public class CurvesChangedMessage : PropertyChangedMessage<IEnumerable<CurveMode
         IEnumerable<CurveModel> oldValue,
         IEnumerable<CurveModel> newValue)
         : base(sender, propertyName, oldValue, newValue) { }
+}
+
+public class OpenCurveEditorMessage : ValueChangedMessage<string>
+{
+    public OpenCurveEditorMessage(string curveId) : base(curveId) { }
+}
+
+public class CurveEditorResultMessage : ValueChangedMessage<IEnumerable<Point2>>
+{
+    public CurveEditorResultMessage(IEnumerable<Point2> points) : base(points) { }
 }
