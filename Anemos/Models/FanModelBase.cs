@@ -56,15 +56,15 @@ public class FanModelBase : ObservableObject
     }
 
     private protected ISensor? Sensor => _lhwmService.GetSensor(Id);
-    public decimal? CurrentRPM
+    public int? CurrentRPM
     {
         get
         {
-            if (Sensor == null || Sensor.Value == null)
+            if ((bool)(Sensor?.Value.HasValue)!)
             {
-                return null;
+                return (int)float.Round(Sensor.Value!.Value, 0);
             }
-            return decimal.Round((decimal)Sensor.Value, 0);
+            return null;
         }
     }
 
@@ -72,7 +72,7 @@ public class FanModelBase : ObservableObject
     {
         get;
     }
-    public decimal? CurrentPercent
+    public int? CurrentPercent
     {
         get
         {
@@ -85,7 +85,7 @@ public class FanModelBase : ObservableObject
                 default:
                     if ((bool)Control?.Value.HasValue!)
                     {
-                        return decimal.Round((decimal)Control.Value!, 1);
+                        return (int)float.Round(Control.Value!.Value, 0);
                     }
                     return null;
             }
@@ -104,6 +104,7 @@ public class FanModelBase : ObservableObject
                 {
                     Control?.Control.SetDefault();
                 }
+                Value = null;
                 UpdateProfile();
             }
         }
@@ -247,7 +248,7 @@ public class FanModelBase : ObservableObject
             {
                 return (int)decimal.Round(CurveModel.Value.Value, 0);
             }
-            return (int)decimal.Round(CurrentPercent.Value, 0) + DeltaLimitUp;
+            return CurrentPercent.Value + DeltaLimitUp;
         }
         else
         {
@@ -256,7 +257,7 @@ public class FanModelBase : ObservableObject
             {
                 return (int)decimal.Round(CurveModel.Value.Value, 0);
             }
-            return (int)decimal.Round(CurrentPercent.Value, 0) - DeltaLimitDown;
+            return CurrentPercent - DeltaLimitDown;
         }
     }
 
@@ -283,7 +284,7 @@ public class FanModelBase : ObservableObject
         DeltaLimitDown = options.DeltaLimitDown;
     }
 
-    private void UpdateProfile()
+    private protected void UpdateProfile()
     {
         if (_updateProfile)
         {

@@ -196,6 +196,15 @@
   <data name="Fans_NewProfileName" xml:space="preserve">
     <value>New Profile</value>
   </data>
+  <data name="Fan_ControlMode_Constant" xml:space="preserve">
+    <value>Constant</value>
+  </data>
+  <data name="Fan_ControlMode_Curve" xml:space="preserve">
+    <value>Curve</value>
+  </data>
+  <data name="Fan_ControlMode_Device" xml:space="preserve">
+    <value>Device</value>
+  </data>
   <data name="Fan_Options.Content" xml:space="preserve">
     <value>Advanced Options</value>
   </data>

@@ -72,7 +72,7 @@ public partial class FanViewModel : ObservableRecipient
         }
     }
 
-    private readonly LimitedQueue<DataPoint> _lineData = new(60);
+    private readonly LimitedQueue<DataPoint> _lineData = new(120);
 
     public PlotController ChartController = new();
 
@@ -108,6 +108,7 @@ public partial class FanViewModel : ObservableRecipient
     public FanViewModel(FanModelBase model)
     {
         Messenger.Register<CurvesChangedMessage>(this, CurvesChangedMessageHandler);
+        Messenger.Register<FanProfileChangedMessage>(this, FanProfileChangedMessageHandler);
 
         Model = model;
         Model.PropertyChanged += Model_PropertyChanged;
@@ -144,19 +145,30 @@ public partial class FanViewModel : ObservableRecipient
         }
     }
 
+    private void FanProfileChangedMessageHandler(object recipient, FanProfileChangedMessage message)
+    {
+        _controlModeIndex = (int)Model.ControlMode;
+        _selectedCurve = Model.CurveModel;
+
+        OnPropertyChanged(nameof(ControlModeIndex));
+        OnPropertyChanged(nameof(SelectedCurve));
+        OnPropertyChanged(nameof(ShowConstantControls));
+        OnPropertyChanged(nameof(ShowCurveControls));
+    }
+
     private void Model_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Model.Value))
+        if (e.PropertyName == nameof(Model.CurrentRPM))
         {
-            if (Model.Value != null)
+            if (Model.CurrentRPM != null)
             {
                 if (_lineData.Any())
                 {
-                    _lineData.Enqueue(new(_lineData.Last().X + 1, (double)Model.Value));
+                    _lineData.Enqueue(new(_lineData.Last().X + 1, (double)Model.CurrentRPM));
                 }
                 else
                 {
-                    _lineData.Enqueue(new(0, (double)Model.Value));
+                    _lineData.Enqueue(new(0, (double)Model.CurrentRPM));
                 }
             }
 

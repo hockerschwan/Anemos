@@ -44,7 +44,7 @@
 						HorizontalAlignment="Right"
 						VerticalAlignment="Center"
 						Style="{StaticResource MonoMediumTextStyle}"
-						Text="{x:Bind ViewModel.Model.Value, Converter={StaticResource RPMConverter}, Mode=OneWay}" />
+						Text="{x:Bind ViewModel.Model.CurrentRPM, Converter={StaticResource RPMConverter}, Mode=OneWay}" />
 				</controls:DockPanel>
 
 				<controls:DockPanel LastChildFill="True">
