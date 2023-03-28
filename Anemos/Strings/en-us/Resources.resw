@@ -214,6 +214,15 @@
   <data name="Fan_Options.Content" xml:space="preserve">
     <value>Advanced Options</value>
   </data>
+  <data name="RuleSensorEditorDialog_Source.PlaceholderText" xml:space="preserve">
+    <value>Select Source</value>
+  </data>
+  <data name="RuleSensorEditorDialog_UseLower.Content" xml:space="preserve">
+    <value>Use Lower</value>
+  </data>
+  <data name="RuleSensorEditorDialog_UseUpper.Content" xml:space="preserve">
+    <value>Use Upper</value>
+  </data>
   <data name="Rules_AddRule.Content" xml:space="preserve">
     <value>Add Rule</value>
   </data>
@@ -231,6 +240,9 @@
   </data>
   <data name="Rule_ConditionType_Process" xml:space="preserve">
     <value>Process</value>
+  </data>
+  <data name="Rule_ConditionType_Sensor" xml:space="preserve">
+    <value>Sensor</value>
   </data>
   <data name="Rule_ConditionType_Time" xml:space="preserve">
     <value>Time</value>

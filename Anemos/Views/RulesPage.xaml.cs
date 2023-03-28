@@ -27,6 +27,7 @@ public sealed partial class RulesPage : Page
     {
         _messenger.Register<OpenRuleTimeEditorMessage>(this, OpenRuleTimeEditorMessageHandler);
         _messenger.Register<OpenRuleProcessEditorMessage>(this, OpenRuleProcessEditorMessageHandler);
+        _messenger.Register<OpenRuleSensorEditorMessage>(this, OpenRuleSensorEditorMessageHandler);
         _messenger.Register<RuleEditorResultMessage>(this, RuleEditorResultMessageHandler);
 
         ViewModel = App.GetService<RulesViewModel>();
@@ -35,10 +36,7 @@ public sealed partial class RulesPage : Page
 
     private async void OpenRuleTimeEditorMessageHandler(object recipient, OpenRuleTimeEditorMessage message)
     {
-        if (_isDialogShown)
-        {
-            return;
-        }
+        if (_isDialogShown) { return; }
 
         var cond = message.Value;
 
@@ -47,7 +45,7 @@ public sealed partial class RulesPage : Page
             new TimeSpan(cond.TimeBeginning.Hour, cond.TimeBeginning.Minute, 0),
             new TimeSpan(cond.TimeEnding.Hour, cond.TimeEnding.Minute, 0));
 
-        SetTimeEditorDialogStyle();
+        SetDialogStyle(ViewModel.TimeEditorDialog);
 
         _isDialogShown = true;
 
@@ -69,15 +67,12 @@ public sealed partial class RulesPage : Page
 
     private async void OpenRuleProcessEditorMessageHandler(object recipient, OpenRuleProcessEditorMessage message)
     {
-        if (_isDialogShown)
-        {
-            return;
-        }
+        if (_isDialogShown) { return; }
 
         var cond = message.Value;
         ViewModel.ProcessEditorDialog.SetText(cond.ProcessName);
 
-        SetProcessEditorDialogStyle();
+        SetDialogStyle(ViewModel.ProcessEditorDialog);
 
         _isDialogShown = true;
 
@@ -96,24 +91,53 @@ public sealed partial class RulesPage : Page
         _result = new();
     }
 
+    private async void OpenRuleSensorEditorMessageHandler(object recipient, OpenRuleSensorEditorMessage message)
+    {
+        if (_isDialogShown) { return; }
+
+        var cond = message.Value;
+        ViewModel.SensorEditorDialog.ViewModel.SensorId = cond.SensorId ?? string.Empty;
+        ViewModel.SensorEditorDialog.ViewModel.LowerValue = cond.LowerValue ?? -273d;
+        ViewModel.SensorEditorDialog.ViewModel.UpperValue = cond.UpperValue ?? 150d;
+        ViewModel.SensorEditorDialog.ViewModel.UseLower = cond.UseLowerValue;
+        ViewModel.SensorEditorDialog.ViewModel.UseUpper = cond.UseUpperValue;
+        ViewModel.SensorEditorDialog.ViewModel.IndexIncludeLower = cond.IncludeLower ? 1 : 0;
+        ViewModel.SensorEditorDialog.ViewModel.IndexIncludeUpper = cond.IncludeUpper ? 1 : 0;
+
+        SetDialogStyle(ViewModel.SensorEditorDialog);
+
+        _isDialogShown = true;
+
+        var result = await ViewModel.SensorEditorDialog.ShowAsync();
+        if (result == ContentDialogResult.Primary)
+        {
+            cond.SensorId = _result.SensorId!;
+            cond.LowerValue = _result.UseLowerValue!.Value ? _result.LowerValue : null;
+            cond.UpperValue = _result.UseUpperValue!.Value ? _result.UpperValue : null;
+            cond.UseLowerValue = _result.UseLowerValue!.Value;
+            cond.UseUpperValue = _result.UseUpperValue!.Value;
+            cond.IncludeLower = _result.IncludeLower!.Value;
+            cond.IncludeUpper = _result.IncludeUpper!.Value;
+            cond.UpdateText();
+
+            var model = ViewModel.Models.Single(m => m == cond.Parent);
+            model.Update();
+
+            _ruleService.Save();
+        }
+
+        _isDialogShown = false;
+        _result = new();
+        ViewModel.SensorEditorDialog.ViewModel.Reset();
+    }
+
     private void RuleEditorResultMessageHandler(object recipient, RuleEditorResultMessage message)
     {
         _result = message.Value;
     }
 
-    private void SetTimeEditorDialogStyle()
+    private void SetDialogStyle(ContentDialog dialog)
     {
-        var dialog = ViewModel.TimeEditorDialog;
-        dialog.XamlRoot = XamlRoot;
-        dialog.Style = App.Current.Resources["DefaultContentDialogStyle"] as Style;
-        dialog.PrimaryButtonText = "Dialog_OK".GetLocalized();
-        dialog.CloseButtonText = "Dialog_Cancel".GetLocalized();
-        dialog.DefaultButton = ContentDialogButton.Primary;
-    }
-
-    private void SetProcessEditorDialogStyle()
-    {
-        var dialog = ViewModel.ProcessEditorDialog;
         dialog.XamlRoot = XamlRoot;
         dialog.Style = App.Current.Resources["DefaultContentDialogStyle"] as Style;
         dialog.PrimaryButtonText = "Dialog_OK".GetLocalized();

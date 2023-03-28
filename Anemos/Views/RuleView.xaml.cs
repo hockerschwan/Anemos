@@ -29,7 +29,7 @@ public sealed partial class RuleView : UserControl
 
     private void RemoveCondition(object sender, RoutedEventArgs e)
     {
-        var cond = (Models.RuleConditionBase?)(sender as Button)?.CommandParameter;
+        var cond = (RuleConditionBase?)(sender as Button)?.CommandParameter;
         if (cond != null)
         {
             ViewModel.RemoveConditionCommand.Execute(cond);
@@ -38,11 +38,8 @@ public sealed partial class RuleView : UserControl
 
     private void OpenEditor(object sender, RoutedEventArgs e)
     {
-        var cond = (Models.RuleConditionBase?)(sender as Button)?.CommandParameter;
-        if (cond == null)
-        {
-            return;
-        }
+        var cond = (RuleConditionBase?)(sender as Button)?.CommandParameter;
+        if (cond == null) { return; }
 
         if (cond is TimeRuleCondition time)
         {
@@ -51,6 +48,10 @@ public sealed partial class RuleView : UserControl
         else if (cond is ProcessRuleCondition process)
         {
             _messenger.Send(new OpenRuleProcessEditorMessage(process));
+        }
+        else if (cond is SensorRuleCondition sensor)
+        {
+            _messenger.Send(new OpenRuleSensorEditorMessage(sensor));
         }
     }
 }

@@ -184,6 +184,7 @@ public class RuleSettings_Rule
 public class RuleSettings_Condition
 {
     public RuleConditionType Type { get; set; } = RuleConditionType.Time;
+
     public TimeOnly? TimeBeginning
     {
         get; set;
@@ -192,7 +193,37 @@ public class RuleSettings_Condition
     {
         get; set;
     }
+
     public string? ProcessName
+    {
+        get; set;
+    }
+
+    public string? SensorId
+    {
+        get; set;
+    }
+    public double? UpperValue
+    {
+        get; set;
+    }
+    public double? LowerValue
+    {
+        get; set;
+    }
+    public bool? UseUpperValue
+    {
+        get; set;
+    }
+    public bool? UseLowerValue
+    {
+        get; set;
+    }
+    public bool? IncludeUpper
+    {
+        get; set;
+    }
+    public bool? IncludeLower
     {
         get; set;
     }

@@ -47,6 +47,11 @@ public partial class RulesViewModel : ObservableRecipient
         get;
     }
 
+    public RuleSensorEditorDialog SensorEditorDialog
+    {
+        get;
+    }
+
     public IEnumerable<FanProfile> Profiles => _fanService.Profiles;
 
     private FanProfile? _defaultProfile;
@@ -55,11 +60,7 @@ public partial class RulesViewModel : ObservableRecipient
         get => _defaultProfile;
         set
         {
-            if (value == null)
-            {
-                value = _ruleService.DefaultProfile;
-            }
-
+            value ??= _ruleService.DefaultProfile;
             if (SetProperty(ref _defaultProfile, value))
             {
                 _ruleService.DefaultProfileId = _defaultProfile?.Id ?? string.Empty;
@@ -78,6 +79,7 @@ public partial class RulesViewModel : ObservableRecipient
 
         TimeEditorDialog = new();
         ProcessEditorDialog = new();
+        SensorEditorDialog = new();
 
         _defaultProfile = _ruleService.DefaultProfile;
     }

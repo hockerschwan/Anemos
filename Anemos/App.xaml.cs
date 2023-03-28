@@ -92,6 +92,7 @@ public partial class App : Application
                 services.AddSingleton<CurvesPage>();
                 services.AddSingleton<SensorsViewModel>();
                 services.AddSingleton<SensorsPage>();
+                services.AddSingleton<RuleSensorEditorViewModel>();
                 services.AddSingleton<RuleProcessEditorDialog>();
                 services.AddSingleton<RuleTimeEditorDialog>();
                 services.AddSingleton<RulesViewModel>();

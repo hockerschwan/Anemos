@@ -4,7 +4,7 @@ namespace Anemos.Models;
 
 public enum RuleConditionType
 {
-    Time, Process
+    Time, Process, Sensor
 }
 
 public class RuleConditionArg
@@ -15,6 +15,14 @@ public class RuleConditionArg
     public TimeOnly? TimeEnding;
 
     public string? ProcessName;
+
+    public string? SensorId;
+    public double? UpperValue;
+    public double? LowerValue;
+    public bool? UseUpperValue;
+    public bool? UseLowerValue;
+    public bool? IncludeUpper;
+    public bool? IncludeLower;
 }
 
 public abstract class RuleConditionBase : ObservableObject

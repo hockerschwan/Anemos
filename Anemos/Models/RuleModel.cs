@@ -19,6 +19,8 @@ public class RuleArg
 
 public class RuleModel : ObservableObject
 {
+    private readonly ISensorService _sensorService = App.GetService<ISensorService>();
+
     private readonly IRuleService _ruleService = App.GetService<IRuleService>();
 
     private string _name = string.Empty;
@@ -75,6 +77,7 @@ public class RuleModel : ObservableObject
         _profileId = arg.ProfileId;
         _type = arg.Type;
 
+        var save = false;
         foreach (var cond in arg.Conditions)
         {
             if (cond.Type == RuleConditionType.Time && cond.TimeBeginning != null && cond.TimeEnding != null)
@@ -85,6 +88,20 @@ public class RuleModel : ObservableObject
             {
                 Conditions.Add(new ProcessRuleCondition(this, cond.ProcessName));
             }
+            else if (cond.Type == RuleConditionType.Sensor && !(cond.LowerValue == null && cond.UpperValue == null))
+            {
+                if (cond.SensorId != null && _sensorService.GetSensor(cond.SensorId) == null)
+                {
+                    cond.SensorId = string.Empty;
+                    save = true;
+                }
+                Conditions.Add(new SensorRuleCondition(this, cond));
+            }
+        }
+
+        if (save)
+        {
+            _ruleService.Save();
         }
     }
 
@@ -108,6 +125,10 @@ public class RuleModel : ObservableObject
             case RuleConditionType.Process:
                 if (arg.ProcessName == null) { break; }
                 Conditions.Add(new ProcessRuleCondition(this, arg.ProcessName));
+                break;
+            case RuleConditionType.Sensor:
+                if (arg.LowerValue == null && arg.UpperValue == null) { break; }
+                Conditions.Add(new SensorRuleCondition(this, arg));
                 break;
         }
 

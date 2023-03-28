@@ -119,6 +119,11 @@ public class OpenRuleProcessEditorMessage : ValueChangedMessage<ProcessRuleCondi
     public OpenRuleProcessEditorMessage(ProcessRuleCondition process) : base(process) { }
 }
 
+public class OpenRuleSensorEditorMessage : ValueChangedMessage<SensorRuleCondition>
+{
+    public OpenRuleSensorEditorMessage(SensorRuleCondition process) : base(process) { }
+}
+
 public class RuleEditorResultMessage : ValueChangedMessage<RuleConditionArg>
 {
     public RuleEditorResultMessage(RuleConditionArg arg) : base(arg) { }

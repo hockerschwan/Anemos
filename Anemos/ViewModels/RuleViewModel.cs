@@ -17,7 +17,12 @@ public partial class RuleViewModel : ObservableRecipient
     public List<string> ConditionTypeNames
     {
         get;
-    } = new() { "Rule_ConditionType_Time".GetLocalized(), "Rule_ConditionType_Process".GetLocalized() };
+    } = new()
+    {
+        "Rule_ConditionType_Time".GetLocalized(),
+        "Rule_ConditionType_Process".GetLocalized(),
+        "Rule_ConditionType_Sensor".GetLocalized()
+    };
 
     public List<string> RuleTypeNames
     {
@@ -98,6 +103,16 @@ public partial class RuleViewModel : ObservableRecipient
                 {
                     Type = RuleConditionType.Process,
                     ProcessName = "explorer"
+                });
+                break;
+            case 2:
+                Model.AddCondition(new()
+                {
+                    Type = RuleConditionType.Sensor,
+                    SensorId = string.Empty,
+                    LowerValue = 50,
+                    UseLowerValue = true,
+                    IncludeLower = true
                 });
                 break;
         }

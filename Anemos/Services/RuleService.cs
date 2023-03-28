@@ -77,10 +77,7 @@ public class RuleService : ObservableRecipient, IRuleService
         _timer.Stop();
         while (true)
         {
-            if (!_isUpdating)
-            {
-                break;
-            }
+            if (!_isUpdating) { break; }
             await Task.Delay(100);
         }
         Messenger.Send(new ServiceShutDownMessage(GetType().GetInterface("IRuleService")!));
@@ -144,10 +141,7 @@ public class RuleService : ObservableRecipient, IRuleService
 
     public void RemoveRule(RuleModel rule)
     {
-        if (!Rules.Contains(rule))
-        {
-            return;
-        }
+        if (!Rules.Contains(rule)) { return; }
 
         var old = Rules.ToList();
         Rules.Remove(rule);
@@ -170,7 +164,14 @@ public class RuleService : ObservableRecipient, IRuleService
                         Type = c.Type,
                         TimeBeginning = c.TimeBeginning,
                         TimeEnding = c.TimeEnding,
-                        ProcessName = c.ProcessName
+                        ProcessName = c.ProcessName,
+                        SensorId = c.SensorId,
+                        LowerValue = c.LowerValue,
+                        UpperValue = c.UpperValue,
+                        UseLowerValue = c.UseLowerValue,
+                        UseUpperValue = c.UseUpperValue,
+                        IncludeLower = c.IncludeLower,
+                        IncludeUpper = c.IncludeUpper
                     })
                 }),
         false);
@@ -217,6 +218,20 @@ public class RuleService : ObservableRecipient, IRuleService
                             ProcessName = proc.ProcessName
                         };
                     }
+                    else if (c is SensorRuleCondition sensor)
+                    {
+                        return new RuleSettings_Condition()
+                        {
+                            Type = RuleConditionType.Sensor,
+                            SensorId = sensor.SensorId,
+                            LowerValue = sensor.LowerValue,
+                            UpperValue = sensor.UpperValue,
+                            UseLowerValue = sensor.UseLowerValue,
+                            UseUpperValue = sensor.UseUpperValue,
+                            IncludeLower = sensor.IncludeLower,
+                            IncludeUpper = sensor.IncludeUpper
+                        };
+                    }
                     return new();
                 })
             });
@@ -227,10 +242,7 @@ public class RuleService : ObservableRecipient, IRuleService
     public void IncreasePriority(RuleModel rule)
     {
         var i = Rules.IndexOf(rule);
-        if (i < 1)
-        {
-            return;
-        }
+        if (i < 1) { return; }
 
         var old = Rules.ToList();
 
@@ -245,10 +257,7 @@ public class RuleService : ObservableRecipient, IRuleService
     public void DecreasePriority(RuleModel rule)
     {
         var i = Rules.IndexOf(rule);
-        if (i == -1 || i == Rules.Count - 1)
-        {
-            return;
-        }
+        if (i == -1 || i == Rules.Count - 1) { return; }
 
         var old = Rules.ToList();
 
