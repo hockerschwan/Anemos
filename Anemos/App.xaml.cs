@@ -109,11 +109,12 @@ public partial class App : Application
 
         _servicesToShutDown.AddRange(new Type[]
         {
-            typeof(SettingsService),
-            typeof(LhwmService),
-            typeof(SensorService),
-            typeof(CurveService),
-            typeof(FanService),
+            typeof(ISettingsService),
+            typeof(ILhwmService),
+            typeof(ISensorService),
+            typeof(ICurveService),
+            typeof(IFanService),
+            typeof(IRuleService),
         });
         _messenger.Register<ServiceShutDownMessage>(this, ServiceShutDownMessageHandler);
     }

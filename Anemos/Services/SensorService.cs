@@ -53,7 +53,7 @@ public class SensorService : ObservableRecipient, ISensorService
             if (!_isUpdating) { break; }
             await Task.Delay(100);
         }
-        Messenger.Send(new ServiceShutDownMessage(GetType()));
+        Messenger.Send(new ServiceShutDownMessage(GetType().GetInterface("ISensorService")!));
     }
 
     private void Update()

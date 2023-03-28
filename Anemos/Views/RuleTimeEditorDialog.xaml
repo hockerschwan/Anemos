@@ -9,11 +9,13 @@
 	<StackPanel Spacing="10">
 		<TimePicker
 			x:Name="TimePickerBeginning"
+			x:Uid="RuleTimeEditorDialog_Begin"
 			HorizontalAlignment="Center"
 			ClockIdentifier="24HourClock"
 			Header="Begin" />
 		<TimePicker
 			x:Name="TimePickerEnding"
+			x:Uid="RuleTimeEditorDialog_End"
 			HorizontalAlignment="Center"
 			ClockIdentifier="24HourClock"
 			Header="End" />

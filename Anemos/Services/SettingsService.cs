@@ -64,7 +64,7 @@ public partial class SettingsService : ObservableRecipient, ISettingsService
         {
             await SaveToFile();
         }
-        Messenger.Send(new ServiceShutDownMessage(GetType()));
+        Messenger.Send(new ServiceShutDownMessage(GetType().GetInterface("ISettingsService")!));
     }
 
     private void Settings_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

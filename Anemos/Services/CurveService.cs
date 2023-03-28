@@ -44,7 +44,7 @@ public class CurveService : ObservableRecipient, ICurveService
             if (!_isUpdating) { break; }
             await Task.Delay(100);
         }
-        Messenger.Send(new ServiceShutDownMessage(GetType()));
+        Messenger.Send(new ServiceShutDownMessage(GetType().GetInterface("ICurveService")!));
     }
 
     private void CustomSensorsUpdateDoneMessageHandler(object recipient, CustomSensorsUpdateDoneMessage message)

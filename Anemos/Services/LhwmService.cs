@@ -181,7 +181,7 @@ public class LhwmService : ObservableRecipient, ILhwmService
             await Task.Delay(100);
         }
 
-        Messenger.Send(new ServiceShutDownMessage(GetType()));
+        Messenger.Send(new ServiceShutDownMessage(GetType().GetInterface("ILhwmService")!));
     }
 
     public void Close()

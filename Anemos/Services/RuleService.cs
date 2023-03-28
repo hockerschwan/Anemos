@@ -29,7 +29,10 @@ public class RuleService : ObservableRecipient, IRuleService
             if (SetProperty(ref _defaultProfileId, value))
             {
                 OnPropertyChanged(nameof(DefaultProfile));
-                Save();
+                if (_isLoaded)
+                {
+                    Save();
+                }
             }
         }
     }
@@ -42,6 +45,8 @@ public class RuleService : ObservableRecipient, IRuleService
 
     private bool _isUpdating;
 
+    private bool _isLoaded;
+
     public RuleService(ISettingsService settingsService, IFanService fanService)
     {
         Messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
@@ -49,7 +54,7 @@ public class RuleService : ObservableRecipient, IRuleService
         _settingsService = settingsService;
         _fanService = fanService;
 
-        Log.Debug("[ProfileRuleService] Started");
+        Log.Debug("[RuleService] Started");
     }
 
     public async Task InitializeAsync()
@@ -62,7 +67,7 @@ public class RuleService : ObservableRecipient, IRuleService
         _timer.Tick += Timer_Tick;
         _timer.Start();
 
-        Log.Debug("[ProfileRuleService] Loaded");
+        Log.Debug("[RuleService] Loaded");
         await Task.CompletedTask;
     }
 
@@ -78,7 +83,7 @@ public class RuleService : ObservableRecipient, IRuleService
             }
             await Task.Delay(100);
         }
-        Messenger.Send(new ServiceShutDownMessage(GetType()));
+        Messenger.Send(new ServiceShutDownMessage(GetType().GetInterface("IRuleService")!));
     }
 
     private void Timer_Tick(object? sender, object e)
@@ -179,6 +184,8 @@ public class RuleService : ObservableRecipient, IRuleService
         {
             DefaultProfileId = _settingsService.Settings.RuleSettings.DefaultProfile;
         }
+
+        _isLoaded = true;
     }
 
     public void Save()

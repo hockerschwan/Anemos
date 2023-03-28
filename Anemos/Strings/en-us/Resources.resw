@@ -220,6 +220,12 @@
   <data name="Rules_DefaultProfile.Content" xml:space="preserve">
     <value>Default Profile</value>
   </data>
+  <data name="RuleTimeEditorDialog_Begin.Header" xml:space="preserve">
+    <value>Begin</value>
+  </data>
+  <data name="RuleTimeEditorDialog_End.Header" xml:space="preserve">
+    <value>End</value>
+  </data>
   <data name="Rule_AddCondition.Content" xml:space="preserve">
     <value>Add Condition</value>
   </data>

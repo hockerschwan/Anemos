@@ -30,6 +30,8 @@ public class FanService : ObservableRecipient, IFanService
                 {
                     p = CreateEmptyFanProfile();
                     _currentProfileId = p.Id;
+
+                    Save();
                 }
                 OnPropertyChanged(nameof(CurrentProfile));
                 ApplyProfileToFans();
@@ -106,7 +108,7 @@ public class FanService : ObservableRecipient, IFanService
             if (!_isUpdating) { break; }
             await Task.Delay(100);
         }
-        Messenger.Send(new ServiceShutDownMessage(GetType()));
+        Messenger.Send(new ServiceShutDownMessage(GetType().GetInterface("IFanService")!));
     }
 
     private void RuleSwitchedMessageHandler(object recipient, RuleSwitchedMessage message)
@@ -275,6 +277,7 @@ public class FanService : ObservableRecipient, IFanService
             {
                 id = s.Identifier.ToString();
                 name = s.Name;
+
                 save = true;
             }
             else
@@ -303,6 +306,8 @@ public class FanService : ObservableRecipient, IFanService
         {
             var p = CreateEmptyFanProfile();
             CurrentProfileId = p.Id;
+
+            save = true;
         }
 
         UseRules = _settingsService.Settings.FanSettings.UseRules;
