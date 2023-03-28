@@ -15,6 +15,8 @@ public class FanService : ObservableRecipient, IFanService
 
     private readonly ISettingsService _settingsService;
 
+    private IRuleService _ruleService => App.GetService<IRuleService>();
+
     private string _currentProfileId = string.Empty;
     public string CurrentProfileId
     {
@@ -43,6 +45,37 @@ public class FanService : ObservableRecipient, IFanService
 
     private IEnumerable<ISensor> Sensors => _lhwmService.GetSensors(SensorType.Fan);
 
+    private bool _useRules;
+    public bool UseRules
+    {
+        get => _useRules;
+        set
+        {
+            if (SetProperty(ref _useRules, value))
+            {
+                if (_useRules)
+                {
+                    _ruleService.Update();
+                }
+                else
+                {
+                    CurrentAutoProfileId = string.Empty;
+                    ApplyProfileToFans(CurrentProfile);
+                }
+
+                if (_isLoaded)
+                {
+                    Save();
+                }
+            }
+        }
+    }
+
+    public string CurrentAutoProfileId
+    {
+        get; set;
+    } = string.Empty;
+
     private bool _isLoaded;
 
     private bool _isUpdating;
@@ -51,6 +84,7 @@ public class FanService : ObservableRecipient, IFanService
     {
         Messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
         Messenger.Register<CurvesUpdateDoneMessage>(this, CurvesUpdateDoneMessageHandler);
+        Messenger.Register<RuleSwitchedMessage>(this, RuleSwitchedMessageHandler);
 
         _lhwmService = lhwmService;
         _settingsService = settingsService;
@@ -73,6 +107,18 @@ public class FanService : ObservableRecipient, IFanService
             await Task.Delay(100);
         }
         Messenger.Send(new ServiceShutDownMessage(GetType()));
+    }
+
+    private void RuleSwitchedMessageHandler(object recipient, RuleSwitchedMessage message)
+    {
+        if (!UseRules || CurrentAutoProfileId == message.Value) { return; }
+
+        var p = GetProfile(message.Value);
+        if (p != null)
+        {
+            CurrentAutoProfileId = message.Value;
+            ApplyProfileToFans(p);
+        }
     }
 
     private void CurvesUpdateDoneMessageHandler(object recipient, CurvesUpdateDoneMessage message)
@@ -259,6 +305,8 @@ public class FanService : ObservableRecipient, IFanService
             CurrentProfileId = p.Id;
         }
 
+        UseRules = _settingsService.Settings.FanSettings.UseRules;
+
         if (save)
         {
             Save();
@@ -294,6 +342,8 @@ public class FanService : ObservableRecipient, IFanService
             })
         });
 
+        _settingsService.Settings.FanSettings.UseRules = UseRules;
+
         _settingsService.Save();
     }
 
@@ -321,6 +371,27 @@ public class FanService : ObservableRecipient, IFanService
         {
             Save();
         }
+    }
+
+    private void ApplyProfileToFans(FanProfile profile)
+    {
+        foreach (var fm in Fans)
+        {
+            var item = profile.Fans.SingleOrDefault(pi => pi?.Id == fm.Id, null);
+            if (item == null)
+            {
+                fm.LoadProfile(new FanSettings_ProfileItem()
+                {
+                    Id = fm.Id,
+                });
+            }
+            else
+            {
+                fm.LoadProfile(item);
+            }
+        }
+        Messenger.Send(new FanProfileChangedMessage(CurrentProfile));
+        Log.Information("[FanService] Profile applied: {name}", profile.Name);
     }
 
     private FanProfile CreateEmptyFanProfile()

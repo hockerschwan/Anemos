@@ -15,6 +15,7 @@ public class ActivationService : IActivationService
     private readonly ISensorService _sensorService;
     private readonly ICurveService _curveService;
     private readonly IFanService _fanService;
+    private readonly IRuleService _ruleService;
     private UIElement? _shell = null;
 
     public ActivationService(
@@ -23,7 +24,8 @@ public class ActivationService : IActivationService
         ILhwmService lhwmService,
         ISensorService sensorService,
         ICurveService curveService,
-        IFanService fanService)
+        IFanService fanService,
+        IRuleService ruleService)
     {
         _defaultHandler = defaultHandler;
         _activationHandlers = activationHandlers;
@@ -31,6 +33,7 @@ public class ActivationService : IActivationService
         _sensorService = sensorService;
         _curveService = curveService;
         _fanService = fanService;
+        _ruleService = ruleService;
     }
 
     public async Task ActivateAsync(object activationArgs)
@@ -78,6 +81,7 @@ public class ActivationService : IActivationService
         await _sensorService.InitializeAsync();
         await _curveService.InitializeAsync();
         await _fanService.InitializeAsync();
+        await _ruleService.InitializeAsync();
         await Task.CompletedTask;
     }
 

@@ -18,6 +18,8 @@ public partial class FanViewModel : ObservableRecipient
 
     private readonly ICurveService _curveService = App.GetService<ICurveService>();
 
+    private readonly IFanService _fanService = App.GetService<IFanService>();
+
     private static FansViewModel FansVM => App.GetService<FansViewModel>();
 
     public FanModelBase Model
@@ -105,6 +107,8 @@ public partial class FanViewModel : ObservableRecipient
         MajorGridlineStyle = LineStyle.None,
     };
 
+    public bool UnlockControls => !_fanService.UseRules;
+
     public FanViewModel(FanModelBase model)
     {
         Messenger.Register<CurvesChangedMessage>(this, CurvesChangedMessageHandler);
@@ -114,6 +118,7 @@ public partial class FanViewModel : ObservableRecipient
         Model.PropertyChanged += Model_PropertyChanged;
 
         _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
+        _settingsService.Settings.FanSettings.PropertyChanged += FanSettings_PropertyChanged;
 
         Curves = new(_curveService.Curves);
 
@@ -177,6 +182,11 @@ public partial class FanViewModel : ObservableRecipient
                 Plot.InvalidatePlot(true);
             }
         }
+    }
+
+    private void FanSettings_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(UnlockControls));
     }
 
     private void Settings_PropertyChanged(object? sender, PropertyChangedEventArgs e)

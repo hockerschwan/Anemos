@@ -25,6 +25,16 @@ public interface IFanService
         get;
     }
 
+    bool UseRules
+    {
+        get; set;
+    }
+
+    string CurrentAutoProfileId
+    {
+        get; set;
+    }
+
     Task InitializeAsync();
 
     void UpdateCurrentProfile();

@@ -89,6 +89,8 @@ public partial class SettingsModel : ObservableObject
     public CurveSettings CurveSettings { get; set; } = new();
 
     public SensorSettings SensorSettings { get; set; } = new();
+
+    public RuleSettings RuleSettings { get; set; } = new();
 }
 
 public class Settings_Window
@@ -100,9 +102,15 @@ public class Settings_Window
     public int Height { get; set; } = 720;
 }
 
-public class FanSettings
+public class FanSettings : ObservableObject
 {
     public IEnumerable<FanSettings_Fan> Fans { get; set; } = Enumerable.Empty<FanSettings_Fan>();
+    private bool _useRules = false;
+    public bool UseRules
+    {
+        get => _useRules;
+        set => SetProperty(ref _useRules, value);
+    }
     public string CurrentProfile { get; set; } = string.Empty;
     public IEnumerable<FanSettings_Profile> Profiles { get; set; } = Enumerable.Empty<FanSettings_Profile>();
 }
@@ -157,4 +165,35 @@ public class SensorSettings_Sensor
     public int SampleSize { get; set; } = 1;
     public CustomSensorCalcMethod CalcMethod { get; set; } = CustomSensorCalcMethod.Max;
     public IEnumerable<string> SourceIds { get; set; } = Enumerable.Empty<string>();
+}
+
+public class RuleSettings
+{
+    public string DefaultProfile { get; set; } = string.Empty;
+    public IEnumerable<RuleSettings_Rule> Rules { get; set; } = Enumerable.Empty<RuleSettings_Rule>();
+}
+
+public class RuleSettings_Rule
+{
+    public string Name { get; set; } = string.Empty;
+    public RuleType Type { get; set; } = RuleType.All;
+    public string ProfileId { get; set; } = string.Empty;
+    public IEnumerable<RuleSettings_Condition> Conditions { get; set; } = Enumerable.Empty<RuleSettings_Condition>();
+}
+
+public class RuleSettings_Condition
+{
+    public RuleConditionType Type { get; set; } = RuleConditionType.Time;
+    public TimeOnly? TimeBeginning
+    {
+        get; set;
+    }
+    public TimeOnly? TimeEnding
+    {
+        get; set;
+    }
+    public string? ProcessName
+    {
+        get; set;
+    }
 }

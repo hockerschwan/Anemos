@@ -53,6 +53,7 @@
 						Padding="3"
 						controls:DockPanel.Dock="Right"
 						Command="{x:Bind ViewModel.OpenOptionsCommand}"
+						IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}"
 						ToolTipService.Placement="Mouse"
 						Visibility="{x:Bind ViewModel.ShowCurveControls, Converter={StaticResource VisibilityConverter}, Mode=OneWay}">
 						<ToolTipService.ToolTip>
@@ -61,6 +62,7 @@
 						<fa:FontAwesome Icon="Solid_Gear" />
 					</Button>
 					<ComboBox
+						IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}"
 						ItemsSource="{x:Bind ViewModel.ControlModeNames, Mode=OneWay}"
 						SelectedIndex="{x:Bind ViewModel.ControlModeIndex, Mode=TwoWay}" />
 				</controls:DockPanel>
@@ -68,6 +70,7 @@
 				<!--  Constant  -->
 				<Slider
 					x:Name="ConstantSlider"
+					IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}"
 					Maximum="100"
 					Minimum="0"
 					StepFrequency="1"
@@ -76,6 +79,7 @@
 
 				<!--  Curve  -->
 				<ComboBox
+					IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}"
 					ItemsSource="{x:Bind ViewModel.Curves, Mode=OneWay}"
 					SelectedItem="{x:Bind ViewModel.SelectedCurve, Mode=TwoWay}"
 					Visibility="{x:Bind ViewModel.ShowCurveControls, Converter={StaticResource VisibilityConverter}, Mode=OneWay}">

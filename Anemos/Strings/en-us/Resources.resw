@@ -196,6 +196,12 @@
   <data name="Fans_NewProfileName" xml:space="preserve">
     <value>New Profile</value>
   </data>
+  <data name="Fans_UseRulesToggleSwitch.OffContent" xml:space="preserve">
+    <value>Use Rules</value>
+  </data>
+  <data name="Fans_UseRulesToggleSwitch.OnContent" xml:space="preserve">
+    <value>Using Rules</value>
+  </data>
   <data name="Fan_ControlMode_Constant" xml:space="preserve">
     <value>Constant</value>
   </data>
@@ -207,6 +213,36 @@
   </data>
   <data name="Fan_Options.Content" xml:space="preserve">
     <value>Advanced Options</value>
+  </data>
+  <data name="Rules_AddRule.Content" xml:space="preserve">
+    <value>Add Rule</value>
+  </data>
+  <data name="Rules_DefaultProfile.Content" xml:space="preserve">
+    <value>Default Profile</value>
+  </data>
+  <data name="Rule_AddCondition.Content" xml:space="preserve">
+    <value>Add Condition</value>
+  </data>
+  <data name="Rule_ConditionType_Process" xml:space="preserve">
+    <value>Process</value>
+  </data>
+  <data name="Rule_ConditionType_Time" xml:space="preserve">
+    <value>Time</value>
+  </data>
+  <data name="Rule_DecreasePriority.Content" xml:space="preserve">
+    <value>Decrease Priority</value>
+  </data>
+  <data name="Rule_IncreasePriority.Content" xml:space="preserve">
+    <value>Increase Priority</value>
+  </data>
+  <data name="Rule_NewRuleName" xml:space="preserve">
+    <value>New Rule</value>
+  </data>
+  <data name="Rule_RuleType_All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Rule_RuleType_Any" xml:space="preserve">
+    <value>Any</value>
   </data>
   <data name="Sensors_AddSensor.Content" xml:space="preserve">
     <value>Add Sensor</value>
@@ -270,6 +306,9 @@
   </data>
   <data name="Shell_Fans.Content" xml:space="preserve">
     <value>Fans</value>
+  </data>
+  <data name="Shell_Rules.Content" xml:space="preserve">
+    <value>Rules</value>
   </data>
   <data name="Shell_Sensors.Content" xml:space="preserve">
     <value>Sensors</value>

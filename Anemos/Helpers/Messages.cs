@@ -93,3 +93,33 @@ public class FanProfileNameEditorResultMessage : ValueChangedMessage<string>
 {
     public FanProfileNameEditorResultMessage(string newName) : base(newName) { }
 }
+
+public class RulesChangedMessage : PropertyChangedMessage<IEnumerable<RuleModel>>
+{
+    public RulesChangedMessage(
+        object sender,
+        string? propertyName,
+        IEnumerable<RuleModel> oldValue,
+        IEnumerable<RuleModel> newValue)
+        : base(sender, propertyName, oldValue, newValue) { }
+}
+
+public class RuleSwitchedMessage : ValueChangedMessage<string>
+{
+    public RuleSwitchedMessage(string profileId) : base(profileId) { }
+}
+
+public class OpenRuleTimeEditorMessage : ValueChangedMessage<TimeRuleCondition>
+{
+    public OpenRuleTimeEditorMessage(TimeRuleCondition time) : base(time) { }
+}
+
+public class OpenRuleProcessEditorMessage : ValueChangedMessage<ProcessRuleCondition>
+{
+    public OpenRuleProcessEditorMessage(ProcessRuleCondition process) : base(process) { }
+}
+
+public class RuleEditorResultMessage : ValueChangedMessage<RuleConditionArg>
+{
+    public RuleEditorResultMessage(RuleConditionArg arg) : base(arg) { }
+}

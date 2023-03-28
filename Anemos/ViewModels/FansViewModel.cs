@@ -59,6 +59,16 @@ public partial class FansViewModel : ObservableRecipient
         }
     }
 
+    public bool UseRules
+    {
+        get => _fanService.UseRules;
+        set
+        {
+            _fanService.UseRules = value;
+            OnPropertyChanged(nameof(UseRules));
+        }
+    }
+
     public FansViewModel(IFanService fanService)
     {
         _fanService = fanService;

@@ -20,6 +20,10 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Views\FanProfileNameEditorDialog.xaml" />
+    <None Remove="Views\RuleProcessEditorDialog.xaml" />
+    <None Remove="Views\RulesPage.xaml" />
+    <None Remove="Views\RuleTimeEditorDialog.xaml" />
+    <None Remove="Views\RuleView.xaml" />
   </ItemGroup>
   <ItemGroup>
 	<Manifest Include="$(ApplicationManifest)" />
@@ -44,6 +48,30 @@
 	<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
 	<PackageReference Include="WinUIEx" Version="2.1" />
 	<PackageReference Include="ZetaIpc" Version="1.0.4.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\RuleProcessEditorDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\RuleTimeEditorDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\RuleView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\RulesPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>

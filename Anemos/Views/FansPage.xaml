@@ -29,6 +29,7 @@
 				x:Name="FanProfiles"
 				Width="200"
 				VerticalAlignment="Center"
+				IsEnabled="{x:Bind ViewModel.UseRules, Converter={StaticResource InvertConverter}, Mode=OneWay}"
 				ItemsSource="{x:Bind ViewModel.FanProfiles, Mode=OneWay}"
 				SelectedItem="{x:Bind ViewModel.SelectedProfile, Mode=TwoWay}">
 				<ComboBox.ItemTemplate>
@@ -42,6 +43,7 @@
 			</ComboBox>
 			<Button
 				Command="{x:Bind ViewModel.OpenProfileNameEditorCommand}"
+				IsEnabled="{x:Bind ViewModel.UseRules, Converter={StaticResource InvertConverter}, Mode=OneWay}"
 				ToolTipService.Placement="Mouse">
 				<ToolTipService.ToolTip>
 					<ToolTip x:Uid="Fans_EditProfileName" />
@@ -50,6 +52,7 @@
 			</Button>
 			<Button
 				Command="{x:Bind ViewModel.AddProfileCommand}"
+				IsEnabled="{x:Bind ViewModel.UseRules, Converter={StaticResource InvertConverter}, Mode=OneWay}"
 				ToolTipService.Placement="Mouse">
 				<ToolTipService.ToolTip>
 					<ToolTip x:Uid="Fans_AddProfile" />
@@ -59,6 +62,7 @@
 			<Button
 				Command="{x:Bind ViewModel.AddProfileCommand}"
 				CommandParameter="1"
+				IsEnabled="{x:Bind ViewModel.UseRules, Converter={StaticResource InvertConverter}, Mode=OneWay}"
 				ToolTipService.Placement="Mouse">
 				<ToolTipService.ToolTip>
 					<ToolTip x:Uid="Fans_DuplicateProfile" />
@@ -67,6 +71,7 @@
 			</Button>
 			<Button
 				Command="{x:Bind ViewModel.DeleteProfileCommand}"
+				IsEnabled="{x:Bind ViewModel.UseRules, Converter={StaticResource InvertConverter}, Mode=OneWay}"
 				ToolTipService.Placement="Mouse">
 				<ToolTipService.ToolTip>
 					<ToolTip x:Uid="Fans_DeleteProfile" />
@@ -89,6 +94,10 @@
 				</Button.Resources>
 				<fa:FontAwesome Icon="Solid_Minus" />
 			</Button>
+			<AppBarSeparator />
+			<ToggleSwitch
+				x:Uid="Fans_UseRulesToggleSwitch"
+				IsOn="{x:Bind ViewModel.UseRules, Mode=TwoWay}" />
 		</StackPanel>
 		<ScrollViewer
 			Padding="5"

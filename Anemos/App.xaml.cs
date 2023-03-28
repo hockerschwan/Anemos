@@ -58,6 +58,7 @@ public partial class App : Application
         var sensorService = new SensorService(settingsService, lhwmService);
         var curveService = new CurveService(settingsService, sensorService);
         var fanService = new FanService(settingsService, lhwmService);
+        var ruleService = new RuleService(settingsService, fanService);
 
         Host = Microsoft.Extensions.Hosting.Host.
             CreateDefaultBuilder().
@@ -80,6 +81,7 @@ public partial class App : Application
                 services.AddSingleton<ISensorService>(sensorService);
                 services.AddSingleton<ICurveService>(curveService);
                 services.AddSingleton<IFanService>(fanService);
+                services.AddSingleton<IRuleService>(ruleService);
 
                 // Views and ViewModels
                 services.AddSingleton<FanOptionsViewModel>();
@@ -90,6 +92,10 @@ public partial class App : Application
                 services.AddSingleton<CurvesPage>();
                 services.AddSingleton<SensorsViewModel>();
                 services.AddSingleton<SensorsPage>();
+                services.AddSingleton<RuleProcessEditorDialog>();
+                services.AddSingleton<RuleTimeEditorDialog>();
+                services.AddSingleton<RulesViewModel>();
+                services.AddSingleton<RulesPage>();
                 services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<SettingsPage>();
                 services.AddSingleton<ShellPage>();

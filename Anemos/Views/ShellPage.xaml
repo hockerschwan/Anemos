@@ -37,6 +37,13 @@
 						<fa:FontAwesome Icon="Solid_TemperatureHalf" />
 					</NavigationViewItem.Icon>
 				</NavigationViewItem>
+				<NavigationViewItem
+					x:Uid="Shell_Rules"
+					helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.RulesViewModel">
+					<NavigationViewItem.Icon>
+						<fa:FontAwesome Icon="Solid_List" />
+					</NavigationViewItem.Icon>
+				</NavigationViewItem>
 			</NavigationView.MenuItems>
 			<NavigationView.FooterMenuItems>
 				<NavigationViewItem helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.SettingsViewModel">
