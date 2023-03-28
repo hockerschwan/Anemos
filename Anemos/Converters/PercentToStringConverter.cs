@@ -10,7 +10,7 @@ public class PercentToStringConverter : IValueConverter
         {
             return $" --- %";
         }
-        return string.Format("{0:##0.0} %", decimal.Round((decimal)value, 1));
+        return string.Format("{0:##0.0} %", double.Round((double)value, 1));
     }
 
     public object? ConvertBack(object value, Type targetType, object parameter, string language)

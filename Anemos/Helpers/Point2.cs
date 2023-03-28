@@ -2,17 +2,17 @@
 
 public class Point2
 {
-    public decimal X
+    public double X
     {
         get;
     }
 
-    public decimal Y
+    public double Y
     {
         get;
     }
 
-    public Point2(decimal x, decimal y)
+    public Point2(double x, double y)
     {
         X = x; Y = y;
     }

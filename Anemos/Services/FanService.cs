@@ -275,6 +275,25 @@ public class FanService : ObservableRecipient, IFanService
             Name = fm.Name
         });
 
+        _settingsService.Settings.FanSettings.CurrentProfile = CurrentProfileId;
+
+        _settingsService.Settings.FanSettings.Profiles = Profiles.Select(p => new FanSettings_Profile()
+        {
+            Id = p.Id,
+            Name = p.Name,
+            ProfileItems = p.Fans.Select(item => new FanSettings_ProfileItem()
+            {
+                Id = item.Id,
+                Mode = item.Mode,
+                CurveId = item.CurveId,
+                ConstantSpeed = item.ConstantSpeed,
+                MaxSpeed = item.MaxSpeed,
+                MinSpeed = item.MinSpeed,
+                DeltaLimitUp = item.DeltaLimitUp,
+                DeltaLimitDown = item.DeltaLimitDown
+            })
+        });
+
         _settingsService.Save();
     }
 

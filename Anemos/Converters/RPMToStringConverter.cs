@@ -10,7 +10,7 @@ public class RPMToStringConverter : IValueConverter
         {
             return $" --- RPM";
         }
-        return string.Format("{0:###0} RPM", (decimal)value);
+        return string.Format("{0:###0} RPM", (int)value);
     }
 
     public object? ConvertBack(object value, Type targetType, object parameter, string language)

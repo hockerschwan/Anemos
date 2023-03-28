@@ -52,7 +52,7 @@ public class CustomSensorModel : SensorModelBase
 
     public IEnumerable<SensorModelBase> SourceModels => _sensorService.GetSensors(SourceIds);
 
-    private LimitedQueue<decimal> _data = new(1);
+    private LimitedQueue<double> _data = new(1);
 
     private CustomSensorCalcMethod _calcMethod;
     public CustomSensorCalcMethod CalcMethod
@@ -107,9 +107,9 @@ public class CustomSensorModel : SensorModelBase
         Value = CalcValue();
     }
 
-    private decimal? CalcValue()
+    private double? CalcValue()
     {
-        decimal? value = null;
+        double? value = null;
         if (!SourceModels.Any())
         {
             return value;
@@ -153,10 +153,10 @@ public class CustomSensorModel : SensorModelBase
         {
             return value;
         }
-        return decimal.Round(value.Value, 1);
+        return double.Round(value.Value, 1);
     }
 
-    private static decimal? Average(IEnumerable<SensorModelBase> sensors)
+    private static double? Average(IEnumerable<SensorModelBase> sensors)
     {
         var validSensors = sensors.Where(s => s.Value != null).ToList();
         if (validSensors.Any())

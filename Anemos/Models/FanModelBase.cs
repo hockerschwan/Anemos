@@ -62,7 +62,7 @@ public class FanModelBase : ObservableObject
         {
             if ((bool)(Sensor?.Value.HasValue)!)
             {
-                return (int)float.Round(Sensor.Value!.Value, 0);
+                return (int)float.Round(Sensor.Value!.Value);
             }
             return null;
         }
@@ -72,7 +72,7 @@ public class FanModelBase : ObservableObject
     {
         get;
     }
-    public int? CurrentPercent
+    public double? CurrentPercent
     {
         get
         {
@@ -85,7 +85,7 @@ public class FanModelBase : ObservableObject
                 default:
                     if ((bool)Control?.Value.HasValue!)
                     {
-                        return (int)float.Round(Control.Value!.Value, 0);
+                        return double.Round(Control.Value!.Value, 1);
                     }
                     return null;
             }
@@ -238,26 +238,26 @@ public class FanModelBase : ObservableObject
 
         if (CurrentPercent == null)
         {
-            return (int)decimal.Round(CurveModel.Value.Value, 0);
+            return (int)double.Round(CurveModel.Value.Value);
         }
 
         if (CurveModel.Value > CurrentPercent)
         {
-            var diff = CurveModel.Value - CurrentPercent;
+            var diff = CurveModel.Value - CurrentPercent.Value;
             if (DeltaLimitUp == 0 || diff <= DeltaLimitUp)
             {
-                return (int)decimal.Round(CurveModel.Value.Value, 0);
+                return (int)double.Round(CurveModel.Value.Value);
             }
-            return CurrentPercent.Value + DeltaLimitUp;
+            return (int)double.Round(CurrentPercent.Value) + DeltaLimitUp;
         }
         else
         {
-            var diff = CurrentPercent - CurveModel.Value;
+            var diff = CurrentPercent.Value - CurveModel.Value;
             if (DeltaLimitDown == 0 || diff <= DeltaLimitDown)
             {
-                return (int)decimal.Round(CurveModel.Value.Value, 0);
+                return (int)double.Round(CurveModel.Value.Value);
             }
-            return CurrentPercent - DeltaLimitDown;
+            return (int)double.Round(CurrentPercent.Value) - DeltaLimitDown;
         }
     }
 

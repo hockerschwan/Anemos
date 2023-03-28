@@ -29,6 +29,6 @@ public class HWSensorModel : SensorModelBase
 
     public override void Update()
     {
-        Value = _iSensor.Value == null ? null : decimal.Round((decimal)_iSensor.Value, 1);
+        Value = _iSensor.Value == null ? null : double.Round((double)_iSensor.Value, 1);
     }
 }

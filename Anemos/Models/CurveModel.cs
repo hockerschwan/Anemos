@@ -67,8 +67,8 @@ public class CurveModel : ObservableObject
         }
     }
 
-    private decimal? _value;
-    public decimal? Value
+    private double? _value;
+    public double? Value
     {
         get => _value;
         set => SetProperty(ref _value, value);
@@ -96,7 +96,7 @@ public class CurveModel : ObservableObject
         Value = CalcValue();
     }
 
-    private decimal? CalcValue()
+    private double? CalcValue()
     {
         // assume points are sorted by X in ascending order
 
@@ -105,7 +105,7 @@ public class CurveModel : ObservableObject
             return null;
         }
 
-        decimal? value;
+        double? value;
         var temperature = SourceModel.Value;
         var i = Points.ToList().FindIndex(p => p.X > temperature);
         switch (i)
@@ -128,7 +128,7 @@ public class CurveModel : ObservableObject
 
         if (value != null)
         {
-            value = decimal.Round(Math.Max(0m, Math.Min(100m, value.Value)), 1);
+            value = double.Round(Math.Max(0, Math.Min(100, value.Value)), 1);
         }
         return value;
     }

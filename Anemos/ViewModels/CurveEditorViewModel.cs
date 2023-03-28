@@ -413,7 +413,7 @@ public class CurveEditorViewModel : ObservableRecipient
     public IEnumerable<Point2> GetLineData()
     {
         return _lineData.Where(dp => dp.X > XAxis.AbsoluteMinimum && dp.X < XAxis.AbsoluteMaximum)
-                        .Select(dp => new Point2(decimal.Round((decimal)dp.X, 1), decimal.Round((decimal)dp.Y, 1)));
+                        .Select(dp => new Point2(double.Round(dp.X, 1), double.Round(dp.Y, 1)));
     }
 
     public void Unselect()

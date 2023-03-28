@@ -16,8 +16,8 @@ public class SensorModelBase : ObservableObject
 
     public virtual string LongName => Name;
 
-    private protected decimal? _value;
-    public decimal? Value
+    private protected double? _value;
+    public double? Value
     {
         get => _value;
         private protected set => SetProperty(ref _value, value);
