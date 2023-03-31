@@ -263,7 +263,7 @@ public class FanModelBase : ObservableObject
             ++_refractoryPeriodCounter;
             if (_refractoryPeriodCounter <= RefractoryPeriodTicksDown && CurveModel.Value < Value)
             {
-                return null;
+                return Value;
             }
 
             _refractoryPeriodCounter = 0;
