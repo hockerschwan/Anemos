@@ -29,6 +29,7 @@ public class FanOptionsResult
     public int MinSpeed;
     public int DeltaLimitUp;
     public int DeltaLimitDown;
+    public int RefractoryPeriodTicksDown;
 }
 
 public class FanModelBase : ObservableObject
@@ -105,6 +106,7 @@ public class FanModelBase : ObservableObject
                     Control?.Control.SetDefault();
                 }
                 Value = null;
+                _refractoryPeriodCounter = 0;
                 UpdateProfile();
             }
         }
@@ -191,6 +193,21 @@ public class FanModelBase : ObservableObject
         }
     }
 
+    private protected int _refractoryPeriodCounter = 0;
+
+    private protected int _refractoryPeriodTicksDown = 0;
+    public int RefractoryPeriodTicksDown
+    {
+        get => _refractoryPeriodTicksDown;
+        private protected set
+        {
+            if (SetProperty(ref _refractoryPeriodTicksDown, value))
+            {
+                UpdateProfile();
+            }
+        }
+    }
+
     private protected int? _value;
     public int? Value
     {
@@ -236,28 +253,39 @@ public class FanModelBase : ObservableObject
             return null;
         }
 
-        if (CurrentPercent == null)
+        if (Value == null)
         {
             return (int)double.Round(CurveModel.Value.Value);
         }
 
-        if (CurveModel.Value > CurrentPercent)
+        if (RefractoryPeriodTicksDown > 0)
         {
-            var diff = CurveModel.Value - CurrentPercent.Value;
+            ++_refractoryPeriodCounter;
+            if (_refractoryPeriodCounter <= RefractoryPeriodTicksDown && CurveModel.Value < Value)
+            {
+                return null;
+            }
+
+            _refractoryPeriodCounter = 0;
+        }
+
+        if (CurveModel.Value > Value)
+        {
+            var diff = CurveModel.Value - Value.Value;
             if (DeltaLimitUp == 0 || diff <= DeltaLimitUp)
             {
                 return (int)double.Round(CurveModel.Value.Value);
             }
-            return (int)double.Round(CurrentPercent.Value) + DeltaLimitUp;
+            return (int)double.Round(Value.Value) + DeltaLimitUp;
         }
         else
         {
-            var diff = CurrentPercent.Value - CurveModel.Value;
+            var diff = Value.Value - CurveModel.Value;
             if (DeltaLimitDown == 0 || diff <= DeltaLimitDown)
             {
                 return (int)double.Round(CurveModel.Value.Value);
             }
-            return (int)double.Round(CurrentPercent.Value) - DeltaLimitDown;
+            return (int)double.Round(Value.Value) - DeltaLimitDown;
         }
     }
 
@@ -271,6 +299,7 @@ public class FanModelBase : ObservableObject
         MinSpeed = item.MinSpeed;
         DeltaLimitUp = item.DeltaLimitUp;
         DeltaLimitDown = item.DeltaLimitDown;
+        RefractoryPeriodTicksDown = item.RefractoryPeriodTicksDown;
         ControlMode = item.Mode;
 
         _updateProfile = true;
@@ -282,6 +311,7 @@ public class FanModelBase : ObservableObject
         MinSpeed = options.MinSpeed;
         DeltaLimitUp = options.DeltaLimitUp;
         DeltaLimitDown = options.DeltaLimitDown;
+        RefractoryPeriodTicksDown = options.RefractoryPeriodTicksDown;
     }
 
     private protected void UpdateProfile()

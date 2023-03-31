@@ -14,6 +14,7 @@ public class NormalFanModel : FanModelBase
                     Control?.Control.SetDefault();
                 }
                 Value = null;
+                _refractoryPeriodCounter = 0;
                 UpdateValue();
                 UpdateProfile();
             }

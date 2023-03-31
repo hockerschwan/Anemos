@@ -153,6 +153,7 @@ public class FanService : ObservableRecipient, IFanService
                 f.MinSpeed = model.MinSpeed;
                 f.DeltaLimitUp = model.DeltaLimitUp;
                 f.DeltaLimitDown = model.DeltaLimitDown;
+                f.RefractoryPeriodTicksDown = model.RefractoryPeriodTicksDown;
             }
         });
         CurrentProfile.Fans = fans;
@@ -202,7 +203,8 @@ public class FanService : ObservableRecipient, IFanService
                 MaxSpeed = fi.MaxSpeed,
                 MinSpeed = fi.MinSpeed,
                 DeltaLimitUp = fi.DeltaLimitUp,
-                DeltaLimitDown = fi.DeltaLimitDown
+                DeltaLimitDown = fi.DeltaLimitDown,
+                RefractoryPeriodTicksDown = fi.RefractoryPeriodTicksDown
             })
         };
         Profiles.Add(clone);
@@ -264,7 +266,8 @@ public class FanService : ObservableRecipient, IFanService
                 MaxSpeed = pItem.MaxSpeed,
                 MinSpeed = pItem.MinSpeed,
                 DeltaLimitUp = pItem.DeltaLimitUp,
-                DeltaLimitDown = pItem.DeltaLimitDown
+                DeltaLimitDown = pItem.DeltaLimitDown,
+                RefractoryPeriodTicksDown = pItem.RefractoryPeriodTicksDown
             })
         }));
 
@@ -343,7 +346,8 @@ public class FanService : ObservableRecipient, IFanService
                 MaxSpeed = item.MaxSpeed,
                 MinSpeed = item.MinSpeed,
                 DeltaLimitUp = item.DeltaLimitUp,
-                DeltaLimitDown = item.DeltaLimitDown
+                DeltaLimitDown = item.DeltaLimitDown,
+                RefractoryPeriodTicksDown = item.RefractoryPeriodTicksDown
             })
         });
 

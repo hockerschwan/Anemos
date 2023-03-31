@@ -17,14 +17,14 @@
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 
 		<TextBlock
 			x:Uid="FanOptionsDialog_MaxSpeed"
 			Grid.Row="0"
 			Grid.Column="0"
-			VerticalAlignment="Center"
-			Text="Maximum Speed [%]" />
+			VerticalAlignment="Center" />
 		<NumberBox
 			x:Name="MaxSpeed"
 			Grid.Row="0"
@@ -40,8 +40,7 @@
 			x:Uid="FanOptionsDialog_MinSpeed"
 			Grid.Row="1"
 			Grid.Column="0"
-			VerticalAlignment="Center"
-			Text="Minimum Speed [%]" />
+			VerticalAlignment="Center" />
 		<NumberBox
 			x:Name="MinSpeed"
 			Grid.Row="1"
@@ -84,8 +83,7 @@
 			x:Uid="FanOptionsDialog_DeltaLimitDown"
 			Grid.Row="3"
 			Grid.Column="0"
-			VerticalAlignment="Center"
-			Text="Speed Change Down [%]" />
+			VerticalAlignment="Center" />
 		<NumberBox
 			x:Name="DeltaLimitDown"
 			Grid.Row="3"
@@ -96,5 +94,21 @@
 			SmallChange="1"
 			SpinButtonPlacementMode="Inline"
 			Value="{x:Bind ViewModel.DeltaLimitDown, Mode=TwoWay}" />
+
+		<TextBlock
+			x:Uid="FanOptionsDialog_RefractoryPeriodTicksDown"
+			Grid.Row="4"
+			Grid.Column="0"
+			VerticalAlignment="Center" />
+		<NumberBox
+			x:Name="RefractoryPeriodTicksDown"
+			Grid.Row="4"
+			Grid.Column="1"
+			LargeChange="10"
+			Maximum="3600"
+			Minimum="0"
+			SmallChange="1"
+			SpinButtonPlacementMode="Inline"
+			Value="{x:Bind ViewModel.RefractoryPeriodTicksDown, Mode=TwoWay}" />
 	</Grid>
 </ContentDialog>

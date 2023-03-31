@@ -138,6 +138,7 @@ public class FanSettings_ProfileItem
     public int MinSpeed { get; set; } = 0;
     public int DeltaLimitUp { get; set; } = 0;
     public int DeltaLimitDown { get; set; } = 0;
+    public int RefractoryPeriodTicksDown { get; set; } = 0;
 }
 
 public class CurveSettings

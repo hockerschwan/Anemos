@@ -59,6 +59,13 @@ public partial class FanOptionsViewModel : ObservableObject
         set => SetProperty(ref _deltaLimitDown, value);
     }
 
+    private int _refractoryPeriodTicksDown = 0;
+    public int RefractoryPeriodTicksDown
+    {
+        get => _refractoryPeriodTicksDown;
+        set => SetProperty(ref _refractoryPeriodTicksDown, value);
+    }
+
     public void SetId(string fanId)
     {
         FanId = fanId;
@@ -69,5 +76,6 @@ public partial class FanOptionsViewModel : ObservableObject
         MinSpeed = Model.MinSpeed;
         DeltaLimitUp = Model.DeltaLimitUp;
         DeltaLimitDown = Model.DeltaLimitDown;
+        RefractoryPeriodTicksDown = Model.RefractoryPeriodTicksDown;
     }
 }

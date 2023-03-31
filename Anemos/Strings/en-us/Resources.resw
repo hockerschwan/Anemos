@@ -171,6 +171,9 @@
   <data name="FanOptionsDialog_MinSpeed.Text" xml:space="preserve">
     <value>Min Speed [%]</value>
   </data>
+  <data name="FanOptionsDialog_RefractoryPeriodTicksDown.Text" xml:space="preserve">
+    <value>Sticky Period Down [Ticks]</value>
+  </data>
   <data name="FanOptionsDialog_Title" xml:space="preserve">
     <value>Fan Options</value>
   </data>
