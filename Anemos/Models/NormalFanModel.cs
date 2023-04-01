@@ -2,38 +2,11 @@
 
 public class NormalFanModel : FanModelBase
 {
-    public override FanControlModes ControlMode
-    {
-        get => _controlMode;
-        set
-        {
-            if (SetProperty(ref _controlMode, value))
-            {
-                if (_controlMode == FanControlModes.Device)
-                {
-                    Control?.Control.SetDefault();
-                }
-                Value = null;
-                _refractoryPeriodCounter = 0;
-                UpdateValue();
-                UpdateProfile();
-            }
-        }
-    }
-
     public NormalFanModel(string id, string name) : base(id, name)
     {
     }
 
-    public override void Update()
-    {
-        UpdateValue();
-
-        OnPropertyChanged(nameof(CurrentRPM));
-        OnPropertyChanged(nameof(CurrentPercent));
-    }
-
-    private void UpdateValue()
+    private protected override void UpdateValue()
     {
         switch (ControlMode)
         {

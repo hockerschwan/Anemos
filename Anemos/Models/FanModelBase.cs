@@ -73,7 +73,7 @@ public class FanModelBase : ObservableObject
     {
         get;
     }
-    public double? CurrentPercent
+    public virtual double? CurrentPercent
     {
         get
         {
@@ -107,6 +107,7 @@ public class FanModelBase : ObservableObject
                 }
                 Value = null;
                 _refractoryPeriodCounter = 0;
+                UpdateValue();
                 UpdateProfile();
             }
         }
@@ -243,6 +244,14 @@ public class FanModelBase : ObservableObject
     }
 
     public virtual void Update()
+    {
+        UpdateValue();
+
+        OnPropertyChanged(nameof(CurrentRPM));
+        OnPropertyChanged(nameof(CurrentPercent));
+    }
+
+    private protected virtual void UpdateValue()
     {
     }
 

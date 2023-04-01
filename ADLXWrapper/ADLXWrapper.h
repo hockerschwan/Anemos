@@ -34,6 +34,7 @@ namespace ADLXWrapper
 
 		// <temperature, speed>
 		bool GetFanSpeeds(int id, List<Tuple<int, int>^>^** result);
+		bool SetFanSpeeds(int id, List<Tuple<int, int>^>^& collection);
 		bool SetFanSpeed(int id, int speed);
 
 		bool IsZeroRPMSupported(int id);
@@ -66,6 +67,7 @@ namespace ADLXWrapper
 
 		// <temperature, speed>
 		std::vector<std::pair<int, int>> GetFanSpeeds();
+		void SetFanSpeeds(std::vector<std::pair<int, int>> collection);
 		void SetFanSpeed(int speed);
 
 		bool IsZeroRPMSupported() { return isZeroRPMSupported_; }

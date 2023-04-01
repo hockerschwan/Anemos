@@ -1,10 +1,11 @@
-﻿{
-    "profiles": {
-      "Anemos (Unpackaged)": {
-        "commandName": "Project"
-      },
-      "Anemos (Package)": {
-        "commandName": "MsixPackage"
-      }
+{
+  "profiles": {
+    "Anemos (Unpackaged)": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    },
+    "Anemos (Package)": {
+      "commandName": "MsixPackage"
     }
+  }
 }

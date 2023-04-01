@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using ADLXWrapper;
 using Anemos.Contracts.Services;
 using Anemos.Helpers;
 using Anemos.Models;
@@ -78,6 +79,9 @@ public class FanService : ObservableRecipient, IFanService
         get; set;
     } = string.Empty;
 
+    private readonly ADLX? _adlx;
+    public ADLX? ADLX => _adlx;
+
     private bool _isLoaded;
 
     private bool _isUpdating;
@@ -90,6 +94,12 @@ public class FanService : ObservableRecipient, IFanService
 
         _lhwmService = lhwmService;
         _settingsService = settingsService;
+
+        if (_lhwmService.Hardware.Where(hw => hw.HardwareType == HardwareType.GpuAmd).Any())
+        {
+            _adlx = new();
+            Log.Debug("[FanService] ADLX Started");
+        }
 
         Log.Information("[FanService] Started");
     }
@@ -108,6 +118,15 @@ public class FanService : ObservableRecipient, IFanService
             if (!_isUpdating) { break; }
             await Task.Delay(100);
         }
+
+        foreach (var fm in Fans.Where(fm => fm.GetType() == typeof(GpuAmdFanModel)).Cast<GpuAmdFanModel>())
+        {
+            if (fm.ControlMode != FanControlModes.Device)
+            {
+                fm.RestoreSettings();
+            }
+        }
+
         Messenger.Send(new ServiceShutDownMessage(GetType().GetInterface("IFanService")!));
     }
 
@@ -292,6 +311,8 @@ public class FanService : ObservableRecipient, IFanService
             switch (s.Hardware.HardwareType)
             {
                 case HardwareType.GpuAmd:
+                    Fans.Add(new GpuAmdFanModel(id, name));
+                    break;
                 case HardwareType.GpuIntel:
                 case HardwareType.GpuNvidia:
                     break;

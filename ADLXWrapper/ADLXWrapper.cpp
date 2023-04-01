@@ -16,6 +16,20 @@ ADLXWrapper::ADLX::ADLX()
 	res = g_ADLXHelp.GetSystemServices()->GetGPUs(pList);
 	if (ADLX_FAILED(res))
 		Throw("Get GPU list failed");
+
+	gpus_ = new std::map<int, AMDGPU*>();
+	for (auto i = gpuList_->Begin(); i != gpuList_->End(); ++i)
+	{
+		IADLXGPUPtr gpu;
+		res = gpuList_->At(i, &gpu);
+		if (ADLX_FAILED(res) || gpu == nullptr)
+			continue;
+
+		int uniqueId;
+		res = gpu->UniqueId(&uniqueId);
+
+		gpus_->emplace(uniqueId, new ADLXWrapper::AMDGPU(gpuTuningService_, gpu));
+	}
 }
 
 ADLXWrapper::ADLX::~ADLX()
@@ -114,6 +128,22 @@ bool ADLXWrapper::ADLX::GetFanSpeeds(int id, List<Tuple<int, int>^>^** result)
 		speeds->Add(gcnew Tuple<int, int>(pair.first, pair.second));
 	}
 	*result = &speeds;
+	return true;
+}
+
+bool ADLXWrapper::ADLX::SetFanSpeeds(int id, List<Tuple<int, int>^>^& collection)
+{
+	AMDGPU* gpu = nullptr;
+	if (!GetGPU(id, &gpu))
+		return false;
+
+	std::vector<std::pair<int, int>> items{};
+	for each (const auto pair in collection)
+	{
+		auto item = std::pair<int, int>(pair->Item1, pair->Item2);
+		items.push_back(item);
+	}
+	gpu->SetFanSpeeds(items);
 	return true;
 }
 
@@ -245,13 +275,31 @@ std::vector<std::pair<int, int>> ADLXWrapper::AMDGPU::GetFanSpeeds()
 	return speeds;
 }
 
+void ADLXWrapper::AMDGPU::SetFanSpeeds(std::vector<std::pair<int, int>> collection)
+{
+	IADLXManualFanTuningStateListPtr states;
+	IADLXManualFanTuningStatePtr state;
+	ADLX_RESULT res = manualFanTuning_->GetEmptyFanTuningStates(&states);
+	for (adlx_uint i = states->Begin(); i != states->End() || i < collection.size(); ++i)
+	{
+		res = states->At(i, &state);
+		state->SetTemperature(collection[i].first);
+		state->SetFanSpeed(collection[i].second);
+	}
+
+	adlx_int errorIndex;
+	res = manualFanTuning_->IsValidFanTuningStates(states, &errorIndex);
+	if (ADLX_SUCCEEDED(res))
+		manualFanTuning_->SetFanTuningStates(states);
+}
+
 void ADLXWrapper::AMDGPU::SetFanSpeed(int speed)
 {
 	IADLXManualFanTuningStateListPtr states;
 	IADLXManualFanTuningStatePtr state;
 	ADLX_RESULT res = manualFanTuning_->GetEmptyFanTuningStates(&states);
 
-	int fanTemperatureStep = (fanTemperatureRange_.maxValue - fanTemperatureRange_.minValue) / (states->Size() + 1);
+	int fanTemperatureStep = (fanTemperatureRange_.maxValue - fanTemperatureRange_.minValue) / (states->Size() - 1);
 	for (adlx_uint i = states->Begin(); i != states->End(); ++i)
 	{
 		res = states->At(i, &state);

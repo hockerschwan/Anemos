@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using ADLXWrapper;
 using Anemos.Models;
 
 namespace Anemos.Contracts.Services;
@@ -33,6 +34,11 @@ public interface IFanService
     string CurrentAutoProfileId
     {
         get; set;
+    }
+
+    ADLX? ADLX
+    {
+        get;
     }
 
     Task InitializeAsync();
