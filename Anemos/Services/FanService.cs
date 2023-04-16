@@ -46,7 +46,9 @@ public class FanService : ObservableRecipient, IFanService
 
     public RangeObservableCollection<FanModelBase> Fans { get; } = new();
 
-    private IEnumerable<ISensor> Sensors => _lhwmService.GetSensors(SensorType.Fan);
+    private IEnumerable<ISensor> Sensors
+        => _lhwmService.GetSensors(SensorType.Fan)
+            .Where(s => s.Hardware.HardwareType != HardwareType.GpuNvidia || s.Identifier.ToString().Split("/").Last() == "1");
 
     private bool _useRules;
     public bool UseRules
