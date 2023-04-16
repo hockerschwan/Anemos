@@ -314,7 +314,22 @@ public class FanService : ObservableRecipient, IFanService
                     Fans.Add(new GpuAmdFanModel(id, name));
                     break;
                 case HardwareType.GpuIntel:
+                    break;
                 case HardwareType.GpuNvidia:
+                    var idDivided = s.Identifier.ToString().Split("/");
+                    if (!int.TryParse(idDivided.Last(), out var n) || n != 1) { break; }
+
+                    var numFans = 0;
+                    var partialId = string.Join("/", idDivided.Take(idDivided.Length - 1));
+                    foreach (var fan in _lhwmService.GetSensors(SensorType.Fan).Where(f => f.Hardware.Identifier == s.Hardware.Identifier))
+                    {
+                        if (!int.TryParse(fan.Identifier.ToString().Split("/").Last(), out var k) || k <= numFans) { continue; }
+                        numFans = k;
+                    }
+                    if (numFans > 0)
+                    {
+                        Fans.Add(new GpuNvidiaFanModel(id, name, numFans));
+                    }
                     break;
                 default:
                     Fans.Add(new NormalFanModel(id, name));

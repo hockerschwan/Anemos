@@ -237,7 +237,7 @@ public class FanModelBase : ObservableObject
         Control?.Control.SetDefault();
     }
 
-    private ISensor? FindControl(ISensor fan)
+    private protected ISensor? FindControl(ISensor fan)
     {
         var id = fan.Identifier.ToString().Replace("fan", "control");
         return _lhwmService.GetSensor(id);
@@ -264,7 +264,7 @@ public class FanModelBase : ObservableObject
 
         if (Value == null)
         {
-            return (int)double.Round(CurveModel.Value.Value);
+            return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(CurveModel.Value.Value)));
         }
 
         if (RefractoryPeriodTicksDown > 0)
@@ -272,7 +272,7 @@ public class FanModelBase : ObservableObject
             ++_refractoryPeriodCounter;
             if (_refractoryPeriodCounter <= RefractoryPeriodTicksDown && CurveModel.Value < Value)
             {
-                return Value;
+                return Math.Min(MaxSpeed, Math.Max(MinSpeed, Value.Value));
             }
 
             _refractoryPeriodCounter = 0;
@@ -283,18 +283,18 @@ public class FanModelBase : ObservableObject
             var diff = CurveModel.Value - Value.Value;
             if (DeltaLimitUp == 0 || diff <= DeltaLimitUp)
             {
-                return (int)double.Round(CurveModel.Value.Value);
+                return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(CurveModel.Value.Value)));
             }
-            return (int)double.Round(Value.Value) + DeltaLimitUp;
+            return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(Value.Value) + DeltaLimitUp));
         }
         else
         {
             var diff = Value.Value - CurveModel.Value;
             if (DeltaLimitDown == 0 || diff <= DeltaLimitDown)
             {
-                return (int)double.Round(CurveModel.Value.Value);
+                return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(CurveModel.Value.Value)));
             }
-            return (int)double.Round(Value.Value) - DeltaLimitDown;
+            return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(Value.Value) - DeltaLimitDown));
         }
     }
 
