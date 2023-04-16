@@ -109,6 +109,8 @@ public partial class FanViewModel : ObservableRecipient
 
     public bool UnlockControls => !_fanService.UseRules;
 
+    public bool isReadOnly;
+
     public FanViewModel(FanModelBase model)
     {
         Messenger.Register<CurvesChangedMessage>(this, CurvesChangedMessageHandler);
@@ -116,6 +118,11 @@ public partial class FanViewModel : ObservableRecipient
 
         Model = model;
         Model.PropertyChanged += Model_PropertyChanged;
+
+        if (Model is ReadOnlyFanModel)
+        {
+            isReadOnly = true;
+        }
 
         _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
         _settingsService.Settings.FanSettings.PropertyChanged += FanSettings_PropertyChanged;

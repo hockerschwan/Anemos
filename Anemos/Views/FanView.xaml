@@ -12,6 +12,7 @@
 	mc:Ignorable="d">
 	<UserControl.Resources>
 		<converters:BoolToVisibilityConverter x:Key="VisibilityConverter" />
+		<converters:InvertedBoolToVisibilityConverter x:Key="InvertedVisibilityConverter" />
 		<converters:PercentToStringConverter x:Key="PercentConverter" />
 		<converters:RPMToStringConverter x:Key="RPMConverter" />
 	</UserControl.Resources>
@@ -47,7 +48,9 @@
 						Text="{x:Bind ViewModel.Model.CurrentRPM, Converter={StaticResource RPMConverter}, Mode=OneWay}" />
 				</controls:DockPanel>
 
-				<controls:DockPanel LastChildFill="True">
+				<controls:DockPanel
+					LastChildFill="True"
+					Visibility="{x:Bind ViewModel.isReadOnly, Converter={StaticResource InvertedVisibilityConverter}}">
 					<Button
 						Margin="10,0,0,0"
 						Padding="3"
