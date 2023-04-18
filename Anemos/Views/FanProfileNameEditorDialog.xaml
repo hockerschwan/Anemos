@@ -8,6 +8,7 @@
 	<StackPanel Spacing="10">
 		<TextBox
 			x:Name="NewName"
-			MaxWidth="500" />
+			MaxWidth="500"
+			IsSpellCheckEnabled="False" />
 	</StackPanel>
 </ContentDialog>

@@ -33,7 +33,7 @@ public partial class SettingsViewModel : ObservableRecipient
         {
             if (SetProperty(ref _navigationBackgroundColor, value))
             {
-                _settingsService.Settings.NavigationBackgroundColor = value.Color.ToString();
+                _settingsService.Settings.NavigationBackgroundColor = GetRGB(value);
             }
         }
     }
@@ -46,7 +46,7 @@ public partial class SettingsViewModel : ObservableRecipient
         {
             if (SetProperty(ref _commandBarBackgroundColor, value))
             {
-                _settingsService.Settings.CommandBarBackgroundColor = value.Color.ToString();
+                _settingsService.Settings.CommandBarBackgroundColor = GetRGB(value);
             }
         }
     }
@@ -59,7 +59,7 @@ public partial class SettingsViewModel : ObservableRecipient
         {
             if (SetProperty(ref _chartLineColor, value))
             {
-                _settingsService.Settings.ChartLineColor = value.Color.ToString();
+                _settingsService.Settings.ChartLineColor = GetRGB(value);
             }
         }
     }
@@ -72,7 +72,7 @@ public partial class SettingsViewModel : ObservableRecipient
         {
             if (SetProperty(ref _chartMarkerColor, value))
             {
-                _settingsService.Settings.ChartMarkerColor = value.Color.ToString();
+                _settingsService.Settings.ChartMarkerColor = GetRGB(value);
             }
         }
     }
@@ -85,7 +85,7 @@ public partial class SettingsViewModel : ObservableRecipient
         {
             if (SetProperty(ref _chartBGColor, value))
             {
-                _settingsService.Settings.ChartBGColor = value.Color.ToString();
+                _settingsService.Settings.ChartBGColor = GetRGB(value);
             }
         }
     }
@@ -98,7 +98,7 @@ public partial class SettingsViewModel : ObservableRecipient
         {
             if (SetProperty(ref _chartGridColor, value))
             {
-                _settingsService.Settings.ChartGridColor = value.Color.ToString();
+                _settingsService.Settings.ChartGridColor = GetRGB(value);
             }
         }
     }
@@ -111,7 +111,7 @@ public partial class SettingsViewModel : ObservableRecipient
         {
             if (SetProperty(ref _chartTextColor, value))
             {
-                _settingsService.Settings.ChartTextColor = value.Color.ToString();
+                _settingsService.Settings.ChartTextColor = GetRGB(value);
             }
         }
     }
@@ -141,9 +141,14 @@ public partial class SettingsViewModel : ObservableRecipient
         _chartTextColor.Color = ColorHelper.ToColor(_settingsService.Settings.ChartTextColor);
     }
 
+    private static string GetRGB(SolidColorBrush brush)
+    {
+        return $"#{brush.Color.ToHex()[3..]}";
+    }
+
     private static string GetVersionDescription()
     {
-        System.Version version;
+        Version version;
 
         if (RuntimeHelper.IsMSIX)
         {
@@ -156,7 +161,7 @@ public partial class SettingsViewModel : ObservableRecipient
             version = Assembly.GetExecutingAssembly().GetName().Version!;
         }
 
-        return $"{"AppDisplayName".GetLocalized()} - {version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
+        return "VersionDescription".GetLocalized().Replace("$", $"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}");
     }
 
     [RelayCommand]

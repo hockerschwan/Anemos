@@ -278,7 +278,7 @@
     <value>New Sensor</value>
   </data>
   <data name="Settings_ChartBGColor.Text" xml:space="preserve">
-    <value>Chart Background color</value>
+    <value>Chart Background Color</value>
   </data>
   <data name="Settings_ChartGridColor.Text" xml:space="preserve">
     <value>Chart Grid Color</value>
@@ -348,5 +348,9 @@
   </data>
   <data name="TrayIcon_Exit.Label" xml:space="preserve">
     <value>Exit</value>
+  </data>
+  <data name="VersionDescription" xml:space="preserve">
+    <value>Version $</value>
+    <comment>$ will be replaced</comment>
   </data>
 </root>

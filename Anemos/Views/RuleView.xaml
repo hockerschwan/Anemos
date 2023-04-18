@@ -106,7 +106,9 @@
 					</Button>
 				</controls:DockPanel>
 
-				<TextBox Text="{x:Bind ViewModel.Model.Name, Mode=TwoWay}" />
+				<TextBox
+					IsSpellCheckEnabled="False"
+					Text="{x:Bind ViewModel.Model.Name, Mode=TwoWay}" />
 
 				<controls:DockPanel
 					HorizontalAlignment="Stretch"

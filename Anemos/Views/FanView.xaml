@@ -48,6 +48,7 @@
 					<TextBox
 						Margin="0,0,6,0"
 						controls:DockPanel.Dock="Left"
+						IsSpellCheckEnabled="False"
 						Text="{x:Bind ViewModel.Model.Name, Mode=TwoWay}" />
 				</controls:DockPanel>
 

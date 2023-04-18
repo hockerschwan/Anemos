@@ -6,6 +6,8 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d">
 	<StackPanel Spacing="10">
-		<TextBox x:Name="NameTextBox" />
+		<TextBox
+			x:Name="NameTextBox"
+			IsSpellCheckEnabled="False" />
 	</StackPanel>
 </ContentDialog>

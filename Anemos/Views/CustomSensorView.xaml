@@ -129,6 +129,7 @@
 
 				<TextBox
 					HorizontalAlignment="Stretch"
+					IsSpellCheckEnabled="False"
 					Text="{x:Bind ViewModel.Model.Name, Mode=TwoWay}" />
 
 				<controls:DockPanel LastChildFill="True">

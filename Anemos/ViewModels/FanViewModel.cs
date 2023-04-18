@@ -101,7 +101,7 @@ public partial class FanViewModel : ObservableRecipient
     private readonly LinearAxis YAxis = new()
     {
         Position = AxisPosition.Left,
-        MinimumRange = 100,
+        MinimumRange = 500,
         IsZoomEnabled = false,
         IsPanEnabled = false,
         MajorGridlineStyle = LineStyle.None,
