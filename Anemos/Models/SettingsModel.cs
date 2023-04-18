@@ -49,6 +49,20 @@ public partial class SettingsModel : ObservableObject
         set => SetProperty(ref _curveMinTemp, value);
     }
 
+    private string _navigationBackgroundColor = "#11286e";
+    public string NavigationBackgroundColor
+    {
+        get => _navigationBackgroundColor;
+        set => SetProperty(ref _navigationBackgroundColor, value);
+    }
+
+    private string _commandBarBackgroundColor = "#153184";
+    public string CommandBarBackgroundColor
+    {
+        get => _commandBarBackgroundColor;
+        set => SetProperty(ref _commandBarBackgroundColor, value);
+    }
+
     private string _chartLineColor = "#6495ED";
     public string ChartLineColor
     {

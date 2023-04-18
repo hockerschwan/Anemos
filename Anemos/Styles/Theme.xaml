@@ -2,30 +2,10 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 	<ResourceDictionary.ThemeDictionaries>
-		<ResourceDictionary x:Key="Light">
-			<SolidColorBrush
-				x:Key="NavigationViewTopPaneBackground"
-				Color="#d3dcf8" />
-			<SolidColorBrush
-				x:Key="NavigationViewSelectionIndicatorForeground"
-				Color="{StaticResource TextFillColorTertiary}" />
-			<SolidColorBrush
-				x:Key="CommandBarBackground"
-				Color="#bdcbf5" />
-			<SolidColorBrush
-				x:Key="PageItemsBorder"
-				Color="Gray" />
-		</ResourceDictionary>
 		<ResourceDictionary x:Key="Dark">
 			<SolidColorBrush
-				x:Key="NavigationViewTopPaneBackground"
-				Color="#07102c" />
-			<SolidColorBrush
 				x:Key="NavigationViewSelectionIndicatorForeground"
 				Color="{StaticResource TextFillColorTertiary}" />
-			<SolidColorBrush
-				x:Key="CommandBarBackground"
-				Color="#0a1842" />
 			<SolidColorBrush
 				x:Key="PageItemsBorder"
 				Color="DimGray" />

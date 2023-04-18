@@ -25,6 +25,32 @@ public partial class SettingsViewModel : ObservableRecipient
 
     public ColorPickerDialog ColorPicker { get; } = new();
 
+    private SolidColorBrush _navigationBackgroundColor = new();
+    public SolidColorBrush NavigationBackgroundColor
+    {
+        get => _navigationBackgroundColor;
+        set
+        {
+            if (SetProperty(ref _navigationBackgroundColor, value))
+            {
+                _settingsService.Settings.NavigationBackgroundColor = value.Color.ToString();
+            }
+        }
+    }
+
+    private SolidColorBrush _commandBarBackgroundColor = new();
+    public SolidColorBrush CommandBarBackgroundColor
+    {
+        get => _commandBarBackgroundColor;
+        set
+        {
+            if (SetProperty(ref _commandBarBackgroundColor, value))
+            {
+                _settingsService.Settings.CommandBarBackgroundColor = value.Color.ToString();
+            }
+        }
+    }
+
     private SolidColorBrush _chartLineColor = new();
     public SolidColorBrush ChartLineColor
     {
@@ -106,6 +132,8 @@ public partial class SettingsViewModel : ObservableRecipient
         WindowsPrincipal principal = new(identity);
         IsElevated = principal.IsInRole(WindowsBuiltInRole.Administrator);
 
+        _navigationBackgroundColor.Color = ColorHelper.ToColor(_settingsService.Settings.NavigationBackgroundColor);
+        _commandBarBackgroundColor.Color = ColorHelper.ToColor(_settingsService.Settings.CommandBarBackgroundColor);
         _chartLineColor.Color = ColorHelper.ToColor(_settingsService.Settings.ChartLineColor);
         _chartMarkerColor.Color = ColorHelper.ToColor(_settingsService.Settings.ChartMarkerColor);
         _chartBGColor.Color = ColorHelper.ToColor(_settingsService.Settings.ChartBGColor);

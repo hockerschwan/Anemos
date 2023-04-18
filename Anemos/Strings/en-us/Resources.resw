@@ -281,19 +281,22 @@
     <value>Chart Background color</value>
   </data>
   <data name="Settings_ChartGridColor.Text" xml:space="preserve">
-    <value>Chart grid color</value>
+    <value>Chart Grid Color</value>
   </data>
   <data name="Settings_ChartLineColor.Text" xml:space="preserve">
-    <value>Chart line color</value>
+    <value>Chart Line Color</value>
   </data>
   <data name="Settings_ChartMarkerColor.Text" xml:space="preserve">
-    <value>Chart marker color</value>
+    <value>Chart Marker Color</value>
   </data>
   <data name="Settings_ChartTextColor.Text" xml:space="preserve">
-    <value>Chart text color</value>
+    <value>Chart Text Color</value>
   </data>
   <data name="Settings_Colors.Text" xml:space="preserve">
     <value>Colors</value>
+  </data>
+  <data name="Settings_CommandBarBackgroundColor.Text" xml:space="preserve">
+    <value>Secondary Menu Background Color</value>
   </data>
   <data name="Settings_CurveMaxTemperature.Header" xml:space="preserve">
     <value>Curve Chart Max Temperature [℃]</value>
@@ -303,6 +306,9 @@
   </data>
   <data name="Settings_FanHistory.Header" xml:space="preserve">
     <value>Fan History Items</value>
+  </data>
+  <data name="Settings_NavigationBackgroundColor.Text" xml:space="preserve">
+    <value>Primary Menu Background Color</value>
   </data>
   <data name="Settings_ProjectLink.NavigateUri" xml:space="preserve">
     <value>https://github.com/hockerschwan/Anemos</value>

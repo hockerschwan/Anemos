@@ -146,10 +146,40 @@
 							<RowDefinition />
 							<RowDefinition />
 							<RowDefinition />
+							<RowDefinition />
+							<RowDefinition />
 						</Grid.RowDefinitions>
 						<Border
-							x:Name="ChartLineColorBox"
+							x:Name="NavigationBackgroundColorBox"
 							Grid.Row="0"
+							Grid.Column="0"
+							Background="{x:Bind ViewModel.NavigationBackgroundColor, Mode=OneWay}"
+							IsTabStop="True"
+							KeyDown="ColorBox_KeyDown"
+							PointerPressed="ColorBox_PointerPressed"
+							Style="{StaticResource ColorPickerButton}" />
+						<TextBlock
+							x:Uid="Settings_NavigationBackgroundColor"
+							Grid.Row="0"
+							Grid.Column="1"
+							VerticalAlignment="Center" />
+						<Border
+							x:Name="CommandBarBackgroundColorBox"
+							Grid.Row="1"
+							Grid.Column="0"
+							Background="{x:Bind ViewModel.CommandBarBackgroundColor, Mode=OneWay}"
+							IsTabStop="True"
+							KeyDown="ColorBox_KeyDown"
+							PointerPressed="ColorBox_PointerPressed"
+							Style="{StaticResource ColorPickerButton}" />
+						<TextBlock
+							x:Uid="Settings_CommandBarBackgroundColor"
+							Grid.Row="1"
+							Grid.Column="1"
+							VerticalAlignment="Center" />
+						<Border
+							x:Name="ChartLineColorBox"
+							Grid.Row="2"
 							Grid.Column="0"
 							Background="{x:Bind ViewModel.ChartLineColor, Mode=OneWay}"
 							IsTabStop="True"
@@ -158,12 +188,12 @@
 							Style="{StaticResource ColorPickerButton}" />
 						<TextBlock
 							x:Uid="Settings_ChartLineColor"
-							Grid.Row="0"
+							Grid.Row="2"
 							Grid.Column="1"
 							VerticalAlignment="Center" />
 						<Border
 							x:Name="ChartMarkerColorBox"
-							Grid.Row="1"
+							Grid.Row="3"
 							Grid.Column="0"
 							Background="{x:Bind ViewModel.ChartMarkerColor, Mode=OneWay}"
 							IsTabStop="True"
@@ -172,12 +202,12 @@
 							Style="{StaticResource ColorPickerButton}" />
 						<TextBlock
 							x:Uid="Settings_ChartMarkerColor"
-							Grid.Row="1"
+							Grid.Row="3"
 							Grid.Column="1"
 							VerticalAlignment="Center" />
 						<Border
 							x:Name="ChartBGColorBox"
-							Grid.Row="2"
+							Grid.Row="4"
 							Grid.Column="0"
 							Background="{x:Bind ViewModel.ChartBGColor, Mode=OneWay}"
 							IsTabStop="True"
@@ -186,12 +216,12 @@
 							Style="{StaticResource ColorPickerButton}" />
 						<TextBlock
 							x:Uid="Settings_ChartBGColor"
-							Grid.Row="2"
+							Grid.Row="4"
 							Grid.Column="1"
 							VerticalAlignment="Center" />
 						<Border
 							x:Name="ChartGridColorBox"
-							Grid.Row="3"
+							Grid.Row="5"
 							Grid.Column="0"
 							Background="{x:Bind ViewModel.ChartGridColor, Mode=OneWay}"
 							IsTabStop="True"
@@ -200,12 +230,12 @@
 							Style="{StaticResource ColorPickerButton}" />
 						<TextBlock
 							x:Uid="Settings_ChartGridColor"
-							Grid.Row="3"
+							Grid.Row="5"
 							Grid.Column="1"
 							VerticalAlignment="Center" />
 						<Border
 							x:Name="ChartTextColorBox"
-							Grid.Row="4"
+							Grid.Row="6"
 							Grid.Column="0"
 							Background="{x:Bind ViewModel.ChartTextColor, Mode=OneWay}"
 							IsTabStop="True"
@@ -214,7 +244,7 @@
 							Style="{StaticResource ColorPickerButton}" />
 						<TextBlock
 							x:Uid="Settings_ChartTextColor"
-							Grid.Row="4"
+							Grid.Row="6"
 							Grid.Column="1"
 							VerticalAlignment="Center" />
 					</Grid>
