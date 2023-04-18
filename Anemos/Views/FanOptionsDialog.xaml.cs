@@ -47,7 +47,7 @@ public sealed partial class FanOptionsDialog : ContentDialog
             MinSpeed = ViewModel.MinSpeed,
             DeltaLimitUp = ViewModel.DeltaLimitUp,
             DeltaLimitDown = ViewModel.DeltaLimitDown,
-            RefractoryPeriodTicksDown = ViewModel.RefractoryPeriodTicksDown
+            RefractoryPeriodCyclesDown = ViewModel.RefractoryPeriodCyclesDown
         }));
     }
 }

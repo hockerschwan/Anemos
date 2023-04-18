@@ -133,13 +133,13 @@ public class RuleModel : ObservableObject
         }
 
         _ruleService.Save();
-        Update();
+        _ruleService.Update();
     }
 
     public void RemoveCondition(RuleConditionBase item)
     {
         Conditions.Remove(item);
         _ruleService.Save();
-        Update();
+        _ruleService.Update();
     }
 }

@@ -96,12 +96,12 @@
 			Value="{x:Bind ViewModel.DeltaLimitDown, Mode=TwoWay}" />
 
 		<TextBlock
-			x:Uid="FanOptionsDialog_RefractoryPeriodTicksDown"
+			x:Uid="FanOptionsDialog_RefractoryPeriodCyclesDown"
 			Grid.Row="4"
 			Grid.Column="0"
 			VerticalAlignment="Center" />
 		<NumberBox
-			x:Name="RefractoryPeriodTicksDown"
+			x:Name="RefractoryPeriodCyclesDown"
 			Grid.Row="4"
 			Grid.Column="1"
 			LargeChange="10"
@@ -109,6 +109,6 @@
 			Minimum="0"
 			SmallChange="1"
 			SpinButtonPlacementMode="Inline"
-			Value="{x:Bind ViewModel.RefractoryPeriodTicksDown, Mode=TwoWay}" />
+			Value="{x:Bind ViewModel.RefractoryPeriodCyclesDown, Mode=TwoWay}" />
 	</Grid>
 </ContentDialog>

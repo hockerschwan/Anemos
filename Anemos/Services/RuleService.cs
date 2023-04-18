@@ -3,7 +3,6 @@ using Anemos.Contracts.Services;
 using Anemos.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.UI.Xaml;
 using Serilog;
 
 namespace Anemos.Services;
@@ -39,7 +38,9 @@ public class RuleService : ObservableRecipient, IRuleService
 
     public FanProfile DefaultProfile => _fanService.GetProfile(DefaultProfileId) ?? _fanService.CurrentProfile;
 
-    private readonly DispatcherTimer _timer = new();
+    private int _updateCounter = 0;
+
+    private int UpdateIntervalCycles => _settingsService.Settings.RulesUpdateIntervalCycles;
 
     private bool _shutdownRequested;
 
@@ -50,9 +51,12 @@ public class RuleService : ObservableRecipient, IRuleService
     public RuleService(ISettingsService settingsService, IFanService fanService)
     {
         Messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
+        Messenger.Register<LhwmUpdateDoneMessage>(this, LhwmUpdateDoneMessageHandler);
 
         _settingsService = settingsService;
         _fanService = fanService;
+
+        _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
 
         Log.Debug("[RuleService] Started");
     }
@@ -63,10 +67,6 @@ public class RuleService : ObservableRecipient, IRuleService
 
         Update();
 
-        _timer.Interval = new(0, 0, 10);
-        _timer.Tick += Timer_Tick;
-        _timer.Start();
-
         Log.Debug("[RuleService] Loaded");
         await Task.CompletedTask;
     }
@@ -74,7 +74,7 @@ public class RuleService : ObservableRecipient, IRuleService
     private async void AppExitMessageHandler(object recipient, AppExitMessage message)
     {
         _shutdownRequested = true;
-        _timer.Stop();
+        Messenger.Unregister<LhwmUpdateDoneMessage>(this);
         while (true)
         {
             if (!_isUpdating) { break; }
@@ -83,16 +83,30 @@ public class RuleService : ObservableRecipient, IRuleService
         Messenger.Send(new ServiceShutDownMessage(GetType().GetInterface("IRuleService")!));
     }
 
-    private void Timer_Tick(object? sender, object e)
+    private void LhwmUpdateDoneMessageHandler(object recipient, LhwmUpdateDoneMessage message)
     {
+        ++_updateCounter;
+        if (_updateCounter < UpdateIntervalCycles) { return; }
+
         if (!_isUpdating)
         {
             Update();
         }
     }
 
+    private void Settings_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(_settingsService.Settings.RulesUpdateIntervalCycles))
+        {
+            Update();
+            OnPropertyChanged(nameof(UpdateIntervalCycles));
+        }
+    }
+
     public void Update()
     {
+        _updateCounter = 0;
+
         _isUpdating = true;
 
         foreach (var rule in Rules)

@@ -29,7 +29,7 @@ public class FanOptionsResult
     public int MinSpeed;
     public int DeltaLimitUp;
     public int DeltaLimitDown;
-    public int RefractoryPeriodTicksDown;
+    public int RefractoryPeriodCyclesDown;
 }
 
 public class FanModelBase : ObservableObject
@@ -209,13 +209,13 @@ public class FanModelBase : ObservableObject
 
     private protected int _refractoryPeriodCounter = 0;
 
-    private protected int _refractoryPeriodTicksDown = 0;
-    public int RefractoryPeriodTicksDown
+    private protected int _refractoryPeriodCyclesDown = 0;
+    public int RefractoryPeriodCyclesDown
     {
-        get => _refractoryPeriodTicksDown;
+        get => _refractoryPeriodCyclesDown;
         private protected set
         {
-            if (SetProperty(ref _refractoryPeriodTicksDown, value))
+            if (SetProperty(ref _refractoryPeriodCyclesDown, value))
             {
                 UpdateProfile();
             }
@@ -281,10 +281,10 @@ public class FanModelBase : ObservableObject
             return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(CurveModel.Value.Value)));
         }
 
-        if (RefractoryPeriodTicksDown > 0)
+        if (RefractoryPeriodCyclesDown > 0)
         {
             ++_refractoryPeriodCounter;
-            if (_refractoryPeriodCounter <= RefractoryPeriodTicksDown && CurveModel.Value < Value)
+            if (_refractoryPeriodCounter <= RefractoryPeriodCyclesDown && CurveModel.Value < Value)
             {
                 return Math.Min(MaxSpeed, Math.Max(MinSpeed, Value.Value));
             }
@@ -322,7 +322,7 @@ public class FanModelBase : ObservableObject
         MinSpeed = item.MinSpeed;
         DeltaLimitUp = item.DeltaLimitUp;
         DeltaLimitDown = item.DeltaLimitDown;
-        RefractoryPeriodTicksDown = item.RefractoryPeriodTicksDown;
+        RefractoryPeriodCyclesDown = item.RefractoryPeriodCyclesDown;
         ControlMode = item.Mode;
 
         _updateProfile = true;
@@ -334,7 +334,7 @@ public class FanModelBase : ObservableObject
         MinSpeed = options.MinSpeed;
         DeltaLimitUp = options.DeltaLimitUp;
         DeltaLimitDown = options.DeltaLimitDown;
-        RefractoryPeriodTicksDown = options.RefractoryPeriodTicksDown;
+        RefractoryPeriodCyclesDown = options.RefractoryPeriodCyclesDown;
     }
 
     private protected void UpdateProfile()

@@ -54,7 +54,7 @@ public partial class FansViewModel : ObservableRecipient
         get => _selectedProfile;
         set
         {
-            if (SetProperty(ref _selectedProfile, value))
+            if (SetProperty(ref _selectedProfile, value) && !UseRules)
             {
                 _fanService.CurrentProfileId = _selectedProfile?.Id ?? string.Empty;
             }

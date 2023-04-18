@@ -28,6 +28,13 @@ public partial class SettingsModel : ObservableObject
         set => SetProperty(ref _updateInterval, value);
     }
 
+    private int _rulesUpdateIntervalCycles = 5;
+    public int RulesUpdateIntervalCycles
+    {
+        get => _rulesUpdateIntervalCycles;
+        set => SetProperty(ref _rulesUpdateIntervalCycles, value);
+    }
+
     private int _fanHistory = 120;
     public int FanHistory
     {
@@ -153,7 +160,7 @@ public class FanSettings_ProfileItem
     public int MinSpeed { get; set; } = 0;
     public int DeltaLimitUp { get; set; } = 0;
     public int DeltaLimitDown { get; set; } = 0;
-    public int RefractoryPeriodTicksDown { get; set; } = 0;
+    public int RefractoryPeriodCyclesDown { get; set; } = 0;
 }
 
 public class CurveSettings

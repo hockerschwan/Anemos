@@ -171,8 +171,8 @@
   <data name="FanOptionsDialog_MinSpeed.Text" xml:space="preserve">
     <value>Min Speed [%]</value>
   </data>
-  <data name="FanOptionsDialog_RefractoryPeriodTicksDown.Text" xml:space="preserve">
-    <value>Sticky Period Down [Ticks]</value>
+  <data name="FanOptionsDialog_RefractoryPeriodCyclesDown.Text" xml:space="preserve">
+    <value>Sticky Period Down [Cycles]</value>
   </data>
   <data name="FanOptionsDialog_Title" xml:space="preserve">
     <value>Fan Options</value>
@@ -315,6 +315,9 @@
   </data>
   <data name="Settings_ProjectLinkText.Text" xml:space="preserve">
     <value>Project page</value>
+  </data>
+  <data name="Settings_RulesUpdateIntervalCycles.Header" xml:space="preserve">
+    <value>Rules update interval [Cycles]</value>
   </data>
   <data name="Settings_SettingsFolderText.Text" xml:space="preserve">
     <value>Open settings folder</value>

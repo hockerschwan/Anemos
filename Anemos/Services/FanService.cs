@@ -3,6 +3,7 @@ using ADLXWrapper;
 using Anemos.Contracts.Services;
 using Anemos.Helpers;
 using Anemos.Models;
+using Anemos.ViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using LibreHardwareMonitor.Hardware;
@@ -141,6 +142,7 @@ public class FanService : ObservableRecipient, IFanService
         {
             CurrentAutoProfileId = message.Value;
             ApplyProfileToFans(p);
+            App.GetService<FansViewModel>().SelectedProfile = p;
         }
     }
 
@@ -174,7 +176,7 @@ public class FanService : ObservableRecipient, IFanService
                 f.MinSpeed = model.MinSpeed;
                 f.DeltaLimitUp = model.DeltaLimitUp;
                 f.DeltaLimitDown = model.DeltaLimitDown;
-                f.RefractoryPeriodTicksDown = model.RefractoryPeriodTicksDown;
+                f.RefractoryPeriodCyclesDown = model.RefractoryPeriodCyclesDown;
             }
         });
         CurrentProfile.Fans = fans;
@@ -225,7 +227,7 @@ public class FanService : ObservableRecipient, IFanService
                 MinSpeed = fi.MinSpeed,
                 DeltaLimitUp = fi.DeltaLimitUp,
                 DeltaLimitDown = fi.DeltaLimitDown,
-                RefractoryPeriodTicksDown = fi.RefractoryPeriodTicksDown
+                RefractoryPeriodCyclesDown = fi.RefractoryPeriodCyclesDown
             })
         };
         Profiles.Add(clone);
@@ -288,7 +290,7 @@ public class FanService : ObservableRecipient, IFanService
                 MinSpeed = pItem.MinSpeed,
                 DeltaLimitUp = pItem.DeltaLimitUp,
                 DeltaLimitDown = pItem.DeltaLimitDown,
-                RefractoryPeriodTicksDown = pItem.RefractoryPeriodTicksDown
+                RefractoryPeriodCyclesDown = pItem.RefractoryPeriodCyclesDown
             })
         }));
 
@@ -389,7 +391,7 @@ public class FanService : ObservableRecipient, IFanService
                 MinSpeed = item.MinSpeed,
                 DeltaLimitUp = item.DeltaLimitUp,
                 DeltaLimitDown = item.DeltaLimitDown,
-                RefractoryPeriodTicksDown = item.RefractoryPeriodTicksDown
+                RefractoryPeriodCyclesDown = item.RefractoryPeriodCyclesDown
             })
         });
 
