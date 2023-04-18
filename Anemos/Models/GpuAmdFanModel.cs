@@ -57,7 +57,7 @@ public class GpuAmdFanModel : FanModelBase
         }
     }
 
-    public GpuAmdFanModel(string id, string name) : base(id, name)
+    public GpuAmdFanModel(string id, string name, bool isHidden) : base(id, name, isHidden)
     {
         if (_fanService.ADLX == null)
         {

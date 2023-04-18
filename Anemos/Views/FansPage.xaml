@@ -19,86 +19,102 @@
 	<controls:DockPanel
 		LastChildFill="True"
 		Visibility="{x:Bind ViewModel.IsVisible, Converter={StaticResource VisibilityConverter}, Mode=OneWay}">
-		<StackPanel
-			Padding="10"
+		<controls:DockPanel
 			controls:DockPanel.Dock="Top"
 			Background="{ThemeResource CommandBarBackground}"
-			Orientation="Horizontal"
-			Spacing="10">
-			<ComboBox
-				x:Name="FanProfiles"
-				Width="200"
-				VerticalAlignment="Center"
-				IsEnabled="{x:Bind ViewModel.UseRules, Converter={StaticResource InvertConverter}, Mode=OneWay}"
-				ItemsSource="{x:Bind ViewModel.FanProfiles, Mode=OneWay}"
-				SelectedItem="{x:Bind ViewModel.SelectedProfile, Mode=TwoWay}">
-				<ComboBox.ItemTemplate>
-					<DataTemplate x:DataType="models:FanProfile">
-						<TextBlock
-							MaxWidth="400"
-							Text="{x:Bind Name, Mode=OneWay}"
-							TextTrimming="CharacterEllipsis" />
-					</DataTemplate>
-				</ComboBox.ItemTemplate>
-			</ComboBox>
+			LastChildFill="True">
 			<Button
-				Command="{x:Bind ViewModel.OpenProfileNameEditorCommand}"
-				IsEnabled="{x:Bind ViewModel.UseRules, Converter={StaticResource InvertConverter}, Mode=OneWay}"
-				ToolTipService.Placement="Mouse">
-				<ToolTipService.ToolTip>
-					<ToolTip x:Uid="Fans_EditProfileName" />
-				</ToolTipService.ToolTip>
-				<fa:FontAwesome Icon="Solid_Pen" />
+				Margin="5,0"
+				controls:DockPanel.Dock="Right">
+				<fa:FontAwesome Icon="Solid_Ellipsis" />
+				<Button.Flyout>
+					<MenuFlyout Placement="Bottom">
+						<ToggleMenuFlyoutItem
+							x:Uid="Fans_ToggleShowHidden"
+							IsChecked="{x:Bind ViewModel.ShowHiddenFans, Mode=TwoWay}" />
+					</MenuFlyout>
+				</Button.Flyout>
 			</Button>
-			<Button
-				Command="{x:Bind ViewModel.AddProfileCommand}"
-				IsEnabled="{x:Bind ViewModel.UseRules, Converter={StaticResource InvertConverter}, Mode=OneWay}"
-				ToolTipService.Placement="Mouse">
-				<ToolTipService.ToolTip>
-					<ToolTip x:Uid="Fans_AddProfile" />
-				</ToolTipService.ToolTip>
-				<fa:FontAwesome Icon="Solid_Plus" />
-			</Button>
-			<Button
-				Command="{x:Bind ViewModel.AddProfileCommand}"
-				CommandParameter="1"
-				IsEnabled="{x:Bind ViewModel.UseRules, Converter={StaticResource InvertConverter}, Mode=OneWay}"
-				ToolTipService.Placement="Mouse">
-				<ToolTipService.ToolTip>
-					<ToolTip x:Uid="Fans_DuplicateProfile" />
-				</ToolTipService.ToolTip>
-				<fa:FontAwesome Icon="Regular_Copy" />
-			</Button>
-			<Button
-				Command="{x:Bind ViewModel.DeleteProfileCommand}"
-				IsEnabled="{x:Bind ViewModel.UseRules, Converter={StaticResource InvertConverter}, Mode=OneWay}"
-				ToolTipService.Placement="Mouse">
-				<ToolTipService.ToolTip>
-					<ToolTip x:Uid="Fans_DeleteProfile" />
-				</ToolTipService.ToolTip>
-				<Button.Resources>
-					<ResourceDictionary>
-						<SolidColorBrush
-							x:Key="ButtonForegroundPointerOver"
-							Color="White" />
-						<SolidColorBrush
-							x:Key="ButtonBackgroundPointerOver"
-							Color="Crimson" />
-						<SolidColorBrush
-							x:Key="ButtonForegroundPressed"
-							Color="White" />
-						<SolidColorBrush
-							x:Key="ButtonBackgroundPressed"
-							Color="DarkRed" />
-					</ResourceDictionary>
-				</Button.Resources>
-				<fa:FontAwesome Icon="Solid_Minus" />
-			</Button>
-			<AppBarSeparator />
-			<ToggleSwitch
-				x:Uid="Fans_UseRulesToggleSwitch"
-				IsOn="{x:Bind ViewModel.UseRules, Mode=TwoWay}" />
-		</StackPanel>
+			<StackPanel
+				Padding="10"
+				controls:DockPanel.Dock="Left"
+				Orientation="Horizontal"
+				Spacing="10">
+				<ComboBox
+					x:Name="FanProfiles"
+					Width="200"
+					VerticalAlignment="Center"
+					IsEnabled="{x:Bind ViewModel.UseRules, Converter={StaticResource InvertConverter}, Mode=OneWay}"
+					ItemsSource="{x:Bind ViewModel.FanProfiles, Mode=OneWay}"
+					SelectedItem="{x:Bind ViewModel.SelectedProfile, Mode=TwoWay}">
+					<ComboBox.ItemTemplate>
+						<DataTemplate x:DataType="models:FanProfile">
+							<TextBlock
+								MaxWidth="400"
+								Text="{x:Bind Name, Mode=OneWay}"
+								TextTrimming="CharacterEllipsis" />
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+				</ComboBox>
+				<Button
+					Command="{x:Bind ViewModel.OpenProfileNameEditorCommand}"
+					IsEnabled="{x:Bind ViewModel.UseRules, Converter={StaticResource InvertConverter}, Mode=OneWay}"
+					ToolTipService.Placement="Mouse">
+					<ToolTipService.ToolTip>
+						<ToolTip x:Uid="Fans_EditProfileName" />
+					</ToolTipService.ToolTip>
+					<fa:FontAwesome Icon="Solid_Pen" />
+				</Button>
+				<Button
+					Command="{x:Bind ViewModel.AddProfileCommand}"
+					IsEnabled="{x:Bind ViewModel.UseRules, Converter={StaticResource InvertConverter}, Mode=OneWay}"
+					ToolTipService.Placement="Mouse">
+					<ToolTipService.ToolTip>
+						<ToolTip x:Uid="Fans_AddProfile" />
+					</ToolTipService.ToolTip>
+					<fa:FontAwesome Icon="Solid_Plus" />
+				</Button>
+				<Button
+					Command="{x:Bind ViewModel.AddProfileCommand}"
+					CommandParameter="1"
+					IsEnabled="{x:Bind ViewModel.UseRules, Converter={StaticResource InvertConverter}, Mode=OneWay}"
+					ToolTipService.Placement="Mouse">
+					<ToolTipService.ToolTip>
+						<ToolTip x:Uid="Fans_DuplicateProfile" />
+					</ToolTipService.ToolTip>
+					<fa:FontAwesome Icon="Regular_Copy" />
+				</Button>
+				<Button
+					Command="{x:Bind ViewModel.DeleteProfileCommand}"
+					IsEnabled="{x:Bind ViewModel.UseRules, Converter={StaticResource InvertConverter}, Mode=OneWay}"
+					ToolTipService.Placement="Mouse">
+					<ToolTipService.ToolTip>
+						<ToolTip x:Uid="Fans_DeleteProfile" />
+					</ToolTipService.ToolTip>
+					<Button.Resources>
+						<ResourceDictionary>
+							<SolidColorBrush
+								x:Key="ButtonForegroundPointerOver"
+								Color="White" />
+							<SolidColorBrush
+								x:Key="ButtonBackgroundPointerOver"
+								Color="Crimson" />
+							<SolidColorBrush
+								x:Key="ButtonForegroundPressed"
+								Color="White" />
+							<SolidColorBrush
+								x:Key="ButtonBackgroundPressed"
+								Color="DarkRed" />
+						</ResourceDictionary>
+					</Button.Resources>
+					<fa:FontAwesome Icon="Solid_Minus" />
+				</Button>
+				<AppBarSeparator />
+				<ToggleSwitch
+					x:Uid="Fans_UseRulesToggleSwitch"
+					IsOn="{x:Bind ViewModel.UseRules, Mode=TwoWay}" />
+			</StackPanel>
+		</controls:DockPanel>
 		<ScrollViewer
 			Padding="5"
 			Style="{StaticResource TraditionalScrollViewerStyle}">
@@ -106,7 +122,7 @@
 				DesiredWidth="600"
 				IsItemClickEnabled="False"
 				ItemHeight="200"
-				ItemsSource="{x:Bind ViewModel.Views, Mode=OneWay}"
+				ItemsSource="{x:Bind ViewModel.VisibleViews, Mode=OneWay}"
 				SelectionMode="None"
 				StretchContentForSingleRow="False" />
 		</ScrollViewer>

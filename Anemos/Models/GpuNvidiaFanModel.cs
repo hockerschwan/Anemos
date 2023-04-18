@@ -37,7 +37,7 @@ public class GpuNvidiaFanModel : FanModelBase
         }
     }
 
-    public GpuNvidiaFanModel(string id, string name, int numFans) : base(id, name)
+    public GpuNvidiaFanModel(string id, string name, bool isHidden, int numFans) : base(id, name, isHidden)
     {
         var idDivided = id.Split("/");
         for (var i = 1; i <= numFans; ++i)

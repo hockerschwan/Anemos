@@ -56,6 +56,19 @@ public class FanModelBase : ObservableObject
         }
     }
 
+    private bool _isHidden;
+    public bool IsHidden
+    {
+        get => _isHidden;
+        set
+        {
+            if (SetProperty(ref _isHidden, value))
+            {
+                _fanService.Save();
+            }
+        }
+    }
+
     private protected ISensor? Sensor => _lhwmService.GetSensor(Id);
     public int? CurrentRPM
     {
@@ -218,7 +231,7 @@ public class FanModelBase : ObservableObject
 
     private bool _updateProfile = true;
 
-    public FanModelBase(string id, string name)
+    public FanModelBase(string id, string name, bool isHidden)
     {
         if (id == string.Empty)
         {
@@ -232,6 +245,7 @@ public class FanModelBase : ObservableObject
         }
 
         _name = name;
+        _isHidden = isHidden;
 
         Control = FindControl(Sensor);
         Control?.Control.SetDefault();

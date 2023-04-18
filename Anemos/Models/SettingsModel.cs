@@ -119,6 +119,7 @@ public class FanSettings_Fan
 {
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
+    public bool IsHidden { get; set; } = false;
 }
 
 public class FanSettings_Profile

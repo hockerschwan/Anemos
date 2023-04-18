@@ -27,6 +27,8 @@ public partial class FansViewModel : ObservableRecipient
         get;
     }
 
+    public IEnumerable<FanView> VisibleViews => Views.Where(v => !v.ViewModel.Model.IsHidden || ShowHiddenFans);
+
     public FanOptionsDialog OptionsDialog
     {
         get;
@@ -69,6 +71,19 @@ public partial class FansViewModel : ObservableRecipient
         }
     }
 
+    private bool _showHiddenFans;
+    public bool ShowHiddenFans
+    {
+        get => _showHiddenFans;
+        set
+        {
+            if (SetProperty(ref _showHiddenFans, value))
+            {
+                UpdateView();
+            }
+        }
+    }
+
     public FansViewModel(IFanService fanService)
     {
         _fanService = fanService;
@@ -94,6 +109,11 @@ public partial class FansViewModel : ObservableRecipient
     {
         SelectedProfile = message.Value;
         OnPropertyChanged(nameof(FanProfiles));
+    }
+
+    public void UpdateView()
+    {
+        OnPropertyChanged(nameof(VisibleViews));
     }
 
     [RelayCommand]

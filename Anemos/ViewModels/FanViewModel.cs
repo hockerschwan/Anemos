@@ -223,4 +223,10 @@ public partial class FanViewModel : ObservableRecipient
     {
         Messenger.Send(new OpenFanOptionsMessage(Model.Id));
     }
+
+    [RelayCommand]
+    private void UpdateFansView()
+    {
+        App.GetService<FansViewModel>().UpdateView();
+    }
 }

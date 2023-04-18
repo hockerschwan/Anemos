@@ -2,7 +2,7 @@
 
 public class NormalFanModel : FanModelBase
 {
-    public NormalFanModel(string id, string name) : base(id, name)
+    public NormalFanModel(string id, string name, bool isHidden) : base(id, name, isHidden)
     {
     }
 

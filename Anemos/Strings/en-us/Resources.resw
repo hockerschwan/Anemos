@@ -199,6 +199,9 @@
   <data name="Fans_NewProfileName" xml:space="preserve">
     <value>New Profile</value>
   </data>
+  <data name="Fans_ToggleShowHidden.Text" xml:space="preserve">
+    <value>Show Hidden Fans</value>
+  </data>
   <data name="Fans_UseRulesToggleSwitch.OffContent" xml:space="preserve">
     <value>Use Rules</value>
   </data>
@@ -216,6 +219,9 @@
   </data>
   <data name="Fan_Options.Content" xml:space="preserve">
     <value>Advanced Options</value>
+  </data>
+  <data name="Fan_ToggleHide.Text" xml:space="preserve">
+    <value>Hide</value>
   </data>
   <data name="RuleSensorEditorDialog_Source.PlaceholderText" xml:space="preserve">
     <value>Select Source</value>

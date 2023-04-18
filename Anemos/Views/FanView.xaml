@@ -33,7 +33,23 @@
 				Grid.Column="0"
 				Orientation="Vertical"
 				Spacing="10">
-				<TextBox Text="{x:Bind ViewModel.Model.Name, Mode=TwoWay}" />
+				<controls:DockPanel LastChildFill="True">
+					<Button controls:DockPanel.Dock="Right">
+						<fa:FontAwesome Icon="Solid_Ellipsis" />
+						<Button.Flyout>
+							<MenuFlyout>
+								<ToggleMenuFlyoutItem
+									x:Uid="Fan_ToggleHide"
+									Command="{x:Bind ViewModel.UpdateFansViewCommand}"
+									IsChecked="{x:Bind ViewModel.Model.IsHidden, Mode=TwoWay}" />
+							</MenuFlyout>
+						</Button.Flyout>
+					</Button>
+					<TextBox
+						Margin="0,0,6,0"
+						controls:DockPanel.Dock="Left"
+						Text="{x:Bind ViewModel.Model.Name, Mode=TwoWay}" />
+				</controls:DockPanel>
 
 				<controls:DockPanel LastChildFill="True">
 					<TextBlock

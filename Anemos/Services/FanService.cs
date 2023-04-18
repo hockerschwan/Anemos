@@ -297,6 +297,7 @@ public class FanService : ObservableRecipient, IFanService
             var settings = _settingsService.Settings.FanSettings.Fans.SingleOrDefault(f => f?.Id == s.Identifier.ToString(), null);
 
             string id, name;
+            var hidden = false;
             if (settings == null)
             {
                 id = s.Identifier.ToString();
@@ -308,15 +309,16 @@ public class FanService : ObservableRecipient, IFanService
             {
                 id = settings.Id;
                 name = settings.Name;
+                hidden = settings.IsHidden;
             }
 
             switch (s.Hardware.HardwareType)
             {
                 case HardwareType.GpuAmd:
-                    Fans.Add(new GpuAmdFanModel(id, name));
+                    Fans.Add(new GpuAmdFanModel(id, name, hidden));
                     break;
                 case HardwareType.GpuIntel:
-                    Fans.Add(new ReadOnlyFanModel(id, name));
+                    Fans.Add(new ReadOnlyFanModel(id, name, hidden));
                     break;
                 case HardwareType.GpuNvidia:
                     var idDivided = s.Identifier.ToString().Split("/");
@@ -331,11 +333,11 @@ public class FanService : ObservableRecipient, IFanService
                     }
                     if (numFans > 0)
                     {
-                        Fans.Add(new GpuNvidiaFanModel(id, name, numFans));
+                        Fans.Add(new GpuNvidiaFanModel(id, name, hidden, numFans));
                     }
                     break;
                 default:
-                    Fans.Add(new NormalFanModel(id, name));
+                    Fans.Add(new NormalFanModel(id, name, hidden));
                     break;
             }
         });
@@ -367,7 +369,8 @@ public class FanService : ObservableRecipient, IFanService
         _settingsService.Settings.FanSettings.Fans = Fans.Select(fm => new FanSettings_Fan()
         {
             Id = fm.Id,
-            Name = fm.Name
+            Name = fm.Name,
+            IsHidden = fm.IsHidden
         });
 
         _settingsService.Settings.FanSettings.CurrentProfile = CurrentProfileId;
