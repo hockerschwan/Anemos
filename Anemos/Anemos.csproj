@@ -1,78 +1,78 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-	<OutputType>WinExe</OutputType>
-	<TargetFramework>net7.0-windows10.0.22621.0</TargetFramework>
-	<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-	<RootNamespace>Anemos</RootNamespace>
-	<ApplicationIcon>Assets/WindowIcon.ico</ApplicationIcon>
-	<ApplicationManifest>app.manifest</ApplicationManifest>
-	<Platforms>x86;x64;arm64</Platforms>
-	<RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
-	<PublishProfile>Properties\PublishProfiles\win10-$(Platform).pubxml</PublishProfile>
-	<ImplicitUsings>enable</ImplicitUsings>
-	<Nullable>enable</Nullable>
-	<UseWinUI>true</UseWinUI>
-	<EnableMsixTooling>true</EnableMsixTooling>
-	<WindowsPackageType>None</WindowsPackageType>
-	<PlatformTarget>x64</PlatformTarget>
-	<AssemblyVersion>0.0.1.0</AssemblyVersion>
-	<FileVersion>0.0.1.0</FileVersion>
-	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <ItemGroup>
-	<Manifest Include="$(ApplicationManifest)" />
-  </ItemGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net7.0-windows10.0.22621.0</TargetFramework>
+		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+		<RootNamespace>Anemos</RootNamespace>
+		<ApplicationIcon>Assets/WindowIcon.ico</ApplicationIcon>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<Platforms>x86;x64;arm64</Platforms>
+		<RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
+		<PublishProfile>Properties\PublishProfiles\win10-$(Platform).pubxml</PublishProfile>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<UseWinUI>true</UseWinUI>
+		<EnableMsixTooling>true</EnableMsixTooling>
+		<WindowsPackageType>None</WindowsPackageType>
+		<PlatformTarget>x64</PlatformTarget>
+		<AssemblyVersion>0.0.1.0</AssemblyVersion>
+		<FileVersion>0.0.1.0</FileVersion>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+	<ItemGroup>
+		<Manifest Include="$(ApplicationManifest)" />
+	</ItemGroup>
 
-  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-	<ProjectCapability Include="Msix" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+		<ProjectCapability Include="Msix" />
+	</ItemGroup>
 
-  <ItemGroup>
-	<PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
-	<PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
-	<PackageReference Include="FontAwesome6.Fonts.WinUI" Version="2.5.1" />
-	<PackageReference Include="H.NotifyIcon.WinUI" Version="2.0.99" />
-	<PackageReference Include="H.OxyPlot.WinUI" Version="0.9.30" />
-	<PackageReference Include="LibreHardwareMonitorLib" Version="0.9.3-pre214" />
-	<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
-	<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.2.230313.1" />
-	<PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="2.0.9" />
-	<PackageReference Include="PInvoke.User32" Version="0.7.124" />
-	<PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
-	<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-	<PackageReference Include="WinUIEx" Version="2.1" />
-	<PackageReference Include="ZetaIpc" Version="1.0.4.12" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
+		<PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
+		<PackageReference Include="FontAwesome6.Fonts.WinUI" Version="2.5.1" />
+		<PackageReference Include="H.NotifyIcon.WinUI" Version="2.0.99" />
+		<PackageReference Include="H.OxyPlot.WinUI" Version="0.9.30" />
+		<PackageReference Include="LibreHardwareMonitorLib" Version="0.9.3-pre214" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.2.230313.1" />
+		<PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="2.0.9" />
+		<PackageReference Include="PInvoke.User32" Version="0.7.124" />
+		<PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
+		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+		<PackageReference Include="WinUIEx" Version="2.1" />
+		<PackageReference Include="ZetaIpc" Version="1.0.4.12" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ADLXWrapper\ADLXWrapper.vcxproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\ADLXWrapper\ADLXWrapper.vcxproj" />
+	</ItemGroup>
 
-  <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-	<HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-	<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-	<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|arm64'">
-	<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-	<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-	<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|arm64'">
-	<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+		<HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+		<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+		<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|arm64'">
+		<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+		<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+		<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|arm64'">
+		<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+	</PropertyGroup>
 </Project>
