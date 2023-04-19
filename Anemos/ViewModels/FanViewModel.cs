@@ -101,7 +101,9 @@ public partial class FanViewModel : ObservableRecipient
     private readonly LinearAxis YAxis = new()
     {
         Position = AxisPosition.Left,
+        AbsoluteMinimum = -50,
         MinimumRange = 500,
+        MinimumMinorStep = 100,
         IsZoomEnabled = false,
         IsPanEnabled = false,
         MajorGridlineStyle = LineStyle.None,
@@ -184,7 +186,7 @@ public partial class FanViewModel : ObservableRecipient
                 }
             }
 
-            if (FansVM.IsVisible)
+            if (FansVM.IsVisible && (!Model.IsHidden || FansVM.ShowHiddenFans))
             {
                 Plot.InvalidatePlot(true);
             }

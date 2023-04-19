@@ -103,6 +103,13 @@ public partial class FansViewModel : ObservableRecipient
     private void WindowVisibilityChangedMessageHandler(object recipient, WindowVisibilityChangedMessage message)
     {
         IsVisible = message.Value;
+        if (IsVisible)
+        {
+            foreach (var v in VisibleViews)
+            {
+                v.ViewModel.Plot.InvalidatePlot(true);
+            }
+        }
     }
 
     private void FanProfileChangedMessageHandler(object recipient, FanProfileChangedMessage message)
