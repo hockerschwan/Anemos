@@ -27,7 +27,10 @@ public partial class FansViewModel : ObservableRecipient
         get;
     }
 
-    public IEnumerable<FanView> VisibleViews => Views.Where(v => !v.ViewModel.Model.IsHidden || ShowHiddenFans);
+    public ObservableCollection<FanView> VisibleViews
+    {
+        get;
+    }
 
     public FanOptionsDialog OptionsDialog
     {
@@ -94,6 +97,7 @@ public partial class FansViewModel : ObservableRecipient
         Models = _fanService.Fans.ToList();
         ViewModels = new(Models.Select(m => new FanViewModel(m)));
         Views = new(ViewModels.Select(vm => new FanView(vm)));
+        VisibleViews = new(Views);
         OptionsDialog = new();
         ProfileNameEditorDialog = new();
 
@@ -120,7 +124,21 @@ public partial class FansViewModel : ObservableRecipient
 
     public void UpdateView()
     {
-        OnPropertyChanged(nameof(VisibleViews));
+        var views = Views.Where(v => !v.ViewModel.Model.IsHidden || ShowHiddenFans).ToList();
+        var viewsChanged = views.Union(VisibleViews).Except(views.Intersect(VisibleViews)).ToList();
+        if (!viewsChanged.Any()) { return; }
+
+        foreach (var v in viewsChanged)
+        {
+            if (VisibleViews.Contains(v))
+            {
+                VisibleViews.Remove(v);
+            }
+            else
+            {
+                VisibleViews.Insert(views.IndexOf(v), v);
+            }
+        }
     }
 
     [RelayCommand]
