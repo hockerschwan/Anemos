@@ -237,7 +237,8 @@
 									CommandParameter="{x:Bind}">
 									<TextBlock
 										Text="{x:Bind Text, Mode=OneWay}"
-										TextTrimming="CharacterEllipsis" />
+										TextTrimming="CharacterEllipsis"
+										ToolTipService.ToolTip="{x:Bind Text, Mode=OneWay}" />
 								</Button>
 
 								<fa:FontAwesome
