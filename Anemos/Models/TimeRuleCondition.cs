@@ -2,28 +2,6 @@
 
 public class TimeRuleCondition : RuleConditionBase
 {
-    public override bool IsSatisfied
-    {
-        get
-        {
-            var c = TimeBeginning.CompareTo(TimeEnding);
-            if (c < 0)
-            {
-                var now = TimeOnly.FromDateTime(DateTime.Now);
-                return TimeBeginning.CompareTo(now) <= 0 && TimeEnding.CompareTo(now) >= 0;
-            }
-            else if (c > 0) // TimeBeginning is later than TimeEnding
-            {
-                var now = TimeOnly.FromDateTime(DateTime.Now);
-                return !(TimeBeginning.CompareTo(now) <= 0 && TimeEnding.CompareTo(now) >= 0);
-            }
-            else // TimeBeginning == TimeEnding
-            {
-                return true;
-            }
-        }
-    }
-
     public TimeOnly TimeBeginning
     {
         get;
@@ -54,5 +32,25 @@ public class TimeRuleCondition : RuleConditionBase
     {
         TimeEnding = time;
         OnPropertyChanged(nameof(Text));
+    }
+
+    public override void Update()
+    {
+        var c = TimeBeginning.CompareTo(TimeEnding);
+        if (c == 0)// TimeBeginning == TimeEnding
+        {
+            IsSatisfied = true;
+            return;
+        }
+
+        var now = TimeOnly.FromDateTime(DateTime.Now);
+        if (c < 0)
+        {
+            IsSatisfied = TimeBeginning.CompareTo(now) <= 0 && TimeEnding.CompareTo(now) > 0;
+        }
+        else // TimeBeginning is later than TimeEnding
+        {
+            IsSatisfied = !(TimeBeginning.CompareTo(now) > 0 && TimeEnding.CompareTo(now) <= 0);
+        }
     }
 }

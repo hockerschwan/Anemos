@@ -38,9 +38,11 @@ public abstract class RuleConditionBase : ObservableObject
         private set;
     }
 
-    public virtual bool IsSatisfied
+    private bool _isSatisfied;
+    public bool IsSatisfied
     {
-        get;
+        get => _isSatisfied;
+        private protected set => SetProperty(ref _isSatisfied, value);
     }
 
     public virtual string Text
@@ -55,6 +57,5 @@ public abstract class RuleConditionBase : ObservableObject
 
     public virtual void Update()
     {
-        OnPropertyChanged(nameof(IsSatisfied));
     }
 }

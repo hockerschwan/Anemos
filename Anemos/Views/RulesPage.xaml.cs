@@ -59,7 +59,6 @@ public sealed partial class RulesPage : Page
             model.Update();
 
             _ruleService.Save();
-            _ruleService.Update();
         }
 
         _isDialogShown = false;
@@ -86,7 +85,6 @@ public sealed partial class RulesPage : Page
             model.Update();
 
             _ruleService.Save();
-            _ruleService.Update();
         }
 
         _isDialogShown = false;
@@ -126,7 +124,6 @@ public sealed partial class RulesPage : Page
             model.Update();
 
             _ruleService.Save();
-            _ruleService.Update();
         }
 
         _isDialogShown = false;

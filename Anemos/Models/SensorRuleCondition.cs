@@ -86,48 +86,6 @@ public class SensorRuleCondition : RuleConditionBase
         }
     }
 
-    public override bool IsSatisfied
-    {
-        get
-        {
-            if (Sensor?.Value == null)
-            {
-                return false;
-            }
-
-            if (!UseLowerValue && !UseUpperValue)
-            {
-                return false;
-            }
-
-            if (UseLowerValue)
-            {
-                if (IncludeLower && Sensor.Value < LowerValue)
-                {
-                    return false;
-                }
-                else if (Sensor.Value <= LowerValue)
-                {
-                    return false;
-                }
-            }
-
-            if (UseUpperValue)
-            {
-                if (IncludeUpper && Sensor.Value > UpperValue)
-                {
-                    return false;
-                }
-                else if (Sensor.Value >= UpperValue)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-    }
-
     public SensorRuleCondition(RuleModel parent, RuleConditionArg arg) : base(parent)
     {
         _messenger = App.GetService<IMessenger>();
@@ -151,6 +109,51 @@ public class SensorRuleCondition : RuleConditionBase
         {
             SensorId = string.Empty;
         }
+    }
+
+    public override void Update()
+    {
+        if (Sensor?.Value == null)
+        {
+            IsSatisfied = false;
+            return;
+        }
+
+        if (!UseLowerValue && !UseUpperValue)
+        {
+            IsSatisfied = false;
+            return;
+        }
+
+        if (UseLowerValue)
+        {
+            if (IncludeLower && Sensor.Value < LowerValue)
+            {
+                IsSatisfied = false;
+                return;
+            }
+            else if (Sensor.Value <= LowerValue)
+            {
+                IsSatisfied = false;
+                return;
+            }
+        }
+
+        if (UseUpperValue)
+        {
+            if (IncludeUpper && Sensor.Value > UpperValue)
+            {
+                IsSatisfied = false;
+                return;
+            }
+            else if (Sensor.Value >= UpperValue)
+            {
+                IsSatisfied = false;
+                return;
+            }
+        }
+
+        IsSatisfied = true;
     }
 
     public void UpdateText()

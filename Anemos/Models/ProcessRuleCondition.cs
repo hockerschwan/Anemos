@@ -4,8 +4,6 @@ namespace Anemos.Models;
 
 public class ProcessRuleCondition : RuleConditionBase
 {
-    public override bool IsSatisfied => Process.GetProcesses().Select(p => p.ProcessName).Contains(ProcessName);
-
     public string ProcessName
     {
         get;
@@ -23,5 +21,10 @@ public class ProcessRuleCondition : RuleConditionBase
     {
         ProcessName = processName;
         OnPropertyChanged(nameof(Text));
+    }
+
+    public override void Update()
+    {
+        IsSatisfied = Process.GetProcesses().Select(p => p.ProcessName).Contains(ProcessName);
     }
 }
