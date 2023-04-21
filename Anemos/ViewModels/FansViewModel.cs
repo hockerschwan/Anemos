@@ -97,7 +97,7 @@ public partial class FansViewModel : ObservableRecipient
         Models = _fanService.Fans.ToList();
         ViewModels = new(Models.Select(m => new FanViewModel(m)));
         Views = new(ViewModels.Select(vm => new FanView(vm)));
-        VisibleViews = new(Views);
+        VisibleViews = new(Views.Where(v => !v.ViewModel.Model.IsHidden));
         OptionsDialog = new();
         ProfileNameEditorDialog = new();
 
