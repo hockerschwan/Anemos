@@ -319,9 +319,6 @@ public class FanService : ObservableRecipient, IFanService
                 case HardwareType.GpuAmd:
                     Fans.Add(new GpuAmdFanModel(id, name, hidden));
                     break;
-                case HardwareType.GpuIntel:
-                    Fans.Add(new ReadOnlyFanModel(id, name, hidden));
-                    break;
                 case HardwareType.GpuNvidia:
                     var idDivided = s.Identifier.ToString().Split("/");
                     if (!int.TryParse(idDivided.Last(), out var n) || n != 1) { break; }
