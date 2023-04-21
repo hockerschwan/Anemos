@@ -56,14 +56,14 @@ public partial class SettingsModel : ObservableObject
         set => SetProperty(ref _curveMinTemp, value);
     }
 
-    private string _navigationBackgroundColor = "#11286e";
+    private string _navigationBackgroundColor = "#333333";
     public string NavigationBackgroundColor
     {
         get => _navigationBackgroundColor;
         set => SetProperty(ref _navigationBackgroundColor, value);
     }
 
-    private string _commandBarBackgroundColor = "#153184";
+    private string _commandBarBackgroundColor = "#282828";
     public string CommandBarBackgroundColor
     {
         get => _commandBarBackgroundColor;
@@ -119,7 +119,7 @@ public class Settings_Window
     public bool Maximized { get; set; } = false;
     public int X { get; set; } = 100;
     public int Y { get; set; } = 100;
-    public int Width { get; set; } = 900;
+    public int Width { get; set; } = 1200;
     public int Height { get; set; } = 720;
 }
 

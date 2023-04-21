@@ -34,6 +34,7 @@
 
 	<ScrollViewer
 		Padding="30,10"
+		HorizontalScrollBarVisibility="Auto"
 		Style="{StaticResource TraditionalScrollViewerStyle}">
 		<StackPanel
 			x:Name="ContentArea"
@@ -281,7 +282,7 @@
 			<VisualStateGroup>
 				<VisualState>
 					<VisualState.StateTriggers>
-						<AdaptiveTrigger MinWindowWidth="560" />
+						<AdaptiveTrigger MinWindowWidth="640" />
 					</VisualState.StateTriggers>
 
 					<VisualState.Setters>
