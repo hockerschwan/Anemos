@@ -43,6 +43,7 @@
 				</Grid.ColumnDefinitions>
 
 				<NumberBox
+					x:Name="NumberBoxX"
 					Grid.Row="0"
 					Grid.Column="0"
 					Header="X [&#8451;]"
@@ -54,6 +55,7 @@
 					SpinButtonPlacementMode="Inline"
 					Value="{x:Bind ViewModel.HoveredX, Mode=TwoWay}" />
 				<NumberBox
+					x:Name="NumberBoxY"
 					Grid.Row="0"
 					Grid.Column="1"
 					Header="Y [%]"

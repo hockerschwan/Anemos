@@ -2,6 +2,7 @@ using Anemos.ViewModels;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Windows.Globalization.NumberFormatting;
 
 namespace Anemos.Views;
 
@@ -21,6 +22,8 @@ public sealed partial class CurveEditorDialog : ContentDialog
         Loaded += CurveEditorDialog_Loaded;
         Closing += CurveEditorDialog_Closing;
         InitializeComponent();
+
+        SetNumberFormatter();
     }
 
     private void MainWindow_SizeChanged(object sender, WindowSizeChangedEventArgs args)
@@ -46,5 +49,21 @@ public sealed partial class CurveEditorDialog : ContentDialog
     {
         ViewModel.Unselect();
         _messenger.Send(new CurveEditorResultMessage(ViewModel.GetLineData()));
+    }
+
+    private void SetNumberFormatter()
+    {
+        IncrementNumberRounder rounder = new()
+        {
+            Increment = 0.1,
+            RoundingAlgorithm = RoundingAlgorithm.RoundHalfUp
+        };
+
+        DecimalFormatter formatter = new()
+        {
+            FractionDigits = 1,
+            NumberRounder = rounder
+        };
+        NumberBoxX.NumberFormatter = NumberBoxY.NumberFormatter = formatter;
     }
 }
