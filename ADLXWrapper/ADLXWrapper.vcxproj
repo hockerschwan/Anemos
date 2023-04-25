@@ -142,6 +142,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ADLXWrapper.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="SDK\ADLXHelper\Windows\Cpp\ADLXHelper.h" />
   </ItemGroup>
   <ItemGroup>
@@ -149,6 +150,9 @@
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="SDK\ADLXHelper\Windows\Cpp\ADLXHelper.cpp" />
     <ClCompile Include="SDK\Platform\Windows\WinAPIs.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ADLXWrapper.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

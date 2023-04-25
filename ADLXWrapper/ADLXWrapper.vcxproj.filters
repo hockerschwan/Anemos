@@ -17,6 +17,9 @@
     <ClInclude Include="SDK\ADLXHelper\Windows\Cpp\ADLXHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ADLXWrapper.cpp">
@@ -31,5 +34,8 @@
     <ClCompile Include="SDK\Platform\Windows\WinAPIs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ADLXWrapper.rc" />
   </ItemGroup>
 </Project>
