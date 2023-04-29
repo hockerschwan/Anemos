@@ -132,7 +132,7 @@ public class SensorRuleCondition : RuleConditionBase
                 IsSatisfied = false;
                 return;
             }
-            else if (Sensor.Value <= LowerValue)
+            else if (!IncludeLower && Sensor.Value <= LowerValue)
             {
                 IsSatisfied = false;
                 return;
@@ -146,7 +146,7 @@ public class SensorRuleCondition : RuleConditionBase
                 IsSatisfied = false;
                 return;
             }
-            else if (Sensor.Value >= UpperValue)
+            else if (!IncludeUpper && Sensor.Value >= UpperValue)
             {
                 IsSatisfied = false;
                 return;
