@@ -31,7 +31,19 @@ public sealed partial class RulesPage : Page
         _messenger.Register<RuleEditorResultMessage>(this, RuleEditorResultMessageHandler);
 
         ViewModel = App.GetService<RulesViewModel>();
+        Loaded += RulesPage_Loaded;
+        Unloaded += RulesPage_Unloaded;
         InitializeComponent();
+    }
+
+    private void RulesPage_Loaded(object sender, RoutedEventArgs e)
+    {
+        ViewModel.IsVisible = true;
+    }
+
+    private void RulesPage_Unloaded(object sender, RoutedEventArgs e)
+    {
+        ViewModel.IsVisible = false;
     }
 
     private async void OpenRuleTimeEditorMessageHandler(object recipient, OpenRuleTimeEditorMessage message)

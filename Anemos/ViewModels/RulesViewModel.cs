@@ -30,7 +30,7 @@ public partial class RulesViewModel : ObservableRecipient
         get;
     }
 
-    private bool _isVisible = true;
+    private bool _isVisible;
     public bool IsVisible
     {
         get => _isVisible;

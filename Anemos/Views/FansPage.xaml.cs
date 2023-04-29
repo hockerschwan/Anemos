@@ -20,6 +20,8 @@ public sealed partial class FansPage : Page
 
     private bool _isDialogShown = false;
 
+    private bool _hasLoaded = false;
+
     public FansViewModel ViewModel
     {
         get;
@@ -120,7 +122,19 @@ public sealed partial class FansPage : Page
 
     private void FansPage_Loaded(object sender, RoutedEventArgs e)
     {
-        ViewModel.IsVisible = true;
+        if (_hasLoaded)
+        {
+            ViewModel.IsVisible = true;
+        }
+        else
+        {
+            if (!App.GetService<ISettingsService>().Settings.StartMinimized)
+            {
+                ViewModel.IsVisible = true;
+            }
+
+            _hasLoaded = true;
+        }
     }
 
     private void FansPage_Unloaded(object sender, RoutedEventArgs e)

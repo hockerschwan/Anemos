@@ -42,7 +42,7 @@ public partial class FansViewModel : ObservableRecipient
         get;
     }
 
-    private bool _isVisible = true;
+    private bool _isVisible = false;
     public bool IsVisible
     {
         get => _isVisible;
