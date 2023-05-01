@@ -73,14 +73,19 @@ public class CurveService : ObservableRecipient, ICurveService
     private void AddCurves(IEnumerable<CurveArg> args, bool save = true)
     {
         var old = Curves.ToList();
-        var models = args.Select(arg =>
+        var models = new List<CurveModelBase>();
+        foreach (var arg in args)
         {
             switch (arg.Type)
             {
+                case CurveType.Latch:
+                    models.Add(new LatchCurveModel(arg));
+                    break;
                 default:
-                    return new ChartCurveModel(arg);
+                    models.Add(new ChartCurveModel(arg));
+                    break;
             }
-        });
+        }
         Curves.AddRange(models);
         Messenger.Send(new CurvesChangedMessage(this, nameof(Curves), old, Curves));
 
@@ -107,23 +112,36 @@ public class CurveService : ObservableRecipient, ICurveService
 
     public void Save()
     {
-        _settingsService.Settings.CurveSettings.Curves = Curves.Select(
-            cm =>
+        var curves = new List<CurveSettings_Curve>();
+        foreach (var cm in Curves)
+        {
+            if (cm is ChartCurveModel chart)
             {
-                switch (cm.Type)
+                curves.Add(new CurveSettings_Curve()
                 {
-                    default:
-                        var chart = cm as ChartCurveModel;
-                        return new CurveSettings_Curve()
-                        {
-                            Type = cm.Type,
-                            Id = cm.Id,
-                            Name = cm.Name,
-                            SourceId = cm.SourceId,
-                            Points = chart!.Points
-                        };
-                }
-            });
+                    Type = cm.Type,
+                    Id = cm.Id,
+                    Name = cm.Name,
+                    SourceId = cm.SourceId,
+                    Points = chart.Points
+                });
+            }
+            else if (cm is LatchCurveModel latch)
+            {
+                curves.Add(new CurveSettings_Curve()
+                {
+                    Type = cm.Type,
+                    Id = cm.Id,
+                    Name = cm.Name,
+                    SourceId = cm.SourceId,
+                    OutputLowTemperature = latch.OutputLowTemperature,
+                    OutputHighTemperature = latch.OutputHighTemperature,
+                    TemperatureThresholdLow = latch.TemperatureThresholdLow,
+                    TemperatureThresholdHigh = latch.TemperatureThresholdHigh
+                });
+            }
+        }
+        _settingsService.Settings.CurveSettings.Curves = curves;
 
         _settingsService.Save();
     }
@@ -138,7 +156,11 @@ public class CurveService : ObservableRecipient, ICurveService
                     Id = s.Id,
                     Name = s.Name,
                     SourceId = s.SourceId,
-                    Points = s.Points
+                    Points = s.Points,
+                    OutputLowTemperature = s.OutputLowTemperature,
+                    OutputHighTemperature = s.OutputHighTemperature,
+                    TemperatureThresholdLow = s.TemperatureThresholdLow,
+                    TemperatureThresholdHigh = s.TemperatureThresholdHigh
                 }),
             false);
     }

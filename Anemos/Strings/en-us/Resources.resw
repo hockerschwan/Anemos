@@ -126,6 +126,9 @@
   <data name="Curves_AddChart.Content" xml:space="preserve">
     <value>Add Chart</value>
   </data>
+  <data name="Curves_AddLatch.Content" xml:space="preserve">
+    <value>Add Latch</value>
+  </data>
   <data name="Curves_NewCurveName" xml:space="preserve">
     <value>New Curve</value>
   </data>

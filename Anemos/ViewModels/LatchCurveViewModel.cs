@@ -1,0 +1,108 @@
+﻿using System.ComponentModel;
+using Anemos.Models;
+using OxyPlot;
+using OxyPlot.Series;
+
+namespace Anemos.ViewModels;
+
+public class LatchCurveViewModel : CurveViewModelBase
+{
+    private readonly LatchCurveModel _model;
+
+    private readonly List<DataPoint> _lineDataOutputLow = new();
+    private readonly List<DataPoint> _lineDataOutputHigh = new();
+    private readonly List<DataPoint> _lineDataThresholdLow = new();
+    private readonly List<DataPoint> _lineDataThresholdHigh = new();
+
+    private readonly LineSeries LineOutputLow = new()
+    {
+        StrokeThickness = 2,
+        MarkerType = MarkerType.None,
+        CanTrackerInterpolatePoints = false,
+        Selectable = false,
+    };
+
+    private readonly LineSeries LineOutputHigh = new()
+    {
+        StrokeThickness = 2,
+        MarkerType = MarkerType.None,
+        CanTrackerInterpolatePoints = false,
+        Selectable = false,
+    };
+
+    private readonly LineSeries LineThresholdLow = new()
+    {
+        StrokeThickness = 2,
+        MarkerType = MarkerType.None,
+        CanTrackerInterpolatePoints = false,
+        Selectable = false,
+    };
+
+    private readonly LineSeries LineThresholdHigh = new()
+    {
+        StrokeThickness = 2,
+        MarkerType = MarkerType.None,
+        CanTrackerInterpolatePoints = false,
+        Selectable = false,
+    };
+
+    public LatchCurveViewModel(LatchCurveModel model) : base(model)
+    {
+        _model = model;
+
+        SetLineData();
+        LineOutputLow.ItemsSource = _lineDataOutputLow;
+        LineOutputHigh.ItemsSource = _lineDataOutputHigh;
+        LineThresholdLow.ItemsSource = _lineDataThresholdLow;
+        LineThresholdHigh.ItemsSource = _lineDataThresholdHigh;
+        Plot.Series.Insert(0, LineOutputLow);
+        Plot.Series.Insert(0, LineOutputHigh);
+        Plot.Series.Insert(0, LineThresholdLow);
+        Plot.Series.Insert(0, LineThresholdHigh);
+
+        SetColor();
+    }
+
+    private protected override void Model_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        base.Model_PropertyChanged(sender, e);
+
+        if (e.PropertyName == nameof(_model.OutputLowTemperature) ||
+            e.PropertyName == nameof(_model.OutputHighTemperature) ||
+            e.PropertyName == nameof(_model.TemperatureThresholdLow) ||
+            e.PropertyName == nameof(_model.TemperatureThresholdHigh))
+        {
+            SetLineData();
+            if (IsVisible)
+            {
+                Plot.InvalidatePlot(true);
+            }
+        }
+    }
+
+    private void SetLineData()
+    {
+        _lineDataOutputLow.Clear();
+        _lineDataOutputLow.Add(new(XAxis.AbsoluteMinimum - 10, _model.OutputLowTemperature));
+        _lineDataOutputLow.Add(new(_model.TemperatureThresholdHigh, _model.OutputLowTemperature));
+
+        _lineDataOutputHigh.Clear();
+        _lineDataOutputHigh.Add(new(_model.TemperatureThresholdLow, _model.OutputHighTemperature));
+        _lineDataOutputHigh.Add(new(XAxis.AbsoluteMaximum + 10, _model.OutputHighTemperature));
+
+        _lineDataThresholdLow.Clear();
+        _lineDataThresholdLow.Add(new(_model.TemperatureThresholdLow, _model.OutputLowTemperature));
+        _lineDataThresholdLow.Add(new(_model.TemperatureThresholdLow, _model.OutputHighTemperature));
+
+        _lineDataThresholdHigh.Clear();
+        _lineDataThresholdHigh.Add(new(_model.TemperatureThresholdHigh, _model.OutputLowTemperature));
+        _lineDataThresholdHigh.Add(new(_model.TemperatureThresholdHigh, _model.OutputHighTemperature));
+    }
+
+    private protected override void SetColor()
+    {
+        LineOutputLow.Color = LineOutputHigh.Color = LineThresholdLow.Color = LineThresholdHigh.Color
+            = OxyColor.Parse(_settingsService.Settings.ChartLineColor);
+        base.SetColor();
+    }
+}

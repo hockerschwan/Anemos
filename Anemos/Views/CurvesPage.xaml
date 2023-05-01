@@ -20,14 +20,34 @@
 		<StackPanel
 			Padding="10"
 			controls:DockPanel.Dock="Top"
-			Background="{ThemeResource CommandBarBackground}">
+			Background="{ThemeResource CommandBarBackground}"
+			Orientation="Horizontal"
+			Spacing="10">
 			<Button
-				Command="{x:Bind ViewModel.AddCurveCommand}"
+				Command="{x:Bind ViewModel.AddChartCurveCommand}"
 				ToolTipService.Placement="Mouse">
 				<ToolTipService.ToolTip>
 					<ToolTip x:Uid="Curves_AddChart" />
 				</ToolTipService.ToolTip>
-				<fa:FontAwesome Icon="Solid_Plus" />
+				<StackPanel
+					Orientation="Horizontal"
+					Spacing="5">
+					<fa:FontAwesome Icon="Solid_Plus" />
+					<fa:FontAwesome Icon="Solid_ChartLine" />
+				</StackPanel>
+			</Button>
+			<Button
+				Command="{x:Bind ViewModel.AddLatchCurveCommand}"
+				ToolTipService.Placement="Mouse">
+				<ToolTipService.ToolTip>
+					<ToolTip x:Uid="Curves_AddLatch" />
+				</ToolTipService.ToolTip>
+				<StackPanel
+					Orientation="Horizontal"
+					Spacing="5">
+					<fa:FontAwesome Icon="Solid_Plus" />
+					<fa:FontAwesome Icon="Solid_Repeat" />
+				</StackPanel>
 			</Button>
 		</StackPanel>
 		<ScrollViewer
