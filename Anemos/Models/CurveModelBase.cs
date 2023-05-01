@@ -6,7 +6,7 @@ namespace Anemos.Models;
 
 public enum CurveType
 {
-    Chart,
+    Chart, Latch
 }
 
 public class CurveArg
@@ -16,7 +16,14 @@ public class CurveArg
     public string Name = string.Empty;
     public string SourceId = string.Empty;
 
-    public IEnumerable<Point2>? Points = Enumerable.Empty<Point2>();
+    // Chart
+    public IEnumerable<Point2>? Points;
+
+    // Latch
+    public double? OutputLowTemperature;
+    public double? OutputHighTemperature;
+    public double? TemperatureThresholdLow;
+    public double? TemperatureThresholdHigh;
 }
 
 public class CurveModelBase : ObservableObject

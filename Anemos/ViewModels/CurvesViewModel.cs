@@ -48,14 +48,21 @@ public partial class CurvesViewModel : ObservableRecipient
         Messenger.Register<CurvesChangedMessage>(this, CurvesChangedMessageHandler);
 
         Models = _curveService.Curves.ToList();
-        ViewModels = new(Models.Select(m =>
+
+        var vms = new List<CurveViewModelBase>();
+        foreach (var model in Models)
         {
-            switch (m.Type)
+            if (model is ChartCurveModel chart)
             {
-                default:
-                    return new ChartCurveViewModel((ChartCurveModel)m);
+                vms.Add(new ChartCurveViewModel(chart));
             }
-        }));
+            else if (model is LatchCurveModel latch)
+            {
+                vms.Add(new LatchCurveViewModel(latch));
+            }
+        }
+        ViewModels = new(vms);
+
         Views = new(ViewModels.Select(vm => new CurveView(vm)));
         ChartEditor = new();
     }
@@ -101,18 +108,39 @@ public partial class CurvesViewModel : ObservableRecipient
                     ViewModels.Add(vm);
                     Views.Add(new CurveView(vm));
                 }
+                else if (model is LatchCurveModel latch)
+                {
+                    var vm = new LatchCurveViewModel(latch);
+                    ViewModels.Add(vm);
+                    Views.Add(new CurveView(vm));
+                }
                 model.Update();
             }
         }
     }
 
     [RelayCommand]
-    private void AddCurve()
+    private void AddChartCurve()
     {
         _curveService.AddCurve(new()
         {
+            Type = CurveType.Chart,
             Name = "Curves_NewCurveName".GetLocalized(),
             Points = new Point2[] { new(30, 30), new(70, 70) }
+        });
+    }
+
+    [RelayCommand]
+    private void AddLatchCurve()
+    {
+        _curveService.AddCurve(new()
+        {
+            Type = CurveType.Latch,
+            Name = "Curves_NewCurveName".GetLocalized(),
+            OutputLowTemperature = 30.0,
+            OutputHighTemperature = 70.0,
+            TemperatureThresholdLow = 45.0,
+            TemperatureThresholdHigh = 65.0
         });
     }
 }

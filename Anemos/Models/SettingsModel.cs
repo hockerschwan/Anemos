@@ -175,7 +175,29 @@ public class CurveSettings_Curve
     public string Name { get; set; } = string.Empty;
     public string SourceId { get; set; } = string.Empty;
 
-    public IEnumerable<Point2>? Points { get; set; } = Enumerable.Empty<Point2>();
+    // Chart
+    public IEnumerable<Point2>? Points
+    {
+        get; set;
+    }
+
+    // Latch
+    public double? OutputLowTemperature
+    {
+        get; set;
+    }
+    public double? OutputHighTemperature
+    {
+        get; set;
+    }
+    public double? TemperatureThresholdLow
+    {
+        get; set;
+    }
+    public double? TemperatureThresholdHigh
+    {
+        get; set;
+    }
 }
 
 public class SensorSettings
