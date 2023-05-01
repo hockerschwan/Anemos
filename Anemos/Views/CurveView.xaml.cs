@@ -6,12 +6,12 @@ namespace Anemos.Views;
 
 public sealed partial class CurveView : UserControl
 {
-    public CurveViewModel ViewModel
+    public CurveViewModelBase ViewModel
     {
         get;
     }
 
-    public CurveView(CurveViewModel viewModel)
+    public CurveView(CurveViewModelBase viewModel)
     {
         ViewModel = viewModel;
         Loaded += CurveView_Loaded;

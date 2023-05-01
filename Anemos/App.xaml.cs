@@ -87,7 +87,7 @@ public partial class App : Application
                 services.AddSingleton<FanOptionsViewModel>();
                 services.AddSingleton<FansViewModel>();
                 services.AddSingleton<FansPage>();
-                services.AddSingleton<CurveEditorViewModel>();
+                services.AddSingleton<ChartCurveEditorViewModel>();
                 services.AddSingleton<CurvesViewModel>();
                 services.AddSingleton<CurvesPage>();
                 services.AddSingleton<SensorsViewModel>();

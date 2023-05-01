@@ -10,7 +10,7 @@ using OxyPlot.Series;
 
 namespace Anemos.ViewModels;
 
-public class CurveEditorViewModel : ObservableRecipient
+public class ChartCurveEditorViewModel : ObservableRecipient
 {
     private readonly ISettingsService _settingsService = App.GetService<ISettingsService>();
 
@@ -44,7 +44,7 @@ public class CurveEditorViewModel : ObservableRecipient
         }
     }
 
-    public CurveModel? CurveModel => _curveService.GetCurve(Id);
+    public ChartCurveModel? CurveModel => (ChartCurveModel?)_curveService.GetCurve(Id);
 
     public SensorModelBase? CurveModelSource => CurveModel?.SourceModel;
 
@@ -186,7 +186,7 @@ public class CurveEditorViewModel : ObservableRecipient
         set => SetProperty(ref _isVisible, value);
     }
 
-    public CurveEditorViewModel()
+    public ChartCurveEditorViewModel()
     {
         Messenger.Register<WindowVisibilityChangedMessage>(this, WindowVisibilityChangedMessageHandler);
 

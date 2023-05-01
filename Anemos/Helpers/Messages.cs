@@ -49,13 +49,13 @@ public class CurvesUpdateDoneMessage : ValueChangedMessage<object?>
     public CurvesUpdateDoneMessage() : base(null) { }
 }
 
-public class CurvesChangedMessage : PropertyChangedMessage<IEnumerable<CurveModel>>
+public class CurvesChangedMessage : PropertyChangedMessage<IEnumerable<CurveModelBase>>
 {
     public CurvesChangedMessage(
         object sender,
         string? propertyName,
-        IEnumerable<CurveModel> oldValue,
-        IEnumerable<CurveModel> newValue)
+        IEnumerable<CurveModelBase> oldValue,
+        IEnumerable<CurveModelBase> newValue)
         : base(sender, propertyName, oldValue, newValue) { }
 }
 
@@ -64,9 +64,9 @@ public class OpenCurveEditorMessage : ValueChangedMessage<string>
     public OpenCurveEditorMessage(string curveId) : base(curveId) { }
 }
 
-public class CurveEditorResultMessage : ValueChangedMessage<IEnumerable<Point2>>
+public class ChartCurveEditorResultMessage : ValueChangedMessage<IEnumerable<Point2>>
 {
-    public CurveEditorResultMessage(IEnumerable<Point2> points) : base(points) { }
+    public ChartCurveEditorResultMessage(IEnumerable<Point2> points) : base(points) { }
 }
 
 public class FanProfileChangedMessage : ValueChangedMessage<FanProfile>

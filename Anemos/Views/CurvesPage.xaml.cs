@@ -1,5 +1,6 @@
 using Anemos.Contracts.Services;
 using Anemos.Helpers;
+using Anemos.Models;
 using Anemos.ViewModels;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml;
@@ -25,7 +26,7 @@ public sealed partial class CurvesPage : Page
     public CurvesPage()
     {
         _messenger.Register<OpenCurveEditorMessage>(this, OpenCurveEditorMessageHandler);
-        _messenger.Register<CurveEditorResultMessage>(this, CurveEditorResultMessageHandler);
+        _messenger.Register<ChartCurveEditorResultMessage>(this, ChartCurveEditorResultMessageHandler);
 
         ViewModel = App.GetService<CurvesViewModel>();
         Loaded += CurvesPage_Loaded;
@@ -33,28 +34,30 @@ public sealed partial class CurvesPage : Page
         InitializeComponent();
     }
 
-    private async void OpenCurveEditorMessageHandler(object recipient, OpenCurveEditorMessage message)
+    private void OpenCurveEditorMessageHandler(object recipient, OpenCurveEditorMessage message)
     {
-        if (_isDialogShown)
-        {
-            return;
-        }
+        if (_isDialogShown) { return; }
 
         var curveId = message.Value;
         var model = _curveService.GetCurve(curveId);
-        if (model == null)
+        if (model == null) { return; }
+
+        if (model is ChartCurveModel curve)
         {
-            return;
+            OpenChartEditor(curve);
         }
+    }
 
-        var vm = App.GetService<CurveEditorViewModel>();
-        vm.Id = curveId;
+    private async void OpenChartEditor(ChartCurveModel model)
+    {
+        var vm = App.GetService<ChartCurveEditorViewModel>();
+        vm.Id = model.Id;
 
-        SetDialogStyle();
+        SetChartEditorDialogStyle();
 
         _isDialogShown = true;
 
-        var result = await ViewModel.Editor.ShowAsync();
+        var result = await ViewModel.ChartEditor.ShowAsync();
         if (result == ContentDialogResult.Primary)
         {
             model.Points = _points.ToList();
@@ -64,9 +67,9 @@ public sealed partial class CurvesPage : Page
         _isDialogShown = false;
     }
 
-    private void SetDialogStyle()
+    private void SetChartEditorDialogStyle()
     {
-        var dialog = ViewModel.Editor;
+        var dialog = ViewModel.ChartEditor;
         dialog.XamlRoot = XamlRoot;
         dialog.Style = App.Current.Resources["DefaultContentDialogStyle"] as Style;
         dialog.Title = "CurveEditorDialog_Title".GetLocalized();
@@ -75,7 +78,7 @@ public sealed partial class CurvesPage : Page
         dialog.DefaultButton = ContentDialogButton.Primary;
     }
 
-    private void CurveEditorResultMessageHandler(object recipient, CurveEditorResultMessage message)
+    private void ChartCurveEditorResultMessageHandler(object recipient, ChartCurveEditorResultMessage message)
     {
         _points = message.Value;
     }

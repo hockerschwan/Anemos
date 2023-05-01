@@ -12,7 +12,7 @@ public class CurveService : ObservableRecipient, ICurveService
 
     private readonly ISettingsService _settingsService;
 
-    public List<CurveModel> Curves
+    public List<CurveModelBase> Curves
     {
         get;
     } = new();
@@ -63,7 +63,7 @@ public class CurveService : ObservableRecipient, ICurveService
         _isUpdating = false;
     }
 
-    public CurveModel? GetCurve(string id) => Curves.SingleOrDefault(cm => cm?.Id == id, null);
+    public CurveModelBase? GetCurve(string id) => Curves.SingleOrDefault(cm => cm?.Id == id, null);
 
     public void AddCurve(CurveArg arg)
     {
@@ -73,7 +73,14 @@ public class CurveService : ObservableRecipient, ICurveService
     private void AddCurves(IEnumerable<CurveArg> args, bool save = true)
     {
         var old = Curves.ToList();
-        var models = args.Select(arg => new CurveModel(this, _sensorService, arg));
+        var models = args.Select(arg =>
+        {
+            switch (arg.Type)
+            {
+                default:
+                    return new ChartCurveModel(arg);
+            }
+        });
         Curves.AddRange(models);
         Messenger.Send(new CurvesChangedMessage(this, nameof(Curves), old, Curves));
 
@@ -101,12 +108,21 @@ public class CurveService : ObservableRecipient, ICurveService
     public void Save()
     {
         _settingsService.Settings.CurveSettings.Curves = Curves.Select(
-            cm => new CurveSettings_Curve()
+            cm =>
             {
-                Id = cm.Id,
-                Name = cm.Name,
-                SourceId = cm.SourceId,
-                Points = cm.Points
+                switch (cm.Type)
+                {
+                    default:
+                        var chart = cm as ChartCurveModel;
+                        return new CurveSettings_Curve()
+                        {
+                            Type = cm.Type,
+                            Id = cm.Id,
+                            Name = cm.Name,
+                            SourceId = cm.SourceId,
+                            Points = chart!.Points
+                        };
+                }
             });
 
         _settingsService.Save();
@@ -118,6 +134,7 @@ public class CurveService : ObservableRecipient, ICurveService
             _settingsService.Settings.CurveSettings.Curves.Select(
                 s => new CurveArg()
                 {
+                    Type = s.Type,
                     Id = s.Id,
                     Name = s.Name,
                     SourceId = s.SourceId,

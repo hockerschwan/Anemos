@@ -6,18 +6,18 @@ using Windows.Globalization.NumberFormatting;
 
 namespace Anemos.Views;
 
-public sealed partial class CurveEditorDialog : ContentDialog
+public sealed partial class ChartCurveEditorDialog : ContentDialog
 {
     private readonly IMessenger _messenger = App.GetService<IMessenger>();
 
-    public CurveEditorViewModel ViewModel
+    public ChartCurveEditorViewModel ViewModel
     {
         get;
     }
 
-    public CurveEditorDialog()
+    public ChartCurveEditorDialog()
     {
-        ViewModel = App.GetService<CurveEditorViewModel>();
+        ViewModel = App.GetService<ChartCurveEditorViewModel>();
         App.MainWindow.SizeChanged += MainWindow_SizeChanged;
         Loaded += CurveEditorDialog_Loaded;
         Closing += CurveEditorDialog_Closing;
@@ -48,7 +48,7 @@ public sealed partial class CurveEditorDialog : ContentDialog
     private void CurveEditorDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
     {
         ViewModel.Unselect();
-        _messenger.Send(new CurveEditorResultMessage(ViewModel.GetLineData()));
+        _messenger.Send(new ChartCurveEditorResultMessage(ViewModel.GetLineData()));
     }
 
     private void SetNumberFormatter()

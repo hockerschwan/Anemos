@@ -13,12 +13,12 @@ public partial class CurvesViewModel : ObservableRecipient
 {
     private readonly ICurveService _curveService;
 
-    private List<CurveModel> Models
+    private List<CurveModelBase> Models
     {
         get;
     }
 
-    private ObservableCollection<CurveViewModel> ViewModels
+    private ObservableCollection<CurveViewModelBase> ViewModels
     {
         get;
     }
@@ -28,7 +28,7 @@ public partial class CurvesViewModel : ObservableRecipient
         get;
     }
 
-    public CurveEditorDialog Editor
+    public ChartCurveEditorDialog ChartEditor
     {
         get;
     }
@@ -48,9 +48,16 @@ public partial class CurvesViewModel : ObservableRecipient
         Messenger.Register<CurvesChangedMessage>(this, CurvesChangedMessageHandler);
 
         Models = _curveService.Curves.ToList();
-        ViewModels = new(Models.Select(m => new CurveViewModel(m)));
+        ViewModels = new(Models.Select(m =>
+        {
+            switch (m.Type)
+            {
+                default:
+                    return new ChartCurveViewModel((ChartCurveModel)m);
+            }
+        }));
         Views = new(ViewModels.Select(vm => new CurveView(vm)));
-        Editor = new();
+        ChartEditor = new();
     }
 
     private void WindowVisibilityChangedMessageHandler(object recipient, WindowVisibilityChangedMessage message)
@@ -88,9 +95,12 @@ public partial class CurvesViewModel : ObservableRecipient
             {
                 Models.Add(model);
 
-                var vm = new CurveViewModel(model);
-                ViewModels.Add(vm);
-                Views.Add(new CurveView(vm));
+                if (model is ChartCurveModel curve)
+                {
+                    var vm = new ChartCurveViewModel(curve);
+                    ViewModels.Add(vm);
+                    Views.Add(new CurveView(vm));
+                }
                 model.Update();
             }
         }
