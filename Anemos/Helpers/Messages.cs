@@ -69,6 +69,12 @@ public class ChartCurveEditorResultMessage : ValueChangedMessage<IEnumerable<Poi
     public ChartCurveEditorResultMessage(IEnumerable<Point2> points) : base(points) { }
 }
 
+// TemperatureThresholdLow, TemperatureThresholdHigh, OutputLowTemperature, OutputHighTemperature
+public class LatchCurveEditorResultMessage : ValueChangedMessage<Tuple<double, double, double, double>>
+{
+    public LatchCurveEditorResultMessage(Tuple<double, double, double, double> values) : base(values) { }
+}
+
 public class FanProfileChangedMessage : ValueChangedMessage<FanProfile>
 {
     public FanProfileChangedMessage(FanProfile newProfile) : base(newProfile) { }

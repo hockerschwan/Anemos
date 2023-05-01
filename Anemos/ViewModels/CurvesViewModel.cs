@@ -33,6 +33,11 @@ public partial class CurvesViewModel : ObservableRecipient
         get;
     }
 
+    public LatchCurveEditorDialog LatchEditor
+    {
+        get;
+    }
+
     private bool _isVisible;
     public bool IsVisible
     {
@@ -65,6 +70,7 @@ public partial class CurvesViewModel : ObservableRecipient
 
         Views = new(ViewModels.Select(vm => new CurveView(vm)));
         ChartEditor = new();
+        LatchEditor = new();
     }
 
     private void WindowVisibilityChangedMessageHandler(object recipient, WindowVisibilityChangedMessage message)
