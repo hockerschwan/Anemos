@@ -226,6 +226,18 @@
   <data name="Fan_ToggleHide.Text" xml:space="preserve">
     <value>Hide</value>
   </data>
+  <data name="LatchEditor_OutputHigh.Header" xml:space="preserve">
+    <value>Output High [%]</value>
+  </data>
+  <data name="LatchEditor_OutputLow.Header" xml:space="preserve">
+    <value>Output Low [%]</value>
+  </data>
+  <data name="LatchEditor_ThresholdHigh.Header" xml:space="preserve">
+    <value>Threshold High [℃]</value>
+  </data>
+  <data name="LatchEditor_ThresholdLow.Header" xml:space="preserve">
+    <value>Threshold Low [℃]</value>
+  </data>
   <data name="RuleSensorEditorDialog_Source.PlaceholderText" xml:space="preserve">
     <value>Select Source</value>
   </data>
