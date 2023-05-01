@@ -56,13 +56,13 @@ public partial class FanViewModel : ObservableRecipient
         }
     }
 
-    public RangeObservableCollection<CurveModel> Curves
+    public RangeObservableCollection<CurveModelBase> Curves
     {
         get;
     }
 
-    private CurveModel? _selectedCurve;
-    public CurveModel? SelectedCurve
+    private CurveModelBase? _selectedCurve;
+    public CurveModelBase? SelectedCurve
     {
         get => _selectedCurve;
         set

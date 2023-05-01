@@ -140,7 +140,7 @@ public class FanModelBase : ObservableObject
         }
     }
 
-    public CurveModel? CurveModel => _curveService.GetCurve(CurveId);
+    public CurveModelBase? CurveModel => _curveService.GetCurve(CurveId);
 
     private protected int _constantSpeed = 50;
     public int ConstantSpeed

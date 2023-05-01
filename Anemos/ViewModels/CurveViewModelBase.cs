@@ -12,15 +12,15 @@ using OxyPlot.Series;
 
 namespace Anemos.ViewModels;
 
-public partial class CurveViewModel : ObservableRecipient
+public partial class CurveViewModelBase : ObservableRecipient
 {
-    private readonly ISettingsService _settingsService = App.GetService<ISettingsService>();
+    private protected readonly ISettingsService _settingsService = App.GetService<ISettingsService>();
 
-    private readonly ISensorService _sensorService = App.GetService<ISensorService>();
+    private protected readonly ISensorService _sensorService = App.GetService<ISensorService>();
 
-    private readonly ICurveService _curveService = App.GetService<ICurveService>();
+    private protected readonly ICurveService _curveService = App.GetService<ICurveService>();
 
-    public CurveModel Model
+    public CurveModelBase Model
     {
         get;
     }
@@ -38,21 +38,11 @@ public partial class CurveViewModel : ObservableRecipient
 
     private SensorModelBase? _oldSource;
 
-    private readonly List<DataPoint> _lineData = new();
-
     private readonly LimitedObservableCollection<ScatterPoint> _scatterData = new(1);
 
     public PlotController ChartController = new();
 
     public PlotModel Plot { get; } = new();
-
-    private readonly LineSeries Line = new()
-    {
-        StrokeThickness = 2,
-        MarkerType = MarkerType.None,
-        CanTrackerInterpolatePoints = false,
-        Selectable = false,
-    };
 
     private readonly ScatterSeries Scatter = new()
     {
@@ -61,7 +51,7 @@ public partial class CurveViewModel : ObservableRecipient
         Selectable = false,
     };
 
-    private readonly LinearAxis XAxis = new()
+    private protected readonly LinearAxis XAxis = new()
     {
         Position = AxisPosition.Bottom,
         AbsoluteMaximum = 150,
@@ -109,7 +99,7 @@ public partial class CurveViewModel : ObservableRecipient
         }
     }
 
-    public CurveViewModel(CurveModel model)
+    public CurveViewModelBase(CurveModelBase model)
     {
         Messenger.Register<WindowVisibilityChangedMessage>(this, WindowVisibilityChangedMessageHandler);
         Messenger.Register<CustomSensorsChangedMessage>(this, CustomSensorsChangedMessageHandler);
@@ -130,10 +120,6 @@ public partial class CurveViewModel : ObservableRecipient
 
         ChartController.UnbindAll();
 
-        SetLineData();
-        Line.ItemsSource = _lineData;
-        Plot.Series.Add(Line);
-
         Scatter.ItemsSource = _scatterData;
         Plot.Series.Add(Scatter);
 
@@ -141,8 +127,6 @@ public partial class CurveViewModel : ObservableRecipient
         XAxis.Minimum = _settingsService.Settings.CurveMinTemp;
         Plot.Axes.Add(XAxis);
         Plot.Axes.Add(YAxis);
-
-        SetColor();
     }
 
     private void WindowVisibilityChangedMessageHandler(object recipient, WindowVisibilityChangedMessage message)
@@ -179,7 +163,7 @@ public partial class CurveViewModel : ObservableRecipient
         }
     }
 
-    private void Model_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private protected virtual void Model_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(Model.SourceId))
         {
@@ -201,14 +185,6 @@ public partial class CurveViewModel : ObservableRecipient
         {
             SetScatterData();
         }
-        else if (e.PropertyName == nameof(Model.Points))
-        {
-            SetLineData();
-            if (IsVisible)
-            {
-                Plot.InvalidatePlot(true);
-            }
-        }
     }
 
     private void Source_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -217,25 +193,6 @@ public partial class CurveViewModel : ObservableRecipient
         {
             SetScatterData();
         }
-    }
-
-    private void SetLineData()
-    {
-        var dataPoints = new List<DataPoint>();
-        if (Model.Points.Any())
-        {
-            dataPoints.Add(new(XAxis.AbsoluteMinimum - 10, (double)Model.Points.First().Y));
-            dataPoints.Add(new(XAxis.AbsoluteMaximum + 10, (double)Model.Points.Last().Y));
-        }
-        else
-        {
-            dataPoints.Add(new(XAxis.AbsoluteMinimum - 10, 0));
-            dataPoints.Add(new(XAxis.AbsoluteMaximum + 10, 0));
-        }
-        dataPoints.InsertRange(1, Model.Points.Select(p => new DataPoint((double)p.X, (double)p.Y)));
-
-        _lineData.Clear();
-        _lineData.AddRange(dataPoints);
     }
 
     private void SetScatterData()
@@ -255,9 +212,8 @@ public partial class CurveViewModel : ObservableRecipient
         }
     }
 
-    private void SetColor()
+    private protected virtual void SetColor()
     {
-        Line.Color = OxyColor.Parse(_settingsService.Settings.ChartLineColor);
         Scatter.MarkerFill = Scatter.MarkerStroke = OxyColor.Parse(_settingsService.Settings.ChartMarkerColor);
         Plot.Background = OxyColor.Parse(_settingsService.Settings.ChartBGColor);
         XAxis.MajorGridlineColor = YAxis.MajorGridlineColor = XAxis.TicklineColor = YAxis.TicklineColor

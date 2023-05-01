@@ -170,10 +170,12 @@ public class CurveSettings
 
 public class CurveSettings_Curve
 {
+    public CurveType Type { get; set; } = CurveType.Chart;
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string SourceId { get; set; } = string.Empty;
-    public IEnumerable<Point2> Points { get; set; } = Enumerable.Empty<Point2>();
+
+    public IEnumerable<Point2>? Points { get; set; } = Enumerable.Empty<Point2>();
 }
 
 public class SensorSettings

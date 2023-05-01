@@ -4,7 +4,7 @@ namespace Anemos.Contracts.Services;
 
 public interface ICurveService
 {
-    List<CurveModel> Curves
+    List<CurveModelBase> Curves
     {
         get;
     }
@@ -15,7 +15,7 @@ public interface ICurveService
 
     void RemoveCurve(string id);
 
-    CurveModel? GetCurve(string id);
+    CurveModelBase? GetCurve(string id);
 
     void Save();
 }

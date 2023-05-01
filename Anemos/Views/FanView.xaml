@@ -104,7 +104,7 @@
 					SelectedItem="{x:Bind ViewModel.SelectedCurve, Mode=TwoWay}"
 					Visibility="{x:Bind ViewModel.ShowCurveControls, Converter={StaticResource VisibilityConverter}, Mode=OneWay}">
 					<ComboBox.ItemTemplate>
-						<DataTemplate x:DataType="models:CurveModel">
+						<DataTemplate x:DataType="models:CurveModelBase">
 							<controls:DockPanel LastChildFill="True">
 								<TextBlock
 									VerticalAlignment="Center"
