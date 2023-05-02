@@ -136,13 +136,14 @@ public partial class CurveViewModelBase : ObservableRecipient
 
     private void CustomSensorsChangedMessageHandler(object recipient, CustomSensorsChangedMessage message)
     {
-        Sensors.ReplaceRange(message.NewValue);
-
         var removed = message.OldValue.Except(message.NewValue).ToList();
-        if (removed.Any() && Model.SourceId != string.Empty && removed.Select(s => s.Id).Contains(Model.SourceId))
+        foreach (var sensor in removed)
         {
-            Model.SourceId = string.Empty;
+            Sensors.Remove(sensor);
         }
+
+        var added = message.NewValue.Except(message.OldValue).ToList();
+        Sensors.AddRange(added);
     }
 
     private void Settings_PropertyChanged(object? sender, PropertyChangedEventArgs e)

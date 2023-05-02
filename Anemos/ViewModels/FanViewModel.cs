@@ -150,13 +150,14 @@ public partial class FanViewModel : ObservableRecipient
 
     private void CurvesChangedMessageHandler(object recipient, CurvesChangedMessage message)
     {
-        Curves.ReplaceRange(message.NewValue);
-
         var removed = message.OldValue.Except(message.NewValue).ToList();
-        if (removed.Any() && Model.CurveId != string.Empty && removed.Select(cm => cm.Id).Contains(Model.CurveId))
+        foreach (var cm in removed)
         {
-            Model.CurveId = string.Empty;
+            Curves.Remove(cm);
         }
+
+        var added = message.NewValue.Except(message.OldValue).ToList();
+        Curves.AddRange(added);
     }
 
     private void FanProfileChangedMessageHandler(object recipient, FanProfileChangedMessage message)
