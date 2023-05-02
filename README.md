@@ -55,7 +55,7 @@ Multi-GPU not tested.
 - [Community Toolkit](https://github.com/CommunityToolkit/dotnet)
 - [FontAwesome6.Fonts.WinUI](https://github.com/MartinTopfstedt/FontAwesome6)
 - [H.NotifyIcon.WinUI](https://github.com/HavenDV/H.NotifyIcon)
-- [H.OxyPlot.WinUI](https://github.com/oxyplot/oxyplot)
+- [H.OxyPlot.WinUI](https://github.com/HavenDV/H.OxyPlot)
 - [LibreHardwareMonitorLib](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor)
 - [PInvoke.User32](https://github.com/dotnet/pinvoke)
 - [Serilog](https://github.com/serilog/serilog)
