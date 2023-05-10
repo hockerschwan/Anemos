@@ -5,7 +5,6 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:fa="using:FontAwesome6.Fonts"
 	xmlns:helpers="using:Anemos.Helpers"
-	xmlns:local="using:Anemos.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
 	<Grid>
 		<NavigationView
@@ -66,7 +65,5 @@
 				<Frame x:Name="NavigationFrame" />
 			</Grid>
 		</NavigationView>
-
-		<local:TrayIcon />
 	</Grid>
 </Page>
