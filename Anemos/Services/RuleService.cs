@@ -14,6 +14,11 @@ public class RuleService : ObservableRecipient, IRuleService
 
     public RangeObservableCollection<RuleModel> Rules { get; } = new();
 
+    public RuleModel? CurrentRule
+    {
+        get; private set;
+    }
+
     private string _defaultProfileId = string.Empty;
     public string DefaultProfileId
     {
@@ -119,16 +124,24 @@ public class RuleService : ObservableRecipient, IRuleService
             rule.Update();
         }
 
-        if (_fanService.UseRules)
+        if (_fanService.UseRules || !_isLoaded)
         {
-            var p = Rules.FirstOrDefault(r => r!.ConditionsSatisfied, null);
-            if (p == null)
+            var rule = Rules.FirstOrDefault(r => r!.ConditionsSatisfied, null);
+            if (rule?.ProfileId != CurrentRule?.ProfileId || !_isLoaded)
             {
-                Messenger.Send(new RuleSwitchedMessage(DefaultProfileId));
-            }
-            else
-            {
-                Messenger.Send(new RuleSwitchedMessage(p.ProfileId));
+                if (rule != CurrentRule)
+                {
+                    CurrentRule = rule;
+                }
+
+                if (rule == null)
+                {
+                    Messenger.Send(new RuleSwitchedMessage(DefaultProfileId));
+                }
+                else
+                {
+                    Messenger.Send(new RuleSwitchedMessage(rule.ProfileId));
+                }
             }
         }
 
@@ -147,6 +160,8 @@ public class RuleService : ObservableRecipient, IRuleService
         Rules.AddRange(models);
         Messenger.Send(new RulesChangedMessage(this, nameof(Rules), old, Rules));
 
+        Update();
+
         if (save)
         {
             Save();
@@ -160,6 +175,8 @@ public class RuleService : ObservableRecipient, IRuleService
         var old = Rules.ToList();
         Rules.Remove(rule);
         Messenger.Send(new RulesChangedMessage(this, nameof(Rules), old, Rules));
+
+        Update();
 
         Save();
     }
@@ -265,6 +282,8 @@ public class RuleService : ObservableRecipient, IRuleService
 
         Messenger.Send(new RulesChangedMessage(this, nameof(Rules), old, Rules));
 
+        Update();
+
         Save();
     }
 
@@ -279,6 +298,8 @@ public class RuleService : ObservableRecipient, IRuleService
         Rules.Insert(i + 1, rule);
 
         Messenger.Send(new RulesChangedMessage(this, nameof(Rules), old, Rules));
+
+        Update();
 
         Save();
     }

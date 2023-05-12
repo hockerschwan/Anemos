@@ -87,6 +87,8 @@ public class ActivationService : IActivationService
 
     private async Task StartupAsync()
     {
+        App.GetService<INotifyIconService>().SetVisible(true);
+
         await Task.CompletedTask;
     }
 }

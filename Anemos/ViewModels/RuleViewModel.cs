@@ -1,4 +1,5 @@
-﻿using Anemos.Contracts.Services;
+﻿using System.ComponentModel;
+using Anemos.Contracts.Services;
 using Anemos.Helpers;
 using Anemos.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -38,8 +39,7 @@ public partial class RuleViewModel : ObservableRecipient
             if (SetProperty(ref _selectedRuleTypeIndex, value))
             {
                 Model.Type = (RuleType)value;
-                Model.Update();
-                OnPropertyChanged(nameof(Model.ConditionsSatisfied));
+                _ruleService.Update();
             }
         }
     }
@@ -53,6 +53,7 @@ public partial class RuleViewModel : ObservableRecipient
             if (SetProperty(ref _selectedProfileIndex, value))
             {
                 Model.ProfileId = _fanService.Profiles.ElementAt(value).Id;
+                _ruleService.Update();
             }
         }
     }
@@ -69,6 +70,7 @@ public partial class RuleViewModel : ObservableRecipient
     public RuleViewModel(RuleModel model)
     {
         Model = model;
+        Model.PropertyChanged += Model_PropertyChanged;
 
         var profile = _fanService.GetProfile(Model.ProfileId);
         if (profile != null)
@@ -77,6 +79,14 @@ public partial class RuleViewModel : ObservableRecipient
         }
 
         _selectedRuleTypeIndex = (int)Model.Type;
+    }
+
+    private void Model_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Model.Name) && Model == _ruleService.CurrentRule)
+        {
+            App.GetService<INotifyIconService>().UpdateTooltip();
+        }
     }
 
     public void UpdateArrows()
@@ -127,6 +137,7 @@ public partial class RuleViewModel : ObservableRecipient
     [RelayCommand]
     private void RemoveSelf()
     {
+        Model.PropertyChanged -= Model_PropertyChanged;
         _ruleService.RemoveRule(Model);
     }
 

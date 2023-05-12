@@ -82,6 +82,7 @@ public partial class App : Application
                 services.AddSingleton<ICurveService>(curveService);
                 services.AddSingleton<IFanService>(fanService);
                 services.AddSingleton<IRuleService>(ruleService);
+                services.AddSingleton<INotifyIconService, NotifyIconService>();
 
                 // Views and ViewModels
                 services.AddSingleton<FanOptionsViewModel>();
@@ -117,6 +118,7 @@ public partial class App : Application
             typeof(ICurveService),
             typeof(IFanService),
             typeof(IRuleService),
+            typeof(INotifyIconService),
         });
         _messenger.Register<ServiceShutDownMessage>(this, ServiceShutDownMessageHandler);
     }

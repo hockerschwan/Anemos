@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Anemos", "Anemos\Anemos.csp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ADLXWrapper", "ADLXWrapper\ADLXWrapper.vcxproj", "{1677EEE6-5F35-46D1-B31B-55943E2E3060}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NotifyIconLib", "NotifyIconLib\NotifyIconLib.vcxproj", "{C390CC48-6225-417E-BA31-CBC6E7B48EAD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,18 @@ Global
 		{1677EEE6-5F35-46D1-B31B-55943E2E3060}.Release|x64.Build.0 = Release|x64
 		{1677EEE6-5F35-46D1-B31B-55943E2E3060}.Release|x86.ActiveCfg = Release|Win32
 		{1677EEE6-5F35-46D1-B31B-55943E2E3060}.Release|x86.Build.0 = Release|Win32
+		{C390CC48-6225-417E-BA31-CBC6E7B48EAD}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{C390CC48-6225-417E-BA31-CBC6E7B48EAD}.Debug|Any CPU.Build.0 = Debug|x64
+		{C390CC48-6225-417E-BA31-CBC6E7B48EAD}.Debug|x64.ActiveCfg = Debug|x64
+		{C390CC48-6225-417E-BA31-CBC6E7B48EAD}.Debug|x64.Build.0 = Debug|x64
+		{C390CC48-6225-417E-BA31-CBC6E7B48EAD}.Debug|x86.ActiveCfg = Debug|Win32
+		{C390CC48-6225-417E-BA31-CBC6E7B48EAD}.Debug|x86.Build.0 = Debug|Win32
+		{C390CC48-6225-417E-BA31-CBC6E7B48EAD}.Release|Any CPU.ActiveCfg = Release|x64
+		{C390CC48-6225-417E-BA31-CBC6E7B48EAD}.Release|Any CPU.Build.0 = Release|x64
+		{C390CC48-6225-417E-BA31-CBC6E7B48EAD}.Release|x64.ActiveCfg = Release|x64
+		{C390CC48-6225-417E-BA31-CBC6E7B48EAD}.Release|x64.Build.0 = Release|x64
+		{C390CC48-6225-417E-BA31-CBC6E7B48EAD}.Release|x86.ActiveCfg = Release|Win32
+		{C390CC48-6225-417E-BA31-CBC6E7B48EAD}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
