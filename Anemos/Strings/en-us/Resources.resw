@@ -238,6 +238,15 @@
   <data name="LatchEditor_ThresholdLow.Header" xml:space="preserve">
     <value>Threshold Low [℃]</value>
   </data>
+  <data name="NotifyIcon_Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="NotifyIcon_Profiles" xml:space="preserve">
+    <value>Profiles</value>
+  </data>
+  <data name="NotifyIcon_UseRules" xml:space="preserve">
+    <value>Use Rules</value>
+  </data>
   <data name="RuleSensorEditorDialog_Source.PlaceholderText" xml:space="preserve">
     <value>Select Source</value>
   </data>
@@ -319,6 +328,9 @@
   <data name="Settings_CurveMinTemperature.Header" xml:space="preserve">
     <value>Curve Chart Min Temperature [℃]</value>
   </data>
+  <data name="Settings_Exit.Text" xml:space="preserve">
+    <value>Exit</value>
+  </data>
   <data name="Settings_FanHistory.Header" xml:space="preserve">
     <value>Fan History Items</value>
   </data>
@@ -363,9 +375,6 @@
   </data>
   <data name="Shell_Sensors.Content" xml:space="preserve">
     <value>Sensors</value>
-  </data>
-  <data name="TrayIcon_Exit.Label" xml:space="preserve">
-    <value>Exit</value>
   </data>
   <data name="VersionDescription" xml:space="preserve">
     <value>Version $</value>

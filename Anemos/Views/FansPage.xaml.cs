@@ -87,6 +87,8 @@ public sealed partial class FansPage : Page
         {
             _fanService.CurrentProfile.Name = _newName;
             _fanService.UpdateCurrentProfile();
+
+            App.GetService<INotifyIconService>().SetupMenu();
         }
 
         _newName = string.Empty;

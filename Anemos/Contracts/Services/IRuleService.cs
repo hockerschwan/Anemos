@@ -10,6 +10,11 @@ public interface IRuleService
         get;
     }
 
+    RuleModel? CurrentRule
+    {
+        get;
+    }
+
     string DefaultProfileId
     {
         get; set;

@@ -37,6 +37,11 @@ public class FanService : ObservableRecipient, IFanService
                 }
                 OnPropertyChanged(nameof(CurrentProfile));
                 ApplyProfileToFans();
+
+                if (_isLoaded)
+                {
+                    App.GetService<INotifyIconService>().SetupMenu();
+                }
             }
         }
     }
@@ -47,9 +52,7 @@ public class FanService : ObservableRecipient, IFanService
 
     public RangeObservableCollection<FanModelBase> Fans { get; } = new();
 
-    private IEnumerable<ISensor> Sensors
-        => _lhwmService.GetSensors(SensorType.Fan)
-            .Where(s => s.Hardware.HardwareType != HardwareType.GpuNvidia || s.Identifier.ToString().Split("/").Last() == "1");
+    private readonly IEnumerable<ISensor> Sensors;
 
     private bool _useRules;
     public bool UseRules
@@ -62,25 +65,24 @@ public class FanService : ObservableRecipient, IFanService
                 if (_useRules)
                 {
                     _ruleService.Update();
+                    OnPropertyChanged(nameof(CurrentAutoProfileId));
                 }
                 else
                 {
-                    CurrentAutoProfileId = string.Empty;
                     ApplyProfileToFans(CurrentProfile);
                 }
 
                 if (_isLoaded)
                 {
+                    App.GetService<INotifyIconService>().SetupMenu();
+
                     Save();
                 }
             }
         }
     }
 
-    public string CurrentAutoProfileId
-    {
-        get; set;
-    } = string.Empty;
+    public string CurrentAutoProfileId => _ruleService.CurrentRule?.ProfileId ?? _ruleService.DefaultProfileId;
 
     private readonly ADLX? _adlx;
     public ADLX? ADLX => _adlx;
@@ -97,6 +99,9 @@ public class FanService : ObservableRecipient, IFanService
 
         _lhwmService = lhwmService;
         _settingsService = settingsService;
+
+        Sensors = _lhwmService.GetSensors(SensorType.Fan)
+            .Where(s => s.Hardware.HardwareType != HardwareType.GpuNvidia || s.Identifier.ToString().Split("/").Last() == "1");
 
         if (_lhwmService.Hardware.Where(hw => hw.HardwareType == HardwareType.GpuAmd).Any())
         {
@@ -135,12 +140,14 @@ public class FanService : ObservableRecipient, IFanService
 
     private void RuleSwitchedMessageHandler(object recipient, RuleSwitchedMessage message)
     {
-        if (!UseRules || CurrentAutoProfileId == message.Value) { return; }
+        if (CurrentAutoProfileId == message.Value) { return; }
 
         var p = GetProfile(message.Value);
-        if (p != null)
+        if (p == null) { return; }
+
+        OnPropertyChanged(nameof(CurrentAutoProfileId));
+        if (UseRules)
         {
-            CurrentAutoProfileId = message.Value;
             ApplyProfileToFans(p);
             App.GetService<FansViewModel>().SelectedProfile = p;
         }
@@ -235,6 +242,8 @@ public class FanService : ObservableRecipient, IFanService
 
         if (_isLoaded)
         {
+            App.GetService<INotifyIconService>().SetupMenu();
+
             Save();
         }
     }
@@ -263,6 +272,8 @@ public class FanService : ObservableRecipient, IFanService
 
         if (_isLoaded)
         {
+            App.GetService<INotifyIconService>().SetupMenu();
+
             Save();
         }
     }

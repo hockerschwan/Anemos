@@ -274,6 +274,38 @@
 							<TextBlock x:Uid="Settings_ProjectLinkText" />
 						</StackPanel>
 					</HyperlinkButton>
+					<Button
+						Margin="{StaticResource MediumTopMargin}"
+						Command="{x:Bind ViewModel.ExitAppCommand}">
+						<Button.Resources>
+							<ResourceDictionary>
+								<SolidColorBrush
+									x:Key="ButtonForeground"
+									Color="White" />
+								<SolidColorBrush
+									x:Key="ButtonBackground"
+									Color="DarkRed" />
+								<SolidColorBrush
+									x:Key="ButtonForegroundPointerOver"
+									Color="White" />
+								<SolidColorBrush
+									x:Key="ButtonBackgroundPointerOver"
+									Color="Crimson" />
+								<SolidColorBrush
+									x:Key="ButtonForegroundPressed"
+									Color="White" />
+								<SolidColorBrush
+									x:Key="ButtonBackgroundPressed"
+									Color="DarkRed" />
+							</ResourceDictionary>
+						</Button.Resources>
+						<StackPanel
+							Orientation="Horizontal"
+							Spacing="6">
+							<fa:FontAwesome Icon="Solid_X" />
+							<TextBlock x:Uid="Settings_Exit" />
+						</StackPanel>
+					</Button>
 				</StackPanel>
 			</StackPanel>
 		</StackPanel>

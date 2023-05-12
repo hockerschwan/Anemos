@@ -70,6 +70,7 @@ public sealed partial class RulesPage : Page
             var model = ViewModel.Models.Single(m => m == cond.Parent);
             model.Update();
 
+            _ruleService.Update();
             _ruleService.Save();
         }
 
@@ -96,6 +97,7 @@ public sealed partial class RulesPage : Page
             var model = ViewModel.Models.Single(m => m == cond.Parent);
             model.Update();
 
+            _ruleService.Update();
             _ruleService.Save();
         }
 
@@ -135,6 +137,7 @@ public sealed partial class RulesPage : Page
             var model = ViewModel.Models.Single(m => m == cond.Parent);
             model.Update();
 
+            _ruleService.Update();
             _ruleService.Save();
         }
 

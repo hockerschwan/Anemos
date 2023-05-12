@@ -171,6 +171,12 @@ public partial class SettingsViewModel : ObservableRecipient
     }
 
     [RelayCommand]
+    private void ExitApp()
+    {
+        App.Current.RequestShutdown();
+    }
+
+    [RelayCommand]
     private void CreateTask(bool createTask)
     {
         if (!IsElevated) { return; }

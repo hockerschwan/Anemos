@@ -33,7 +33,7 @@ public interface IFanService
 
     string CurrentAutoProfileId
     {
-        get; set;
+        get;
     }
 
     ADLX? ADLX

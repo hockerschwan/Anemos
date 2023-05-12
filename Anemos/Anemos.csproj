@@ -45,6 +45,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\ADLXWrapper\ADLXWrapper.vcxproj" />
+		<ProjectReference Include="..\NotifyIconLib\NotifyIconLib.vcxproj" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
