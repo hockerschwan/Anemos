@@ -144,6 +144,10 @@ public class RuleService : ObservableRecipient, IRuleService
                 }
             }
         }
+        else if (CurrentRule != null)
+        {
+            CurrentRule = null;
+        }
 
         _isUpdating = false;
     }

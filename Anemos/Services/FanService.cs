@@ -70,6 +70,7 @@ public class FanService : ObservableRecipient, IFanService
                 else
                 {
                     ApplyProfileToFans(CurrentProfile);
+                    _ruleService.Update();
                 }
 
                 if (_isLoaded)
@@ -140,8 +141,6 @@ public class FanService : ObservableRecipient, IFanService
 
     private void RuleSwitchedMessageHandler(object recipient, RuleSwitchedMessage message)
     {
-        if (CurrentAutoProfileId == message.Value) { return; }
-
         var p = GetProfile(message.Value);
         if (p == null) { return; }
 

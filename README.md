@@ -9,17 +9,17 @@ Control chassis, CPU & GPU fans on Windows 10 or later.
 ## Screenshots
 
 <div>
-<img src="https://user-images.githubusercontent.com/80553357/234269155-ae4615f5-4366-4591-834c-8157454d6f41.PNG" width=300>
-<img src="https://user-images.githubusercontent.com/80553357/234269167-7eb35b24-0dcf-4b3b-ad87-593ce694f361.PNG" width=300>
-<img src="https://user-images.githubusercontent.com/80553357/234269184-f3476c61-0703-4f31-b106-fdefc38a94f2.PNG" width=300>
-<img src="https://user-images.githubusercontent.com/80553357/234269194-73c74ed9-29e3-47d0-b3c8-dd0194d221e3.PNG" width=300>
+<img src="https://user-images.githubusercontent.com/80553357/238078414-fbb1b808-758b-469b-af83-4601d76776f1.png" width=300>
+<img src="https://user-images.githubusercontent.com/80553357/238078419-79279cfd-f916-4de2-9589-91e03b8e8590.png" width=300>
+<img src="https://user-images.githubusercontent.com/80553357/238078424-caba8b31-dae1-446e-b9c9-e1d0f1611e5e.png" width=300>
+<img src="https://user-images.githubusercontent.com/80553357/238078422-003c5968-5613-4a89-bb93-236634c52dde.png" width=300>
 </div>
 
 ## Usage
 
 To run this app, you need to install .Net7 and [Windows App SDK runtime](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads).
 
-If amdadlx64.dll is not found, download from [here](https://download.amd.com/dir/bin/amdadlx64.dll/)
+If amdadlx64.dll is not found, update driver or download from [here](https://download.amd.com/dir/bin/amdadlx64.dll/).
 
 ## GPU Support
 
@@ -30,8 +30,6 @@ Multi-GPU not tested.
     Cards supported by [ADLX](https://gpuopen.com/manuals/adlx/adlx-page_guide__compatibility/) (Tested on a RDNA2 card)
 
     > ADLX does not support some legacy AMD GPUs
-
-    Caution: This is rather CPU intensive.
 
 - Intel
 
@@ -54,7 +52,6 @@ Multi-GPU not tested.
 
 - [Community Toolkit](https://github.com/CommunityToolkit/dotnet)
 - [FontAwesome6.Fonts.WinUI](https://github.com/MartinTopfstedt/FontAwesome6)
-- [H.NotifyIcon.WinUI](https://github.com/HavenDV/H.NotifyIcon)
 - [H.OxyPlot.WinUI](https://github.com/HavenDV/H.OxyPlot)
 - [LibreHardwareMonitorLib](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor)
 - [PInvoke.User32](https://github.com/dotnet/pinvoke)
