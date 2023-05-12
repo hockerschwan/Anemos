@@ -5,6 +5,7 @@ using Anemos.Contracts.ViewModels;
 using Anemos.Helpers;
 
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 
 namespace Anemos.Services;
@@ -81,7 +82,11 @@ public class NavigationService : INavigationService
         return false;
     }
 
-    public bool NavigateTo(string pageKey, object? parameter = null, bool clearNavigation = false)
+    public bool NavigateTo(
+        string pageKey,
+        object? parameter = null,
+        bool clearNavigation = false,
+        NavigationTransitionInfo? transitionInfo = null)
     {
         var pageType = _pageService.GetPageType(pageKey);
 
@@ -89,7 +94,15 @@ public class NavigationService : INavigationService
         {
             _frame.Tag = clearNavigation;
             var vmBeforeNavigation = _frame.GetPageViewModel();
-            var navigated = _frame.Navigate(pageType, parameter);
+            bool navigated;
+            if (transitionInfo == null)
+            {
+                navigated = _frame.Navigate(pageType, parameter);
+            }
+            else
+            {
+                navigated = _frame.Navigate(pageType, parameter, transitionInfo);
+            }
             if (navigated)
             {
                 _lastParameterUsed = parameter;
