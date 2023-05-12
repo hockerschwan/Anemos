@@ -55,6 +55,10 @@ public sealed partial class MainWindow : WindowEx
         if (_windowSettings.Maximized)
         {
             this.Maximize();
+            if (_settingsService.Settings.StartMinimized)
+            {
+                this.Hide();
+            }
         }
 
         Closed += MainWindow_Closed;
@@ -121,7 +125,7 @@ public sealed partial class MainWindow : WindowEx
 
                 if (IsWindowIdenticalToSettings(rect)) { return; }
 
-                var dpi = GetDpi();
+                var dpi = GetDisplayScale();
 
                 _windowSettings.Maximized = false;
                 _windowSettings.X = rect.left;
@@ -143,7 +147,7 @@ public sealed partial class MainWindow : WindowEx
                Height == _windowSettings.Height;
     }
 
-    private double GetDpi()
+    private double GetDisplayScale()
     {
         var dpi = User32.GetDpiForWindow(this.GetWindowHandle());
         return dpi / 96.0;
