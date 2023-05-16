@@ -1,4 +1,4 @@
-﻿# Anemos
+# Anemos
 
 Control chassis, CPU & GPU fans on Windows 10 or later.
 
@@ -51,11 +51,11 @@ Multi-GPU not tested.
 ## Libraries used
 
 - [Community Toolkit](https://github.com/CommunityToolkit/dotnet)
-- [FontAwesome6.Fonts.WinUI](https://github.com/MartinTopfstedt/FontAwesome6)
-- [H.OxyPlot.WinUI](https://github.com/HavenDV/H.OxyPlot)
+- [FontAwesome6.Fonts](https://github.com/MartinTopfstedt/FontAwesome6)
+- [H.OxyPlot](https://github.com/HavenDV/H.OxyPlot)
 - [LibreHardwareMonitorLib](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor)
-- [PInvoke.User32](https://github.com/dotnet/pinvoke)
 - [Serilog](https://github.com/serilog/serilog)
+- [Vanara](https://github.com/dahall/Vanara)
 - [ZetaIpc](https://github.com/UweKeim/ZetaIpc)
 
 ## Contributing

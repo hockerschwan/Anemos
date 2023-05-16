@@ -19,6 +19,11 @@
 		<FileVersion>0.1.3.0</FileVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<Content Remove="Assets\*" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<Manifest Include="$(ApplicationManifest)" />
 	</ItemGroup>
@@ -36,9 +41,10 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.3.230502000" />
 		<PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="2.0.9" />
-		<PackageReference Include="PInvoke.User32" Version="0.7.124" />
 		<PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+		<PackageReference Include="Vanara.PInvoke.Shell32" Version="3.4.14" />
+		<PackageReference Include="Vanara.PInvoke.User32" Version="3.4.14" />
 		<PackageReference Include="WinUIEx" Version="2.2.0" />
 		<PackageReference Include="ZetaIpc" Version="1.0.4.12" />
 	</ItemGroup>

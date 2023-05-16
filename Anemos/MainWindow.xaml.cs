@@ -6,7 +6,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
-using PInvoke;
+using Vanara.PInvoke;
 
 namespace Anemos;
 
@@ -24,8 +24,12 @@ public sealed partial class MainWindow : WindowEx
     {
         get
         {
-            var placement = User32.GetWindowPlacement(this.GetWindowHandle());
-            return placement.showCmd == User32.WindowShowStyle.SW_SHOWMAXIMIZED;
+            User32.WINDOWPLACEMENT placement = new();
+            if (User32.GetWindowPlacement(this.GetWindowHandle(), ref placement))
+            {
+                return placement.showCmd == ShowWindowCommand.SW_SHOWMAXIMIZED;
+            }
+            throw new Exception("User32.GetWindowPlacement failed.");
         }
     }
 
@@ -33,8 +37,12 @@ public sealed partial class MainWindow : WindowEx
     {
         get
         {
-            var placement = User32.GetWindowPlacement(this.GetWindowHandle());
-            return placement.showCmd == User32.WindowShowStyle.SW_SHOWMINIMIZED;
+            User32.WINDOWPLACEMENT placement = new();
+            if (User32.GetWindowPlacement(this.GetWindowHandle(), ref placement))
+            {
+                return placement.showCmd == ShowWindowCommand.SW_SHOWMINIMIZED;
+            }
+            throw new Exception("User32.GetWindowPlacement failed.");
         }
     }
 
@@ -47,7 +55,8 @@ public sealed partial class MainWindow : WindowEx
 
         InitializeComponent();
 
-        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets/WindowIcon.ico"));
+        var hicon = User32.LoadIcon(Kernel32.GetModuleHandle(), Macros.MAKEINTRESOURCE(32512)).DangerousGetHandle();
+        AppWindow.SetIcon(Microsoft.UI.Win32Interop.GetIconIdFromIcon(hicon));
         Content = null;
         Title = "AppDisplayName".GetLocalized();
 
