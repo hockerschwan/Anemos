@@ -12,7 +12,7 @@ Icon::Icon()
 
 	RegisterWindowClass(WndProc);
 
-	hWnd_ = CreateWindowW(szWindowClass, NULL, WS_OVERLAPPEDWINDOW, 0, 0, 200, 200, NULL, NULL, hInstance_, NULL);
+	hWnd_ = CreateWindowW(szWindowClass_, NULL, WS_OVERLAPPEDWINDOW, 0, 0, 200, 200, NULL, NULL, hInstance_, NULL);
 	if (hWnd_)
 	{
 		DeleteIcon();
@@ -28,6 +28,8 @@ Icon::Icon()
 Icon::~Icon()
 {
 	DeleteIcon();
+	DestroyWindow(hWnd_);
+	UnregisterClassW(szWindowClass_, hInstance_);
 }
 
 bool Icon::SetTooltip(std::wstring tooltip)
@@ -175,7 +177,7 @@ void Icon::RegisterWindowClass(WNDPROC lpfnWndProc)
 	wcex.hCursor = LoadCursorW(NULL, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName = NULL;
-	wcex.lpszClassName = szWindowClass;
+	wcex.lpszClassName = szWindowClass_;
 	if (RegisterClassExW(&wcex) == 0)
 	{
 		auto err = GetLastError();

@@ -28,11 +28,14 @@ namespace NotifyIconLib
 		event ItemClickEventHandler^ ItemClick;
 
 	internal:
+		void CreateIcon();
 		Icon* GetIcon() { return icon_; };
 		std::vector<MenuItem>* GetMenuItems() { return menuItems_; };
 		void FireIconEvent() { IconClick(); };
 		void FireItemEvent(int id) { ItemClick(id); };
 		void Throw(std::wstring message);
+
+		String^ tooltip_;
 
 	private:
 		NotifyIcon();

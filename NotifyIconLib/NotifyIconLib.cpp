@@ -7,7 +7,7 @@ using namespace NotifyIconLib;
 
 NotifyIcon::NotifyIcon()
 {
-	icon_ = new Icon;
+	CreateIcon();
 	menuItems_ = new std::vector<MenuItem>();
 }
 
@@ -38,6 +38,7 @@ void NotifyIcon::SetMenuItems(List<MenuItemManaged^>^ items)
 
 void NotifyIcon::SetTooltip(String^ tooltip)
 {
+	tooltip_ = tooltip;
 	auto wStr = msclr::interop::marshal_as<std::wstring, String^>(tooltip);
 	if (!icon_->SetTooltip(wStr))
 	{
@@ -59,6 +60,12 @@ void NotifyIconLib::NotifyIcon::SetVisible(bool visible)
 	}
 }
 
+void NotifyIconLib::NotifyIcon::CreateIcon()
+{
+	delete icon_;
+	icon_ = new Icon;
+}
+
 void NotifyIconLib::NotifyIcon::Throw(std::wstring message)
 {
 	String^ str = msclr::interop::marshal_as<String^, std::wstring>(message);
@@ -67,8 +74,13 @@ void NotifyIconLib::NotifyIcon::Throw(std::wstring message)
 
 LRESULT NotifyIconLib::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	static UINT s_uTaskbarRestart;
+
 	switch (message)
 	{
+	case WM_CREATE:
+		s_uTaskbarRestart = RegisterWindowMessageW(L"TaskbarCreated");
+		break;
 	case WM_COMMAND:
 		NotifyIcon::Instance->FireItemEvent(static_cast<int>(wParam));
 		break;
@@ -87,6 +99,12 @@ LRESULT NotifyIconLib::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
 		}
 		break;
 	default:
+		if (message == s_uTaskbarRestart)
+		{
+			NotifyIcon::Instance->CreateIcon();
+			NotifyIcon::Instance->SetTooltip(NotifyIcon::Instance->tooltip_);
+			NotifyIcon::Instance->SetVisible(true);
+		}
 		return DefWindowProc(hwnd, message, wParam, lParam);
 	}
 	return 0;
