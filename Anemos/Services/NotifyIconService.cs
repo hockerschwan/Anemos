@@ -90,6 +90,7 @@ public class NotifyIconService : ObservableRecipient, INotifyIconService
 
         _fansVM = App.GetService<FansViewModel>();
 
+        _notifyIcon.Close += NotifyIcon_Close;
         _notifyIcon.IconClick += NotifyIcon_IconClick;
         _notifyIcon.ItemClick += NotifyIcon_ItemClick;
 
@@ -108,6 +109,12 @@ public class NotifyIconService : ObservableRecipient, INotifyIconService
     private void RuleSwitchedMessageHandler(object recipient, RuleSwitchedMessage message)
     {
         SetupMenu();
+    }
+
+    private void NotifyIcon_Close()
+    {
+        Log.Information("[NotifyIconService] WM_CLOSE received");
+        App.Current.RequestShutdown();
     }
 
     private void NotifyIcon_IconClick()

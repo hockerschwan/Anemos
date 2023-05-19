@@ -27,10 +27,14 @@ namespace NotifyIconLib
 		delegate void ItemClickEventHandler(int id);
 		event ItemClickEventHandler^ ItemClick;
 
+		delegate void WmCloseEventHandler();
+		event WmCloseEventHandler^ Close;
+
 	internal:
 		void CreateIcon();
 		Icon* GetIcon() { return icon_; };
 		std::vector<MenuItem>* GetMenuItems() { return menuItems_; };
+		void FireCloseEvent() { Close(); };
 		void FireIconEvent() { IconClick(); };
 		void FireItemEvent(int id) { ItemClick(id); };
 		void Throw(std::wstring message);

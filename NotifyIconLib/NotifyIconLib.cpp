@@ -81,6 +81,9 @@ LRESULT NotifyIconLib::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
 	case WM_CREATE:
 		s_uTaskbarRestart = RegisterWindowMessageW(L"TaskbarCreated");
 		break;
+	case WM_CLOSE:
+		NotifyIcon::Instance->FireCloseEvent();
+		break;
 	case WM_COMMAND:
 		NotifyIcon::Instance->FireItemEvent(static_cast<int>(wParam));
 		break;
