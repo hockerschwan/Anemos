@@ -197,14 +197,18 @@ public class RuleService : ObservableRecipient, IRuleService
                     Conditions = r.Conditions.Select(c => new RuleConditionArg()
                     {
                         Type = c.Type,
+
                         TimeBeginning = c.TimeBeginning,
                         TimeEnding = c.TimeEnding,
+
                         ProcessName = c.ProcessName,
+                        MemoryType = c.MemoryType,
+                        MemoryLower = c.MemoryLower,
+                        MemoryUpper = c.MemoryUpper,
+
                         SensorId = c.SensorId,
                         LowerValue = c.LowerValue,
                         UpperValue = c.UpperValue,
-                        UseLowerValue = c.UseLowerValue,
-                        UseUpperValue = c.UseUpperValue,
                         IncludeLower = c.IncludeLower,
                         IncludeUpper = c.IncludeUpper
                     })
@@ -250,7 +254,10 @@ public class RuleService : ObservableRecipient, IRuleService
                         return new RuleSettings_Condition()
                         {
                             Type = RuleConditionType.Process,
-                            ProcessName = proc.ProcessName
+                            ProcessName = proc.ProcessName,
+                            MemoryType = proc.MemoryLower == null && proc.MemoryUpper == null ? null : proc.MemoryType,
+                            MemoryLower = proc.MemoryLower,
+                            MemoryUpper = proc.MemoryUpper,
                         };
                     }
                     else if (c is SensorRuleCondition sensor)
@@ -261,8 +268,6 @@ public class RuleService : ObservableRecipient, IRuleService
                             SensorId = sensor.SensorId,
                             LowerValue = sensor.LowerValue,
                             UpperValue = sensor.UpperValue,
-                            UseLowerValue = sensor.UseLowerValue,
-                            UseUpperValue = sensor.UseUpperValue,
                             IncludeLower = sensor.IncludeLower,
                             IncludeUpper = sensor.IncludeUpper
                         };

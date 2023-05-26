@@ -30,42 +30,14 @@ public class RuleSensorEditorViewModel : ObservableRecipient
 
     public List<SensorModelBase> Sensors => _sensorService.Sensors;
 
-    private double _lowerValue = -273d;
     public double LowerValue
     {
-        get => _lowerValue;
-        set
-        {
-            value = double.Max(-273, double.Min(150, value));
-            if (value > UpperValue) { return; }
-            SetProperty(ref _lowerValue, value);
-        }
+        get; set;
     }
 
-    private double _upperValue = 150d;
     public double UpperValue
     {
-        get => _upperValue;
-        set
-        {
-            value = double.Max(-273, double.Min(150, value));
-            if (value < LowerValue) { return; }
-            SetProperty(ref _upperValue, value);
-        }
-    }
-
-    private bool _useLower;
-    public bool UseLower
-    {
-        get => _useLower;
-        set => SetProperty(ref _useLower, value);
-    }
-
-    private bool _useUpper;
-    public bool UseUpper
-    {
-        get => _useUpper;
-        set => SetProperty(ref _useUpper, value);
+        get; set;
     }
 
     public bool IncludeLower => IndexIncludeLower > 0;
@@ -113,10 +85,8 @@ public class RuleSensorEditorViewModel : ObservableRecipient
     public void Reset()
     {
         SensorId = string.Empty;
-        LowerValue = -273d;
-        UpperValue = 150d;
-        UseLower = false;
-        UseUpper = false;
+        LowerValue = double.NaN;
+        UpperValue = double.NaN;
         IndexIncludeLower = 0;
         IndexIncludeUpper = 0;
     }

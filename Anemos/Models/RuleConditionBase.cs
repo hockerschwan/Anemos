@@ -15,12 +15,13 @@ public class RuleConditionArg
     public TimeOnly? TimeEnding;
 
     public string? ProcessName;
+    public int? MemoryType;
+    public int? MemoryLower;
+    public int? MemoryUpper;
 
     public string? SensorId;
     public double? UpperValue;
     public double? LowerValue;
-    public bool? UseUpperValue;
-    public bool? UseLowerValue;
     public bool? IncludeUpper;
     public bool? IncludeLower;
 }
