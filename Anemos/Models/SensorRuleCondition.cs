@@ -24,65 +24,65 @@ public class SensorRuleCondition : RuleConditionBase
 
     public SensorModelBase? Sensor => _sensorService.GetSensor(SensorId);
 
-    private bool _useUpperValue;
-    public bool UseUpperValue
-    {
-        get => _useUpperValue;
-        set
-        {
-            if (SetProperty(ref _useUpperValue, value))
-            {
-                if (!_useUpperValue)
-                {
-                    UpperValue = null;
-                }
-            }
-        }
-    }
-
-    private bool _useLowerValue;
-    public bool UseLowerValue
-    {
-        get => _useLowerValue;
-        set
-        {
-            if (SetProperty(ref _useLowerValue, value))
-            {
-                if (!_useLowerValue)
-                {
-                    LowerValue = null;
-                }
-            }
-        }
-    }
-
+    private double? _upperValue;
     public double? UpperValue
     {
-        get; set;
+        get => _upperValue;
+        set
+        {
+            if (SetProperty(ref _upperValue, value))
+            {
+                OnPropertyChanged(nameof(Text));
+            }
+        }
     }
 
+    private double? _lowerValue;
     public double? LowerValue
     {
-        get; set;
+        get => _lowerValue;
+        set
+        {
+            if (SetProperty(ref _lowerValue, value))
+            {
+                OnPropertyChanged(nameof(Text));
+            }
+        }
     }
 
+    private bool _includeUpper;
     public bool IncludeUpper
     {
-        get; set;
+        get => _includeUpper;
+        set
+        {
+            if (SetProperty(ref _includeUpper, value))
+            {
+                OnPropertyChanged(nameof(Text));
+            }
+        }
     }
 
+    private bool _includeLower;
     public bool IncludeLower
     {
-        get; set;
+        get => _includeLower;
+        set
+        {
+            if (SetProperty(ref _includeLower, value))
+            {
+                OnPropertyChanged(nameof(Text));
+            }
+        }
     }
 
     public override string Text
     {
         get
         {
-            var str1 = $"{(UseLowerValue ? $"{LowerValue}℃ {(IncludeLower ? "≤" : "<")} " : string.Empty)}";
-            var str2 = $"{(UseUpperValue ? $" {(IncludeUpper ? "≤" : "<")} {UpperValue}℃" : string.Empty)}";
-            return $"{str1}T{str2}, {Sensor?.LongName}";
+            var str1 = $"{(LowerValue != null ? $"{LowerValue}℃ {(IncludeLower ? "≤" : "<")} " : string.Empty)}";
+            var str2 = $"{(UpperValue != null ? $" {(IncludeUpper ? "≤" : "<")} {UpperValue}℃" : string.Empty)}";
+            return $"{str1}T{str2}{(Sensor != null ? $", {Sensor?.LongName}" : string.Empty)}";
         }
     }
 
@@ -94,8 +94,6 @@ public class SensorRuleCondition : RuleConditionBase
         _sensorId = arg.SensorId ?? string.Empty;
         LowerValue = arg.LowerValue;
         UpperValue = arg.UpperValue;
-        _useLowerValue = arg.UseLowerValue ?? false;
-        _useUpperValue = arg.UseUpperValue ?? false;
         IncludeLower = arg.IncludeLower ?? false;
         IncludeUpper = arg.IncludeUpper ?? false;
 
@@ -113,51 +111,24 @@ public class SensorRuleCondition : RuleConditionBase
 
     public override void Update()
     {
-        if (Sensor?.Value == null)
+        if (Sensor?.Value == null || (LowerValue == null && UpperValue == null))
         {
             IsSatisfied = false;
             return;
         }
 
-        if (!UseLowerValue && !UseUpperValue)
+        if (LowerValue != null && ((IncludeLower && Sensor.Value < LowerValue) || (!IncludeLower && Sensor.Value <= LowerValue)))
         {
             IsSatisfied = false;
             return;
         }
 
-        if (UseLowerValue)
+        if (UpperValue != null && ((IncludeUpper && Sensor.Value > UpperValue) || (!IncludeUpper && Sensor.Value >= UpperValue)))
         {
-            if (IncludeLower && Sensor.Value < LowerValue)
-            {
-                IsSatisfied = false;
-                return;
-            }
-            else if (!IncludeLower && Sensor.Value <= LowerValue)
-            {
-                IsSatisfied = false;
-                return;
-            }
-        }
-
-        if (UseUpperValue)
-        {
-            if (IncludeUpper && Sensor.Value > UpperValue)
-            {
-                IsSatisfied = false;
-                return;
-            }
-            else if (!IncludeUpper && Sensor.Value >= UpperValue)
-            {
-                IsSatisfied = false;
-                return;
-            }
+            IsSatisfied = false;
+            return;
         }
 
         IsSatisfied = true;
-    }
-
-    public void UpdateText()
-    {
-        OnPropertyChanged(nameof(Text));
     }
 }

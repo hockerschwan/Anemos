@@ -121,7 +121,6 @@ public partial class RuleViewModel : ObservableRecipient
                     Type = RuleConditionType.Sensor,
                     SensorId = string.Empty,
                     LowerValue = 50,
-                    UseLowerValue = true,
                     IncludeLower = true
                 });
                 break;

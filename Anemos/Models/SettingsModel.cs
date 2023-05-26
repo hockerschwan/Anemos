@@ -245,6 +245,18 @@ public class RuleSettings_Condition
     {
         get; set;
     }
+    public int? MemoryType
+    {
+        get; set;
+    }
+    public int? MemoryLower
+    {
+        get; set;
+    }
+    public int? MemoryUpper
+    {
+        get; set;
+    }
 
     public string? SensorId
     {
@@ -255,14 +267,6 @@ public class RuleSettings_Condition
         get; set;
     }
     public double? LowerValue
-    {
-        get; set;
-    }
-    public bool? UseUpperValue
-    {
-        get; set;
-    }
-    public bool? UseLowerValue
     {
         get; set;
     }

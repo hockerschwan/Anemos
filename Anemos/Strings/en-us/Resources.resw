@@ -247,14 +247,20 @@
   <data name="NotifyIcon_UseRules" xml:space="preserve">
     <value>Use Rules</value>
   </data>
+  <data name="RuleProcessEditorDialog_Memory.Text" xml:space="preserve">
+    <value>Memory [MB]</value>
+  </data>
+  <data name="RuleProcessEditorDialog_PrivateBytes.Content" xml:space="preserve">
+    <value>Private Bytes</value>
+  </data>
+  <data name="RuleProcessEditorDialog_ProcessName.Header" xml:space="preserve">
+    <value>Process Name</value>
+  </data>
+  <data name="RuleProcessEditorDialog_WorkingSet.Content" xml:space="preserve">
+    <value>Working Set</value>
+  </data>
   <data name="RuleSensorEditorDialog_Source.PlaceholderText" xml:space="preserve">
     <value>Select Source</value>
-  </data>
-  <data name="RuleSensorEditorDialog_UseLower.Content" xml:space="preserve">
-    <value>Use Lower</value>
-  </data>
-  <data name="RuleSensorEditorDialog_UseUpper.Content" xml:space="preserve">
-    <value>Use Upper</value>
   </data>
   <data name="Rules_AddRule.Content" xml:space="preserve">
     <value>Add Rule</value>
@@ -271,6 +277,9 @@
   <data name="Rule_AddCondition.Content" xml:space="preserve">
     <value>Add Condition</value>
   </data>
+  <data name="Rule_AnyProcess" xml:space="preserve">
+    <value>Any process</value>
+  </data>
   <data name="Rule_ConditionType_Process" xml:space="preserve">
     <value>Process</value>
   </data>
@@ -285,6 +294,12 @@
   </data>
   <data name="Rule_IncreasePriority.Content" xml:space="preserve">
     <value>Increase Priority</value>
+  </data>
+  <data name="Rule_MemoryType_PrivateBytes" xml:space="preserve">
+    <value>Private Bytes</value>
+  </data>
+  <data name="Rule_MemoryType_WorkingSet" xml:space="preserve">
+    <value>Working Set</value>
   </data>
   <data name="Rule_NewRuleName" xml:space="preserve">
     <value>New Rule</value>
@@ -375,6 +390,9 @@
   </data>
   <data name="Shell_Sensors.Content" xml:space="preserve">
     <value>Sensors</value>
+  </data>
+  <data name="Unit_MegaByte" xml:space="preserve">
+    <value>MB</value>
   </data>
   <data name="VersionDescription" xml:space="preserve">
     <value>Version $</value>

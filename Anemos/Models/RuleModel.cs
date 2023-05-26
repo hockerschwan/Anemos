@@ -86,11 +86,11 @@ public class RuleModel : ObservableObject
             }
             else if (cond.Type == RuleConditionType.Process && cond.ProcessName != null)
             {
-                Conditions.Add(new ProcessRuleCondition(this, cond.ProcessName));
+                Conditions.Add(new ProcessRuleCondition(this, cond));
             }
             else if (cond.Type == RuleConditionType.Sensor && !(cond.LowerValue == null && cond.UpperValue == null))
             {
-                if (cond.SensorId != null && _sensorService.GetSensor(cond.SensorId) == null)
+                if (cond.SensorId != null && cond.SensorId != string.Empty && _sensorService.GetSensor(cond.SensorId) == null)
                 {
                     cond.SensorId = string.Empty;
                     save = true;
@@ -124,7 +124,7 @@ public class RuleModel : ObservableObject
                 break;
             case RuleConditionType.Process:
                 if (arg.ProcessName == null) { break; }
-                Conditions.Add(new ProcessRuleCondition(this, arg.ProcessName));
+                Conditions.Add(new ProcessRuleCondition(this, arg));
                 break;
             case RuleConditionType.Sensor:
                 if (arg.LowerValue == null && arg.UpperValue == null) { break; }

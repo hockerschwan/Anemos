@@ -1,3 +1,4 @@
+using Anemos.Models;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml.Controls;
 
@@ -17,14 +18,37 @@ public sealed partial class RuleProcessEditorDialog : ContentDialog
     {
         _messenger.Send(new RuleEditorResultMessage(new()
         {
-            Type = Models.RuleConditionType.Process,
-            ProcessName = NameTextBox.Text
+            Type = RuleConditionType.Process,
+            ProcessName = NameTextBox.Text,
+            MemoryType = MemoryType.SelectedIndex,
+            MemoryLower = (int?)MemorySizeLow.Value,
+            MemoryUpper = (int?)MemorySizeHigh.Value,
         }));
     }
 
-    public void SetText(string str)
+    public void Set(ProcessRuleCondition cond)
     {
-        NameTextBox.Text = str;
+        NameTextBox.Text = cond.ProcessName ?? string.Empty;
+        MemoryType.SelectedIndex = cond.MemoryType;
+
+        if (cond.MemoryLower > 0)
+        {
+            MemorySizeLow.Value = (double)cond.MemoryLower;
+        }
+        else
+        {
+            MemorySizeLow.Text = string.Empty;
+        }
+
+        if (cond.MemoryUpper > 0)
+        {
+            MemorySizeHigh.Value = (double)cond.MemoryUpper;
+        }
+        else
+        {
+            MemorySizeHigh.Text = string.Empty;
+        }
+
         NameTextBox.SelectAll();
     }
 }

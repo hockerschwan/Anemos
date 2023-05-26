@@ -8,6 +8,42 @@
 	<StackPanel Spacing="10">
 		<TextBox
 			x:Name="NameTextBox"
+			x:Uid="RuleProcessEditorDialog_ProcessName"
 			IsSpellCheckEnabled="False" />
+
+		<StackPanel
+			Margin="{StaticResource SmallTopMargin}"
+			HorizontalAlignment="Stretch"
+			Orientation="Horizontal"
+			Spacing="5">
+			<NumberBox
+				x:Name="MemorySizeLow"
+				MinWidth="120"
+				Maximum="1048576"
+				Minimum="1"
+				SmallChange="1" />
+			<TextBlock
+				VerticalAlignment="Center"
+				Text="&lt;" />
+			<TextBlock
+				x:Uid="RuleProcessEditorDialog_Memory"
+				VerticalAlignment="Center" />
+			<TextBlock
+				VerticalAlignment="Center"
+				Text="&lt;" />
+			<NumberBox
+				x:Name="MemorySizeHigh"
+				MinWidth="120"
+				Maximum="1048576"
+				Minimum="1"
+				SmallChange="1" />
+		</StackPanel>
+
+		<ComboBox
+			x:Name="MemoryType"
+			SelectedIndex="0">
+			<ComboBoxItem x:Uid="RuleProcessEditorDialog_PrivateBytes" />
+			<ComboBoxItem x:Uid="RuleProcessEditorDialog_WorkingSet" />
+		</ComboBox>
 	</StackPanel>
 </ContentDialog>

@@ -83,7 +83,7 @@ public sealed partial class RulesPage : Page
         if (_isDialogShown) { return; }
 
         var cond = message.Value;
-        ViewModel.ProcessEditorDialog.SetText(cond.ProcessName);
+        ViewModel.ProcessEditorDialog.Set(cond);
 
         SetDialogStyle(ViewModel.ProcessEditorDialog);
 
@@ -92,7 +92,10 @@ public sealed partial class RulesPage : Page
         var result = await ViewModel.ProcessEditorDialog.ShowAsync();
         if (result == ContentDialogResult.Primary)
         {
-            cond.SetProcessName(_result.ProcessName!);
+            cond.ProcessName = _result.ProcessName!;
+            cond.MemoryType = _result.MemoryType ?? 0;
+            cond.MemoryLower = _result.MemoryLower;
+            cond.MemoryUpper = _result.MemoryUpper;
 
             var model = ViewModel.Models.Single(m => m == cond.Parent);
             model.Update();
@@ -111,10 +114,8 @@ public sealed partial class RulesPage : Page
 
         var cond = message.Value;
         ViewModel.SensorEditorDialog.ViewModel.SensorId = cond.SensorId ?? string.Empty;
-        ViewModel.SensorEditorDialog.ViewModel.LowerValue = cond.LowerValue ?? -273d;
-        ViewModel.SensorEditorDialog.ViewModel.UpperValue = cond.UpperValue ?? 150d;
-        ViewModel.SensorEditorDialog.ViewModel.UseLower = cond.UseLowerValue;
-        ViewModel.SensorEditorDialog.ViewModel.UseUpper = cond.UseUpperValue;
+        ViewModel.SensorEditorDialog.ViewModel.LowerValue = cond.LowerValue ?? double.NaN;
+        ViewModel.SensorEditorDialog.ViewModel.UpperValue = cond.UpperValue ?? double.NaN;
         ViewModel.SensorEditorDialog.ViewModel.IndexIncludeLower = cond.IncludeLower ? 1 : 0;
         ViewModel.SensorEditorDialog.ViewModel.IndexIncludeUpper = cond.IncludeUpper ? 1 : 0;
 
@@ -126,13 +127,10 @@ public sealed partial class RulesPage : Page
         if (result == ContentDialogResult.Primary)
         {
             cond.SensorId = _result.SensorId!;
-            cond.LowerValue = _result.UseLowerValue!.Value ? _result.LowerValue : null;
-            cond.UpperValue = _result.UseUpperValue!.Value ? _result.UpperValue : null;
-            cond.UseLowerValue = _result.UseLowerValue!.Value;
-            cond.UseUpperValue = _result.UseUpperValue!.Value;
+            cond.LowerValue = _result.LowerValue;
+            cond.UpperValue = _result.UpperValue;
             cond.IncludeLower = _result.IncludeLower!.Value;
             cond.IncludeUpper = _result.IncludeUpper!.Value;
-            cond.UpdateText();
 
             var model = ViewModel.Models.Single(m => m == cond.Parent);
             model.Update();

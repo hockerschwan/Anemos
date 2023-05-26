@@ -35,75 +35,35 @@
 				</DataTemplate>
 			</ComboBox.ItemTemplate>
 		</ComboBox>
-		<Grid ColumnSpacing="10">
-			<Grid.RowDefinitions>
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="Auto" />
-			</Grid.RowDefinitions>
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="Auto" />
-				<ColumnDefinition Width="Auto" />
-				<ColumnDefinition Width="Auto" />
-				<ColumnDefinition Width="Auto" />
-				<ColumnDefinition Width="Auto" />
-			</Grid.ColumnDefinitions>
 
-			<CheckBox
-				x:Name="CheckBoxUseLower"
-				x:Uid="RuleSensorEditorDialog_UseLower"
-				Grid.Row="0"
-				Grid.Column="0"
-				Grid.ColumnSpan="2"
-				Checked="CheckBox_Checked"
-				IsChecked="{x:Bind ViewModel.UseLower, Mode=TwoWay}"
-				Unchecked="CheckBox_Checked" />
-			<CheckBox
-				x:Name="CheckBoxUseUpper"
-				x:Uid="RuleSensorEditorDialog_UseUpper"
-				Grid.Row="0"
-				Grid.Column="3"
-				Grid.ColumnSpan="2"
-				Checked="CheckBox_Checked"
-				IsChecked="{x:Bind ViewModel.UseUpper, Mode=TwoWay}"
-				Unchecked="CheckBox_Checked" />
-
+		<StackPanel
+			Orientation="Horizontal"
+			Spacing="10">
 			<NumberBox
 				x:Name="NumberBoxLower"
-				Grid.Row="1"
-				Grid.Column="0"
-				IsEnabled="{x:Bind CheckBoxUseLower.IsChecked.Value, Mode=OneWay}"
+				MinWidth="100"
 				LargeChange="10"
 				Maximum="150"
 				Minimum="-273"
 				SmallChange="1"
 				Value="{x:Bind ViewModel.LowerValue, Mode=TwoWay}" />
 			<ComboBox
-				Grid.Row="1"
-				Grid.Column="1"
-				IsEnabled="{x:Bind CheckBoxUseLower.IsChecked.Value, Mode=OneWay}"
 				ItemsSource="{x:Bind ViewModel.signs}"
 				SelectedIndex="{x:Bind ViewModel.IndexIncludeLower, Mode=TwoWay}" />
 			<TextBlock
-				Grid.Row="1"
-				Grid.Column="2"
 				VerticalAlignment="Center"
 				Text="T" />
 			<ComboBox
-				Grid.Row="1"
-				Grid.Column="3"
-				IsEnabled="{x:Bind CheckBoxUseUpper.IsChecked.Value, Mode=OneWay}"
 				ItemsSource="{x:Bind ViewModel.signs}"
 				SelectedIndex="{x:Bind ViewModel.IndexIncludeUpper, Mode=TwoWay}" />
 			<NumberBox
 				x:Name="NumberBoxUpper"
-				Grid.Row="1"
-				Grid.Column="4"
-				IsEnabled="{x:Bind CheckBoxUseUpper.IsChecked.Value, Mode=OneWay}"
+				MinWidth="100"
 				LargeChange="10"
 				Maximum="150"
 				Minimum="-273"
 				SmallChange="1"
 				Value="{x:Bind ViewModel.UpperValue, Mode=TwoWay}" />
-		</Grid>
+		</StackPanel>
 	</StackPanel>
 </ContentDialog>
