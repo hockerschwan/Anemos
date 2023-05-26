@@ -181,6 +181,8 @@ public class LhwmService : ObservableRecipient, ILhwmService
             await Task.Delay(100);
         }
 
+        Sensors.Where(s => s.SensorType == SensorType.Control).ToList().ForEach(s => s.Control.SetDefault());
+
         Messenger.Send(new ServiceShutDownMessage(GetType().GetInterface("ILhwmService")!));
     }
 
