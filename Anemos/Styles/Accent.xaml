@@ -1,0 +1,17 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<ResourceDictionary.ThemeDictionaries>
+		<ResourceDictionary x:Key="Dark">
+			<Color x:Key="SystemAccentColor">CornflowerBlue</Color>
+
+			<SolidColorBrush x:Key="SystemAccentColorBrush_" Color="{ThemeResource SystemAccentColor}" />
+			<SolidColorBrush x:Key="SystemAccentColorLight1Brush_" Color="{ThemeResource SystemAccentColorLight1}" />
+			<SolidColorBrush x:Key="SystemAccentColorLight2Brush_" Color="{ThemeResource SystemAccentColorLight2}" />
+			<SolidColorBrush x:Key="SystemAccentColorLight3Brush_" Color="{ThemeResource SystemAccentColorLight3}" />
+			<SolidColorBrush x:Key="SystemAccentColorDark1Brush_" Color="{ThemeResource SystemAccentColorDark1}" />
+			<SolidColorBrush x:Key="SystemAccentColorDark2Brush_" Color="{ThemeResource SystemAccentColorDark2}" />
+			<SolidColorBrush x:Key="SystemAccentColorDark3Brush_" Color="{ThemeResource SystemAccentColorDark3}" />
+
+			<StaticResource x:Key="NavigationViewSelectionIndicatorForeground" ResourceKey="SystemAccentColorBrush_" />
+		</ResourceDictionary>
+	</ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

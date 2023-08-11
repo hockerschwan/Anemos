@@ -3,9 +3,41 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33502.453
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Anemos", "Anemos\Anemos.csproj", "{60F46FA1-BB46-447C-9417-66CEF74B34C9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotifyIconLib", "Libs\NotifyIconLib\NotifyIconLib.csproj", "{7163662D-21E6-48D5-9BB6-CB6E460293EA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NotifyIconLibCpp", "Libs\NotifyIconLibCpp\NotifyIconLibCpp.vcxproj", "{DC235587-C367-4C2D-AEEF-A1772FF46790}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{26EA6EED-420C-4546-8840-5AD59F39367D}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{60F46FA1-BB46-447C-9417-66CEF74B34C9}.Debug|x64.ActiveCfg = Debug|x64
+		{60F46FA1-BB46-447C-9417-66CEF74B34C9}.Debug|x64.Build.0 = Debug|x64
+		{60F46FA1-BB46-447C-9417-66CEF74B34C9}.Debug|x64.Deploy.0 = Debug|x64
+		{60F46FA1-BB46-447C-9417-66CEF74B34C9}.Release|x64.ActiveCfg = Release|x64
+		{60F46FA1-BB46-447C-9417-66CEF74B34C9}.Release|x64.Build.0 = Release|x64
+		{60F46FA1-BB46-447C-9417-66CEF74B34C9}.Release|x64.Deploy.0 = Release|x64
+		{7163662D-21E6-48D5-9BB6-CB6E460293EA}.Debug|x64.ActiveCfg = Debug|x64
+		{7163662D-21E6-48D5-9BB6-CB6E460293EA}.Debug|x64.Build.0 = Debug|x64
+		{7163662D-21E6-48D5-9BB6-CB6E460293EA}.Release|x64.ActiveCfg = Release|x64
+		{7163662D-21E6-48D5-9BB6-CB6E460293EA}.Release|x64.Build.0 = Release|x64
+		{DC235587-C367-4C2D-AEEF-A1772FF46790}.Debug|x64.ActiveCfg = Debug|x64
+		{DC235587-C367-4C2D-AEEF-A1772FF46790}.Debug|x64.Build.0 = Debug|x64
+		{DC235587-C367-4C2D-AEEF-A1772FF46790}.Release|x64.ActiveCfg = Release|x64
+		{DC235587-C367-4C2D-AEEF-A1772FF46790}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7163662D-21E6-48D5-9BB6-CB6E460293EA} = {26EA6EED-420C-4546-8840-5AD59F39367D}
+		{DC235587-C367-4C2D-AEEF-A1772FF46790} = {26EA6EED-420C-4546-8840-5AD59F39367D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5FE95A00-103A-4B5A-B72C-B664189B7031}

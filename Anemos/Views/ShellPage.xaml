@@ -1,0 +1,123 @@
+﻿<Page
+	x:Class="Anemos.Views.ShellPage"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:fa="using:FontAwesome6.Fonts"
+	xmlns:helpers="using:Anemos.Helpers"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:primitives="using:Microsoft.UI.Xaml.Controls.Primitives"
+	Loaded="OnLoaded">
+	<Grid>
+		<Grid
+			x:Name="AppTitleBar"
+			Height="36"
+			Margin="16,0"
+			VerticalAlignment="Top"
+			Canvas.ZIndex="1"
+			IsHitTestVisible="True">
+			<Image
+				Width="16"
+				Height="16"
+				HorizontalAlignment="Left"
+				Source="/Assets/WindowIcon.ico" />
+			<TextBlock
+				x:Name="AppTitleBarText"
+				Margin="28,0,0,0"
+				VerticalAlignment="Center"
+				Style="{StaticResource CaptionTextBlockStyle}"
+				TextWrapping="NoWrap" />
+		</Grid>
+
+		<NavigationView
+			x:Name="NavigationViewControl"
+			Margin="0,-10,0,0"
+			Canvas.ZIndex="0"
+			CompactPaneLength="64"
+			IsBackButtonVisible="Collapsed"
+			IsPaneOpen="False"
+			IsPaneToggleButtonVisible="False"
+			IsSettingsVisible="False"
+			PaneDisplayMode="LeftCompact"
+			SelectedItem="{x:Bind ViewModel.Selected, Mode=OneWay}">
+			<NavigationView.Resources>
+				<x:Double x:Key="NavigationViewItemOnLeftIconBoxHeight">24</x:Double>
+				<x:Double x:Key="NavigationViewSelectionIndicatorHeight">24</x:Double>
+			</NavigationView.Resources>
+
+			<NavigationView.MenuItems>
+				<NavigationViewItemHeader Height="43" />
+
+				<NavigationViewItem
+					x:Uid="Shell_Fans"
+					Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"
+					helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.FansViewModel">
+					<NavigationViewItem.Icon>
+						<fa:FontAwesome Icon="Solid_Wind" />
+					</NavigationViewItem.Icon>
+				</NavigationViewItem>
+
+				<NavigationViewItem
+					x:Uid="Shell_Curves"
+					Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"
+					helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.CurvesViewModel">
+					<NavigationViewItem.Icon>
+						<fa:FontAwesome Icon="Solid_ChartLine" />
+					</NavigationViewItem.Icon>
+				</NavigationViewItem>
+
+				<NavigationViewItem
+					x:Uid="Shell_Sensors"
+					Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"
+					helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.SensorsViewModel">
+					<NavigationViewItem.Icon>
+						<fa:FontAwesome Icon="Solid_TemperatureHalf" />
+					</NavigationViewItem.Icon>
+				</NavigationViewItem>
+
+				<NavigationViewItem
+					x:Uid="Shell_Rules"
+					Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"
+					helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.RulesViewModel">
+					<NavigationViewItem.Icon>
+						<fa:FontAwesome Icon="Solid_List" />
+					</NavigationViewItem.Icon>
+				</NavigationViewItem>
+
+				<NavigationViewItemSeparator />
+
+				<NavigationViewItem
+					x:Uid="Shell_Settings"
+					Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"
+					helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.SettingsViewModel">
+					<NavigationViewItem.Icon>
+						<fa:FontAwesome Icon="Solid_Gear" />
+					</NavigationViewItem.Icon>
+				</NavigationViewItem>
+			</NavigationView.MenuItems>
+
+			<NavigationView.FooterMenuItems>
+				<NavigationViewItem
+					x:Uid="Shell_Exit"
+					Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"
+					SelectsOnInvoked="False"
+					Tapped="ExitButton_Tapped">
+					<NavigationViewItem.Icon>
+						<fa:FontAwesome Icon="Solid_X" />
+					</NavigationViewItem.Icon>
+
+					<NavigationViewItem.Resources>
+						<ResourceDictionary>
+							<SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="White" />
+							<SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="Crimson" />
+							<SolidColorBrush x:Key="NavigationViewItemForegroundPressed" Color="White" />
+							<SolidColorBrush x:Key="NavigationViewItemBackgroundPressed" Color="DarkRed" />
+						</ResourceDictionary>
+					</NavigationViewItem.Resources>
+				</NavigationViewItem>
+			</NavigationView.FooterMenuItems>
+
+			<Frame x:Name="NavigationFrame" />
+		</NavigationView>
+	</Grid>
+</Page>
