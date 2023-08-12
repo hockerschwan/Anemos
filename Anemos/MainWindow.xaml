@@ -6,7 +6,7 @@
 	xmlns:local="using:Anemos"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:windowex="using:WinUIEx"
-	MinWidth="500"
+	MinWidth="700"
 	MinHeight="500"
 	PersistenceId="MainWindow"
 	mc:Ignorable="d">

@@ -61,6 +61,12 @@ public class ActivationService : IActivationService
     private async Task InitializeAsync()
     {
         _ = App.GetService<IIpcService>();
+        _ = App.GetService<ISettingsService>();
+
+        var icon = App.GetService<INotifyIconService>();
+        icon.SetTooltip(AppDomain.CurrentDomain.FriendlyName);
+        icon.SetVisibility(true);
+
         await Task.CompletedTask;
     }
 

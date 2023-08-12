@@ -3,9 +3,110 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:fa="using:FontAwesome6.Fonts"
 	xmlns:local="using:Anemos.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+	NavigationCacheMode="Required"
 	mc:Ignorable="d">
-	<TextBlock Text="Settings" />
+	<Page.Resources>
+		<Style TargetType="NumberBox">
+			<Setter Property="HorizontalAlignment" Value="Stretch" />
+			<Setter Property="Margin" Value="{StaticResource SmallTopMargin_}" />
+			<Setter Property="SpinButtonPlacementMode" Value="Inline" />
+		</Style>
+	</Page.Resources>
+
+	<ScrollViewer Padding="30,10" HorizontalScrollBarVisibility="Disabled">
+		<StackPanel Orientation="Horizontal" Spacing="30">
+			<StackPanel>
+				<TextBlock x:Uid="Settings_Title" Style="{ThemeResource SubtitleTextBlockStyle}" />
+
+				<StackPanel Margin="{StaticResource SmallTopMargin_}" Spacing="5">
+					<StackPanel>
+						<CheckBox x:Uid="Settings_StartMinimizedCheckBox" IsChecked="{x:Bind ViewModel.Settings.StartMinimized, Mode=TwoWay}" />
+						<CheckBox
+							x:Uid="Settings_StartWithLogInCheckBox"
+							Command="{x:Bind ViewModel.CreateTaskCommand}"
+							CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}"
+							IsChecked="{x:Bind ViewModel.Settings.StartWithLogIn, Mode=TwoWay}" />
+					</StackPanel>
+
+					<Grid>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+						</Grid.RowDefinitions>
+
+						<NumberBox
+							x:Uid="Settings_UpdateIntervalNumberBox"
+							Grid.Row="0"
+							LargeChange="10"
+							Maximum="3600"
+							Minimum="1"
+							SmallChange="1"
+							Value="{x:Bind ViewModel.Settings.UpdateInterval, Mode=TwoWay}" />
+						<NumberBox
+							x:Uid="Settings_RulesUpdateIntervalCyclesNumberBox"
+							Grid.Row="1"
+							LargeChange="10"
+							Maximum="3600"
+							Minimum="1"
+							SmallChange="1"
+							Value="{x:Bind ViewModel.Settings.RulesUpdateIntervalCycles, Mode=TwoWay}" />
+						<NumberBox
+							x:Uid="Settings_FanHistoryNumberBox"
+							Grid.Row="2"
+							LargeChange="10"
+							Maximum="3600"
+							Minimum="1"
+							SmallChange="1"
+							Value="{x:Bind ViewModel.Settings.FanHistory, Mode=TwoWay}" />
+						<NumberBox
+							x:Uid="Settings_CurveMinTemperatureNumberBox"
+							Grid.Row="3"
+							LargeChange="10"
+							Maximum="150"
+							Minimum="-273"
+							SmallChange="1"
+							Value="{x:Bind ViewModel.Settings.CurveMinTemp, Mode=TwoWay}" />
+						<NumberBox
+							x:Uid="Settings_CurveMaxTemperatureNumberBox"
+							Grid.Row="4"
+							LargeChange="10"
+							Maximum="150"
+							Minimum="-273"
+							SmallChange="1"
+							Value="{x:Bind ViewModel.Settings.CurveMaxTemp, Mode=TwoWay}" />
+					</Grid>
+				</StackPanel>
+			</StackPanel>
+
+			<StackPanel>
+				<TextBlock Margin="{StaticResource XSmallTopMargin_}" Text="{x:Bind ViewModel.VersionDescription}" />
+
+				<HyperlinkButton x:Uid="Settings_ProjectLink" Margin="{StaticResource SmallTopBottomMargin_}">
+					<HyperlinkButton.Resources>
+						<StaticResource x:Key="HyperlinkButtonForeground" ResourceKey="TextFillColorSecondary" />
+						<StaticResource x:Key="HyperlinkButtonForegroundPointerOver" ResourceKey="TextFillColorPrimary" />
+						<StaticResource x:Key="HyperlinkButtonForegroundPressed" ResourceKey="TextFillColorTertiary" />
+					</HyperlinkButton.Resources>
+
+					<StackPanel Orientation="Horizontal" Spacing="8">
+						<fa:FontAwesome Icon="Brands_Github" />
+						<TextBlock x:Uid="Settings_ProjectLinkText" />
+					</StackPanel>
+				</HyperlinkButton>
+
+				<Button Margin="{StaticResource MediumTopMargin_}" Command="{x:Bind ViewModel.OpenSettingsFolderCommand}">
+					<StackPanel Orientation="Horizontal" Spacing="8">
+						<fa:FontAwesome Icon="Solid_Folder" />
+						<TextBlock x:Uid="Settings_SettingsFolderText" />
+					</StackPanel>
+				</Button>
+			</StackPanel>
+		</StackPanel>
+	</ScrollViewer>
 </Page>

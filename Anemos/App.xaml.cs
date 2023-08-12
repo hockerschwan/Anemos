@@ -37,7 +37,7 @@ public partial class App : Application
         get; private set;
     }
 
-    public static WindowEx MainWindow { get; } = new MainWindow();
+    public static MainWindow MainWindow { get; } = new();
 
     private readonly IMessenger _messenger;
 
@@ -67,6 +67,7 @@ public partial class App : Application
                 services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
                 services.AddSingleton<IIpcService, IpcService>();
                 services.AddSingleton<INotifyIconService, NotifyIconService>();
+                services.AddSingleton<ISettingsService, SettingsService>();
 
                 // Views and ViewModels
                 services.AddSingleton<ShellPage>();
@@ -116,10 +117,6 @@ public partial class App : Application
         base.OnLaunched(args);
 
         await App.GetService<IActivationService>().ActivateAsync(args);
-
-        var icon = GetService<INotifyIconService>();
-        icon.SetTooltip(AppDomain.CurrentDomain.FriendlyName);
-        icon.SetVisibility(true);
     }
 
     private void ServiceStartupMessageHandler(object recipient, ServiceStartupMessage message)
@@ -148,9 +145,9 @@ public partial class App : Application
                 return;
             }
 
-            if (Helpers.RuntimeHelper.IsMinimized(MainWindow))
+            if (MainWindow.IsMinimized)
             {
-                if (Helpers.RuntimeHelper.IsMaximized(MainWindow))
+                if (MainWindow.IsMaximized)
                 {
                     MainWindow.Maximize();
                 }
@@ -169,26 +166,19 @@ public partial class App : Application
 
     public async void Shutdown(bool forceShutdown = false)
     {
-        if (!forceShutdown)
+        if (!forceShutdown && !await GetService<ShellPage>().OpenExitDialog()) { return; }
+
+        Log.Information("[App] Shutting down...");
+        HasShutdownStarted = true;
+        _messenger.Send(new AppExitMessage());
+        MainWindow.Hide();
+
+        while (true)
         {
-            // todo: show dialog
-            if (!await GetService<ShellPage>().OpenExitDialog()) { return; }
+            if (!_servicesToShutDown.Any()) { break; }
+            await Task.Delay(100);
         }
 
-        MainWindow.DispatcherQueue.TryEnqueue(async () =>
-        {
-            Log.Information("[App] Shutting down...");
-            HasShutdownStarted = true;
-            _messenger.Send(new AppExitMessage());
-            MainWindow.Hide();
-
-            while (true)
-            {
-                if (!_servicesToShutDown.Any()) { break; }
-                await Task.Delay(100);
-            }
-
-            Current.Exit();
-        });
+        Current.Exit();
     }
 }

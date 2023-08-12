@@ -18,9 +18,23 @@ public static partial class RuntimeHelper
         }
     }
 
+    public static uint GetDpiForWindow(WindowEx window)
+    {
+        return GetDpiForWindow_(window.GetWindowHandle());
+    }
+
     public static IntPtr GetModuleHandle(string? module = null)
     {
         return module == null ? GetModuleHandle_() : GetModuleHandle_(module);
+    }
+
+    public static PInvoke.RECT GetWindowRect(WindowEx window)
+    {
+        if (GetWindowRect_(window.GetWindowHandle(), out var res))
+        {
+            return res;
+        }
+        throw new Exception("GetWindowRect failed.");
     }
 
     public static bool IsMaximized(WindowEx window)
@@ -65,6 +79,9 @@ public static partial class RuntimeHelper
     [DllImport("kernel32.dll", EntryPoint = "GetCurrentPackageFullName", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern int GetCurrentPackageFullName_(ref int packageFullNameLength, StringBuilder? packageFullName);
 
+    [LibraryImport("user32.dll", EntryPoint = "GetDpiForWindow", SetLastError = false)]
+    private static partial uint GetDpiForWindow_(IntPtr hWnd);
+
     [LibraryImport("kernel32.dll", EntryPoint = "GetModuleHandleW", SetLastError = true)]
     public static partial IntPtr GetModuleHandle_();
 
@@ -74,6 +91,10 @@ public static partial class RuntimeHelper
     [LibraryImport("user32.dll", EntryPoint = "GetWindowPlacement", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool GetWindowPlacement_(IntPtr hWnd, ref PInvoke.WINDOWPLACEMENT lpwndpl);
+
+    [LibraryImport("user32.dll", EntryPoint = "GetWindowRect", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool GetWindowRect_(IntPtr hwnd, out PInvoke.RECT lpRect);
 
     [LibraryImport("user32.dll", EntryPoint = "LoadIconW")]
     private static partial IntPtr LoadIcon_(IntPtr hInstance, IntPtr lpIconName);
