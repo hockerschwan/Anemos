@@ -54,6 +54,8 @@ public partial class SettingsModel : ObservableObject
         get => _curveMaxTemp;
         set => SetProperty(ref _curveMaxTemp, value);
     }
+
+    public SensorSettings SensorSettings { get; set; } = new();
 }
 
 public class WindowSettings
@@ -63,4 +65,18 @@ public class WindowSettings
     public int Y { get; set; } = 100;
     public int Width { get; set; } = 1200;
     public int Height { get; set; } = 720;
+}
+
+public class SensorSettings
+{
+    public IEnumerable<SensorSettings_Sensor> Sensors { get; set; } = Enumerable.Empty<SensorSettings_Sensor>();
+}
+
+public class SensorSettings_Sensor
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public int SampleSize { get; set; } = 1;
+    public CustomSensorCalcMethod CalcMethod { get; set; } = CustomSensorCalcMethod.Max;
+    public IEnumerable<string> SourceIds { get; set; } = Enumerable.Empty<string>();
 }

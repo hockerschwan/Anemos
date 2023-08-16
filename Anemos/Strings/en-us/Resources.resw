@@ -175,4 +175,19 @@
   <data name="Settings_ProjectLinkText.Text" xml:space="preserve">
     <value>Project page</value>
   </data>
+  <data name="Sensor_AddSource.Text" xml:space="preserve">
+    <value>Add Source</value>
+  </data>
+  <data name="Sensors_Add_ToolTip.Content" xml:space="preserve">
+    <value>Add Sensor</value>
+  </data>
+  <data name="Sensor_EditName_ToolTip.Content" xml:space="preserve">
+    <value>Edit Name</value>
+  </data>
+  <data name="Sensor_MASampleSize.Header" xml:space="preserve">
+    <value>Sample size</value>
+  </data>
+  <data name="Sensors_NewSensor" xml:space="preserve">
+    <value>New Sensor</value>
+  </data>
 </root>

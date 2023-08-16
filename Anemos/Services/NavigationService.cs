@@ -5,6 +5,7 @@ using Anemos.Contracts.ViewModels;
 using Anemos.Helpers;
 
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 
 namespace Anemos.Services;
@@ -16,6 +17,10 @@ public class NavigationService : INavigationService
     private readonly IPageService _pageService;
     private object? _lastParameterUsed;
     private Frame? _frame;
+    private readonly NavigationTransitionInfo _transitionInfo = new SlideNavigationTransitionInfo()
+    {
+        Effect = SlideNavigationTransitionEffect.FromRight
+    };
 
     public event NavigatedEventHandler? Navigated;
 
@@ -89,7 +94,7 @@ public class NavigationService : INavigationService
         {
             _frame.Tag = clearNavigation;
             var vmBeforeNavigation = _frame.GetPageViewModel();
-            var navigated = _frame.Navigate(pageType, parameter);
+            var navigated = _frame.Navigate(pageType, parameter, _transitionInfo);
             if (navigated)
             {
                 _lastParameterUsed = parameter;

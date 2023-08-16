@@ -13,6 +13,8 @@ public sealed partial class ShellPage : Page
         get;
     }
 
+    private ContentDialog? _dialog;
+
     public ShellPage(ShellViewModel viewModel)
     {
         ViewModel = viewModel;
@@ -25,6 +27,17 @@ public sealed partial class ShellPage : Page
         App.MainWindow.SetTitleBar(AppTitleBar);
         App.MainWindow.Activated += MainWindow_Activated;
         AppTitleBarText.Text = "AppDisplayName".GetLocalized();
+    }
+
+    private void ExitButton_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+    {
+        switch (e.Key)
+        {
+            case Windows.System.VirtualKey.Enter:
+            case Windows.System.VirtualKey.Space:
+                App.Current.Shutdown();
+                break;
+        }
     }
 
     private void ExitButton_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
@@ -41,7 +54,7 @@ public sealed partial class ShellPage : Page
         {
             var w = NavigationViewControl.Width + 0;
             NavigationViewControl.Width = 0;
-            await Task.Delay(100);
+            await Task.Delay(200);
             NavigationViewControl.Width = w;
         });
     }
@@ -52,23 +65,32 @@ public sealed partial class ShellPage : Page
         {
             XamlRoot = XamlRoot,
             Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
-            PrimaryButtonStyle = Application.Current.Resources["AccentButtonStyle"] as Style,
+            PrimaryButtonStyle = Application.Current.Resources["DangerButtonStyle_"] as Style,
             Title = "Exit",
-            PrimaryButtonText = "OK",
+            PrimaryButtonText = "Exit",
             IsSecondaryButtonEnabled = false,
             CloseButtonText = "Cancel",
             Content = "Are you sure?",
-            DefaultButton = ContentDialogButton.Primary,
         };
+        return await OpenDialog(dialog);
+    }
 
-        dialog.Resources["AccentButtonBackground"] = "FireBrick";
-        dialog.Resources["AccentButtonForeground"] = App.Current.Resources["TextFillColorPrimaryBrush"];
-        dialog.Resources["AccentButtonBackgroundPointerOver"] = "Crimson";
-        dialog.Resources["AccentButtonForegroundPointerOver"] = App.Current.Resources["TextFillColorPrimaryBrush"];
-        dialog.Resources["AccentButtonBackgroundPressed"] = "DarkRed";
-        dialog.Resources["AccentButtonForegroundPressed"] = App.Current.Resources["TextFillColorPrimaryBrush"];
+    public async Task<bool> OpenDialog(ContentDialog dialog)
+    {
+        if (_dialog != null)
+        {
+            _dialog.Hide();
+            while (VisualTreeHelper.GetOpenPopupsForXamlRoot(XamlRoot).Any())
+            {
+                await Task.Delay(50);
+            }
+        }
 
-        return await dialog.ShowAsync() == ContentDialogResult.Primary;
+        _dialog = dialog;
+        _dialog.XamlRoot = XamlRoot;
+        var result = await _dialog.ShowAsync();
+        _dialog = null;
+        return result == ContentDialogResult.Primary;
     }
 
     private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)

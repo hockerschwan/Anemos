@@ -62,16 +62,19 @@ public class ActivationService : IActivationService
     {
         _ = App.GetService<IIpcService>();
         _ = App.GetService<ISettingsService>();
-
-        var icon = App.GetService<INotifyIconService>();
-        icon.SetTooltip(AppDomain.CurrentDomain.FriendlyName);
-        icon.SetVisibility(true);
+        _ = App.GetService<ILhwmService>();
+        _ = App.GetService<ISensorService>();
 
         await Task.CompletedTask;
     }
 
     private async Task StartupAsync()
     {
-        await Task.CompletedTask;
+        App.GetService<ILhwmService>().Start();
+        await App.GetService<ISensorService>().LoadAsync();
+
+        var icon = App.GetService<INotifyIconService>();
+        icon.SetTooltip(AppDomain.CurrentDomain.FriendlyName);
+        icon.SetVisibility(true);
     }
 }

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Messaging.Messages;
+﻿using Anemos.Models;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 
 namespace Anemos;
 
@@ -20,4 +21,28 @@ internal class ServiceShutDownMessage : ValueChangedMessage<Type>
 internal class WindowVisibilityChangedMessage : ValueChangedMessage<bool>
 {
     public WindowVisibilityChangedMessage(bool isOpen) : base(isOpen) { }
+}
+
+internal class LhwmUpdateDoneMessage : ValueChangedMessage<object?>
+{
+    public LhwmUpdateDoneMessage() : base(null) { }
+}
+
+internal class CustomSensorsUpdateDoneMessage : ValueChangedMessage<object?>
+{
+    public CustomSensorsUpdateDoneMessage() : base(null) { }
+}
+
+/// <summary>
+/// Sensors added/removed
+/// </summary>
+internal class CustomSensorsChangedMessage : PropertyChangedMessage<IEnumerable<SensorModelBase>>
+{
+    /// <inheritdoc cref="CustomSensorsChangedMessage"/>
+    public CustomSensorsChangedMessage(
+        object sender,
+        string? propertyName,
+        IEnumerable<SensorModelBase> oldValue,
+        IEnumerable<SensorModelBase> newValue)
+        : base(sender, propertyName, oldValue, newValue) { }
 }

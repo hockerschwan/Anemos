@@ -68,6 +68,8 @@ public partial class App : Application
                 services.AddSingleton<IIpcService, IpcService>();
                 services.AddSingleton<INotifyIconService, NotifyIconService>();
                 services.AddSingleton<ISettingsService, SettingsService>();
+                services.AddSingleton<ILhwmService, LhwmService>();
+                services.AddSingleton<ISensorService, SensorService>();
 
                 // Views and ViewModels
                 services.AddSingleton<ShellPage>();
