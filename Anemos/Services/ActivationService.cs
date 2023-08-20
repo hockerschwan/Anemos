@@ -1,7 +1,7 @@
 ﻿using Anemos.Activation;
 using Anemos.Contracts.Services;
 using Anemos.Views;
-
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -36,8 +36,13 @@ public class ActivationService : IActivationService
         // Handle activation via ActivationHandlers.
         await HandleActivationAsync(activationArgs);
 
-        // Activate the MainWindow.
-        App.MainWindow.Activate();
+        if (!App.GetService<ISettingsService>().Settings.StartMinimized)
+        {
+            // Activate the MainWindow.
+            App.MainWindow.Activate();
+        }
+
+        App.GetService<IMessenger>().Send<ServiceStartupMessage>(new(Type.Missing));
 
         // Execute tasks after activation.
         await StartupAsync();
@@ -64,6 +69,7 @@ public class ActivationService : IActivationService
         _ = App.GetService<ISettingsService>();
         _ = App.GetService<ILhwmService>();
         _ = App.GetService<ISensorService>();
+        _ = App.GetService<ICurveService>();
 
         await Task.CompletedTask;
     }
@@ -72,6 +78,7 @@ public class ActivationService : IActivationService
     {
         App.GetService<ILhwmService>().Start();
         await App.GetService<ISensorService>().LoadAsync();
+        await App.GetService<ICurveService>().LoadAsync();
 
         var icon = App.GetService<INotifyIconService>();
         icon.SetTooltip(AppDomain.CurrentDomain.FriendlyName);

@@ -8,14 +8,14 @@ internal class AppExitMessage : ValueChangedMessage<object?>
     public AppExitMessage() : base(null) { }
 }
 
-internal class ServiceStartupMessage : ValueChangedMessage<Type>
+internal class ServiceStartupMessage : ValueChangedMessage<object>
 {
-    public ServiceStartupMessage(Type type) : base(type) { }
+    public ServiceStartupMessage(object type) : base(type) { }
 }
 
-internal class ServiceShutDownMessage : ValueChangedMessage<Type>
+internal class ServiceShutDownMessage : ValueChangedMessage<object>
 {
-    public ServiceShutDownMessage(Type type) : base(type) { }
+    public ServiceShutDownMessage(object type) : base(type) { }
 }
 
 internal class WindowVisibilityChangedMessage : ValueChangedMessage<bool>
@@ -44,5 +44,24 @@ internal class CustomSensorsChangedMessage : PropertyChangedMessage<IEnumerable<
         string? propertyName,
         IEnumerable<SensorModelBase> oldValue,
         IEnumerable<SensorModelBase> newValue)
+        : base(sender, propertyName, oldValue, newValue) { }
+}
+
+internal class CurvesUpdateDoneMessage : ValueChangedMessage<object?>
+{
+    public CurvesUpdateDoneMessage() : base(null) { }
+}
+
+/// <summary>
+/// Curves added/removed
+/// </summary>
+internal class CurvesChangedMessage : PropertyChangedMessage<IEnumerable<CurveModelBase>>
+{
+    /// <inheritdoc cref="CurvesUpdateDoneMessage"/>
+    public CurvesChangedMessage(
+        object sender,
+        string? propertyName,
+        IEnumerable<CurveModelBase> oldValue,
+        IEnumerable<CurveModelBase> newValue)
         : base(sender, propertyName, oldValue, newValue) { }
 }

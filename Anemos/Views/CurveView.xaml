@@ -1,0 +1,124 @@
+<UserControl
+	x:Class="Anemos.Views.CurveView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:ScottPlot="using:ScottPlot.WinUI"
+	xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+	xmlns:cv="using:Anemos.Converters"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:fa="using:FontAwesome6.Fonts"
+	xmlns:local="using:Anemos.Views"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:models="using:Anemos.Models"
+	IsTabStop="False"
+	mc:Ignorable="d">
+	<UserControl.Resources>
+		<cv:PercentConverter x:Key="PercentConverter" />
+		<cv:TemperatureConverter x:Key="TemperatureConverter" />
+		<cv:BoolToVisibilityConverter x:Key="VisibilityConverter" />
+		<cv:InvertedBoolToVisibilityConverter x:Key="InvertedVisibilityConverter" />
+	</UserControl.Resources>
+
+	<Border Style="{StaticResource PageItemContainerBorderStyle_}">
+		<controls:DockPanel LastChildFill="True">
+			<!--  Left  -->
+			<StackPanel Width="200" controls:DockPanel.Dock="Left">
+				<controls:DockPanel Height="{StaticResource PageItemNameRowHeight_}" LastChildFill="True">
+					<ToggleButton
+						Width="{StaticResource PageItemIconButtonHeight_}"
+						Height="{StaticResource PageItemIconButtonHeight_}"
+						Margin="{StaticResource PageItemHorizontalMargin_}"
+						Padding="0"
+						VerticalAlignment="Center"
+						controls:DockPanel.Dock="Right"
+						IsChecked="{x:Bind ViewModel.EditingName, Mode=TwoWay}">
+						<fa:FontAwesome FontSize="{StaticResource PageItemIconFontSize_}" Icon="Solid_Pencil" />
+
+						<ToolTipService.ToolTip>
+							<ToolTip x:Uid="Curve_EditName_ToolTip" />
+						</ToolTipService.ToolTip>
+					</ToggleButton>
+
+					<Grid HorizontalAlignment="Stretch">
+						<TextBlock
+							HorizontalAlignment="Stretch"
+							VerticalAlignment="Center"
+							FontSize="{StaticResource PageItemMediumFontSize_}"
+							Text="{x:Bind ViewModel.Model.Name, Mode=OneWay}"
+							TextTrimming="CharacterEllipsis"
+							Visibility="{x:Bind ViewModel.EditingName, Converter={StaticResource InvertedVisibilityConverter}, Mode=OneWay}" />
+
+						<TextBox
+							HorizontalAlignment="Stretch"
+							VerticalAlignment="Center"
+							IsEnabled="{x:Bind ViewModel.EditingName, Mode=OneWay}"
+							IsEnabledChanged="EditNameTextBox_IsEnabledChanged"
+							KeyDown="EditNameTextBox_KeyDown"
+							Text="{x:Bind ViewModel.Model.Name, Mode=TwoWay}"
+							Visibility="{x:Bind ViewModel.EditingName, Converter={StaticResource VisibilityConverter}, Mode=OneWay}" />
+					</Grid>
+				</controls:DockPanel>
+
+				<TextBlock
+					Margin="{StaticResource PageItemVerticalMargin_}"
+					FontSize="{StaticResource PageItemMediumFontSize_}"
+					Style="{StaticResource MonoTextBlockStyle_}"
+					Text="{x:Bind ViewModel.Model.Output, Converter={StaticResource PercentConverter}, Mode=OneWay}" />
+
+				<ComboBox
+					Margin="{StaticResource PageItemVerticalMargin_}"
+					HorizontalAlignment="Stretch"
+					ItemsSource="{x:Bind ViewModel.Sensors, Mode=OneWay}"
+					SelectedItem="{x:Bind ViewModel.Source, Mode=TwoWay}">
+					<ComboBox.ItemTemplate>
+						<DataTemplate x:DataType="models:SensorModelBase">
+							<controls:DockPanel LastChildFill="True">
+								<TextBlock
+									VerticalAlignment="Bottom"
+									controls:DockPanel.Dock="Right"
+									Style="{StaticResource MonoTextBlockStyle_}"
+									Text="{Binding Value, Converter={StaticResource TemperatureConverter}, Mode=OneWay}" />
+								<TextBlock
+									Margin="{StaticResource PageItemFlyoutItemMargin_}"
+									controls:DockPanel.Dock="Left"
+									Text="{Binding LongName, Mode=OneWay}"
+									TextTrimming="CharacterEllipsis" />
+							</controls:DockPanel>
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+				</ComboBox>
+			</StackPanel>
+
+			<!--  Right  -->
+			<controls:DockPanel
+				Margin="{StaticResource PageItemMiddleMargin_}"
+				controls:DockPanel.Dock="Right"
+				LastChildFill="True">
+				<controls:DockPanel controls:DockPanel.Dock="Top" LastChildFill="True">
+					<Button Padding="2,0" controls:DockPanel.Dock="Left">
+						<StackPanel Orientation="Horizontal" Spacing="{StaticResource PageItemTopRightButtonIconSpacing_}">
+							<fa:FontAwesome FontSize="{StaticResource PageItemIconFontSize_}" Icon="Solid_Pencil" />
+							<TextBlock x:Uid="Curve_EditCurve" />
+						</StackPanel>
+					</Button>
+
+					<Button
+						controls:DockPanel.Dock="Right"
+						Click="DeleteSelfButton_Click"
+						Style="{StaticResource CloseButtonStyle_}">
+						<fa:FontAwesome FontSize="{StaticResource PageItemIconFontSize_}" Icon="Solid_X" />
+					</Button>
+
+					<Border controls:DockPanel.Dock="Right" BorderThickness="0" />
+				</controls:DockPanel>
+
+				<ScottPlot:WinUIPlot
+					x:Name="WinUIPlot1"
+					Margin="{StaticResource PageItemVerticalMargin_}"
+					VerticalAlignment="Stretch"
+					controls:DockPanel.Dock="Bottom"
+					Background="{StaticResource SolidBackgroundFillColorTertiaryBrush}" />
+			</controls:DockPanel>
+		</controls:DockPanel>
+	</Border>
+</UserControl>

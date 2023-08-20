@@ -33,6 +33,8 @@
 	<x:Double x:Key="PageToolbarHeight_">64</x:Double>
 	<Thickness x:Key="PageToolbarPadding_">12</Thickness>
 	<Thickness x:Key="PageItemsContainerPadding_">5</Thickness>
+	<x:Double x:Key="PageToolbarButtonSpacing_">10</x:Double>
+	<x:Double x:Key="PageToolbarButtonIconSpacing_">5</x:Double>
 
 	<x:Double x:Key="PageItemNameRowHeight_">32</x:Double>
 	<x:Double x:Key="PageItemIconButtonHeight_">28</x:Double>
@@ -40,4 +42,5 @@
 	<Thickness x:Key="PageItemHorizontalMargin_">6,0,0,0</Thickness>
 	<Thickness x:Key="PageItemMiddleMargin_">8,0,0,0</Thickness>
 	<x:Double x:Key="PageItemTopRightButtonIconSpacing_">5</x:Double>
+	<Thickness x:Key="PageItemFlyoutItemMargin_">0,0,10,0</Thickness>
 </ResourceDictionary>

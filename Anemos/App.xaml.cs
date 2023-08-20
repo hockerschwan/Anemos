@@ -41,7 +41,7 @@ public partial class App : Application
 
     private readonly IMessenger _messenger;
 
-    private readonly HashSet<Type> _servicesToShutDown = new();
+    private readonly HashSet<object> _servicesToShutDown = new();
 
     public App(string id) : base()
     {
@@ -70,6 +70,7 @@ public partial class App : Application
                 services.AddSingleton<ISettingsService, SettingsService>();
                 services.AddSingleton<ILhwmService, LhwmService>();
                 services.AddSingleton<ISensorService, SensorService>();
+                services.AddSingleton<ICurveService, CurveService>();
 
                 // Views and ViewModels
                 services.AddSingleton<ShellPage>();
@@ -123,15 +124,21 @@ public partial class App : Application
 
     private void ServiceStartupMessageHandler(object recipient, ServiceStartupMessage message)
     {
+        if (message.Value == Type.Missing)
+        {
+            _messenger.Unregister<ServiceStartupMessage>(this);
+            return;
+        }
+
         _servicesToShutDown.Add(message.Value);
     }
 
     private void ServiceShutDownMessageHandler(object recipient, ServiceShutDownMessage message)
     {
-        if (_servicesToShutDown.Contains(message.Value))
+        if (message.Value is Type type && _servicesToShutDown.Contains(type))
         {
-            _servicesToShutDown.Remove(message.Value);
-            Log.Information("[App] Shut down: {0}", message.Value.Name);
+            _servicesToShutDown.Remove(type);
+            Log.Information("[App] Shut down: {0}", type.Name);
         }
     }
 
