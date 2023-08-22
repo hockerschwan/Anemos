@@ -43,4 +43,9 @@
 	<Thickness x:Key="PageItemMiddleMargin_">8,0,0,0</Thickness>
 	<x:Double x:Key="PageItemTopRightButtonIconSpacing_">5</x:Double>
 	<Thickness x:Key="PageItemFlyoutItemMargin_">0,0,10,0</Thickness>
+
+	<!--  ContentDialog  -->
+	<x:Double x:Key="ContentDialogGridMinWith_">180</x:Double>
+	<x:Double x:Key="ContentDialogGridRowSpacing_">5</x:Double>
+	<Thickness x:Key="ContentDialogPlotMargin_">10,0,0,0</Thickness>
 </ResourceDictionary>

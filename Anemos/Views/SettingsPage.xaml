@@ -87,7 +87,7 @@
 			<StackPanel>
 				<TextBlock Margin="{StaticResource XSmallTopMargin_}" Text="{x:Bind ViewModel.VersionDescription}" />
 
-				<HyperlinkButton x:Uid="Settings_ProjectLink" Margin="{StaticResource SmallTopBottomMargin_}">
+				<HyperlinkButton Margin="{StaticResource SmallTopBottomMargin_}" NavigateUri="https://github.com/hockerschwan/Anemos">
 					<HyperlinkButton.Resources>
 						<StaticResource x:Key="HyperlinkButtonForeground" ResourceKey="TextFillColorSecondary" />
 						<StaticResource x:Key="HyperlinkButtonForegroundPointerOver" ResourceKey="TextFillColorPrimary" />

@@ -166,9 +166,6 @@
   <data name="Settings_UpdateIntervalNumberBox.Header" xml:space="preserve">
     <value>Update interval [s]</value>
   </data>
-  <data name="Settings_ProjectLink.NavigateUri" xml:space="preserve">
-    <value>https://github.com/hockerschwan/Anemos</value>
-  </data>
   <data name="Settings_ProjectLinkText.Text" xml:space="preserve">
     <value>Project page</value>
   </data>
@@ -193,6 +190,33 @@
   <data name="AppDisplayName" xml:space="preserve">
     <value>Anemos</value>
   </data>
+  <data name="CurveEditor_Chart_NB_X.Header" xml:space="preserve">
+    <value>Input [℃]</value>
+  </data>
+  <data name="CurveEditor_Chart_NB_Y.Header" xml:space="preserve">
+    <value>Output [%]</value>
+  </data>
+  <data name="CurveEditor_Latch_NB_X_High.Header" xml:space="preserve">
+    <value>Threshold High [℃]</value>
+  </data>
+  <data name="CurveEditor_Latch_NB_X_Low.Header" xml:space="preserve">
+    <value>Threshold Low [℃]</value>
+  </data>
+  <data name="CurveEditor_Latch_NB_Y_High.Header" xml:space="preserve">
+    <value>Output High [%]</value>
+  </data>
+  <data name="CurveEditor_Latch_NB_Y_Low.Header" xml:space="preserve">
+    <value>Output Low [%]</value>
+  </data>
+  <data name="CurveEditor_Plot_X_Label" xml:space="preserve">
+    <value>Input [℃]</value>
+  </data>
+  <data name="CurveEditor_Plot_Y_Label" xml:space="preserve">
+    <value>Output [%]</value>
+  </data>
+  <data name="CurveEditor_Title" xml:space="preserve">
+    <value>Edit Curve</value>
+  </data>
   <data name="Curves_AddChart_ToolTip.Content" xml:space="preserve">
     <value>Add Chart</value>
   </data>
@@ -204,5 +228,30 @@
   </data>
   <data name="Curve_EditName_ToolTip.Content" xml:space="preserve">
     <value>Edit Name</value>
+  </data>
+  <data name="Dialog_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Dialog_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Dialog_DeleteCurve_Title" xml:space="preserve">
+    <value>Delete Curve</value>
+  </data>
+  <data name="Dialog_DeleteSensor_Title" xml:space="preserve">
+    <value>Delete Sensor</value>
+  </data>
+  <data name="Dialog_Delete_Content" xml:space="preserve">
+    <value>Are you sure to delete $?</value>
+    <comment>$ will be replaced with name</comment>
+  </data>
+  <data name="Dialog_Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="Dialog_Exit_Content" xml:space="preserve">
+    <value>Are you sure?</value>
+  </data>
+  <data name="Dialog_OK" xml:space="preserve">
+    <value>OK</value>
   </data>
 </root>

@@ -66,11 +66,11 @@ public sealed partial class ShellPage : Page
             XamlRoot = XamlRoot,
             Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
             PrimaryButtonStyle = Application.Current.Resources["DangerButtonStyle_"] as Style,
-            Title = "Exit",
-            PrimaryButtonText = "Exit",
+            Title = "Dialog_Exit".GetLocalized(),
+            PrimaryButtonText = "Dialog_Exit".GetLocalized(),
             IsSecondaryButtonEnabled = false,
-            CloseButtonText = "Cancel",
-            Content = "Are you sure?",
+            CloseButtonText = "Dialog_Cancel".GetLocalized(),
+            Content = "Dialog_Exit_Content".GetLocalized(),
         };
         return await OpenDialog(dialog);
     }

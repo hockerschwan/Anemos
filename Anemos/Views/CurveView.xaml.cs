@@ -1,15 +1,19 @@
 using Anemos.Contracts.Services;
+using Anemos.Models;
 using Anemos.ViewModels;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using ScottPlot;
 using ScottPlot.DataSources;
 using ScottPlot.Plottables;
+using Serilog;
 
 namespace Anemos.Views;
 
 public sealed partial class CurveView : UserControl
 {
+    private readonly IMessenger _messenger = App.GetService<IMessenger>();
     private readonly ISettingsService _settingsService = App.GetService<ISettingsService>();
 
     public CurveViewModelBase ViewModel
@@ -31,10 +35,16 @@ public sealed partial class CurveView : UserControl
     private readonly Scatter? LatchLowToHighArrow;
     private readonly Scatter? LatchHighToLowArrow;
 
+    private bool _chartEditorOpened;
+    private bool _latchEditorOpened;
+
     public CurveView(CurveViewModelBase viewModel)
     {
         ViewModel = viewModel;
         InitializeComponent();
+
+        _messenger.Register<ChartCurveChangedMessage>(this, ChartCurveChangedMessageHandler);
+        _messenger.Register<LatchCurveChangedMessage>(this, LatchCurveChangedMessageHandler);
 
         _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
 
@@ -80,6 +90,24 @@ public sealed partial class CurveView : UserControl
         ViewModel.CurveMarkerChanged += ViewModel_CurveMarkerChanged;
     }
 
+    private void ChartCurveChangedMessageHandler(object recipient, ChartCurveChangedMessage message)
+    {
+        if (!_chartEditorOpened || ViewModel.Model is not ChartCurveModel chart) { return; }
+
+        chart.Points = message.Value;
+    }
+
+    private void LatchCurveChangedMessageHandler(object recipient, LatchCurveChangedMessage message)
+    {
+        if (!_latchEditorOpened || ViewModel.Model is not LatchCurveModel latch) { return; }
+
+        latch.TemperatureThresholdLow = message.Value.Item1;
+        latch.OutputLowTemperature = message.Value.Item2;
+        latch.TemperatureThresholdHigh = message.Value.Item3;
+        latch.OutputHighTemperature = message.Value.Item4;
+        latch.Update();
+    }
+
     private void Settings_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(_settingsService.Settings.CurveMinTemp))
@@ -110,6 +138,18 @@ public sealed partial class CurveView : UserControl
         if (await CurvesPage.OpenDeleteDialog(ViewModel.Model.Name))
         {
             ViewModel.RemoveSelf();
+        }
+    }
+
+    private async void EditCurveButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.Model is ChartCurveModel chart && await CurvesPage.OpenCurveEditorDialog(chart.Id))
+        {
+            _chartEditorOpened = true;
+        }
+        else if (ViewModel.Model is LatchCurveModel latch && await CurvesPage.OpenCurveEditorDialog(latch.Id))
+        {
+            _latchEditorOpened = true;
         }
     }
 

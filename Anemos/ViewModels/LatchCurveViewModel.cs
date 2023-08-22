@@ -23,6 +23,8 @@ internal class LatchCurveViewModel : CurveViewModelBase
     internal readonly double[] LineDataHighToLowX = { 0, 0 };
     internal readonly double[] LineDataHighToLowY = { 0, 0 }; // base, tip
 
+    private readonly System.Timers.Timer _timer = new(100) { AutoReset = false };
+
     public LatchCurveViewModel(LatchCurveModel model) : base(model)
     {
         CurveModel = model;
@@ -31,6 +33,8 @@ internal class LatchCurveViewModel : CurveViewModelBase
         LineDataLowTempX[1] = LineDataHighTempX[1] = ICurveService.AbsoluteMaxTemperature;
 
         SetLineData();
+
+        _timer.Elapsed += Timer_Elapsed;
     }
 
     internal override void Model_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -42,7 +46,8 @@ internal class LatchCurveViewModel : CurveViewModelBase
             e.PropertyName == nameof(CurveModel.TemperatureThresholdLow) ||
             e.PropertyName == nameof(CurveModel.TemperatureThresholdHigh))
         {
-            SetLineData();
+            _timer.Stop();
+            _timer.Start();
         }
     }
 
@@ -54,5 +59,11 @@ internal class LatchCurveViewModel : CurveViewModelBase
         LineDataHighTempY[0] = LineDataHighTempY[1] = LineDataLowToHighY[1] = LineDataHighToLowY[0] = CurveModel.OutputHighTemperature;
 
         OnCurveDataChanged();
+    }
+
+    private void Timer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
+    {
+        SetLineData();
+        _curveService.Save();
     }
 }

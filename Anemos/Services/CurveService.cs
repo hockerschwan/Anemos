@@ -1,7 +1,6 @@
 ﻿using Anemos.Contracts.Services;
 using Anemos.Models;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 
 namespace Anemos.Services;
@@ -18,8 +17,7 @@ internal class CurveService : ICurveService
 
     public CurveService(
         IMessenger messenger,
-        ISettingsService settingsService,
-        IHostApplicationLifetime applicationLifetime)
+        ISettingsService settingsService)
     {
         _messenger = messenger;
         _settingsService = settingsService;
@@ -27,11 +25,7 @@ internal class CurveService : ICurveService
         _messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
         _messenger.Register<CustomSensorsUpdateDoneMessage>(this, CustomSensorsUpdateDoneMessageHandler);
 
-        applicationLifetime.ApplicationStarted.Register(() =>
-        {
-            _messenger.Send<ServiceStartupMessage>(new(typeof(ICurveService)));
-        });
-
+        _messenger.Send<ServiceStartupMessage>(new(GetType()));
         Log.Information("[Curve] Started");
     }
 
@@ -73,7 +67,7 @@ internal class CurveService : ICurveService
             if (!_isUpdating) { break; }
             await Task.Delay(100);
         }
-        _messenger.Send<ServiceShutDownMessage>(new(typeof(ICurveService)));
+        _messenger.Send<ServiceShutDownMessage>(new(GetType()));
     }
 
     private void CustomSensorsUpdateDoneMessageHandler(object recipient, CustomSensorsUpdateDoneMessage message)

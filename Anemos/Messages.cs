@@ -65,3 +65,21 @@ internal class CurvesChangedMessage : PropertyChangedMessage<IEnumerable<CurveMo
         IEnumerable<CurveModelBase> newValue)
         : base(sender, propertyName, oldValue, newValue) { }
 }
+
+/// <summary>
+/// Chart editor result
+/// </summary>
+internal class ChartCurveChangedMessage : ValueChangedMessage<IEnumerable<Point2d>>
+{
+    /// <inheritdoc cref="ChartCurveChangedMessage"/>
+    public ChartCurveChangedMessage(IEnumerable<Point2d> result) : base(result) { }
+}
+
+/// <summary>
+/// Latch editor result (X_Low, Y_Low, X_High, Y_High)
+/// </summary>
+internal class LatchCurveChangedMessage : ValueChangedMessage<Tuple<double, double, double, double>>
+{
+    /// <inheritdoc cref="LatchCurveChangedMessage"/>
+    public LatchCurveChangedMessage(Tuple<double, double, double, double> result) : base(result) { }
+}

@@ -1,3 +1,4 @@
+using Anemos.Helpers;
 using Anemos.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -25,11 +26,11 @@ public sealed partial class SensorsPage : Page
         {
             Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
             PrimaryButtonStyle = Application.Current.Resources["DangerButtonStyle_"] as Style,
-            Title = "Delete Sensor",
-            PrimaryButtonText = "Delete",
+            Title = "Dialog_DeleteSensor_Title".GetLocalized(),
+            PrimaryButtonText = "Dialog_Delete".GetLocalized(),
             IsSecondaryButtonEnabled = false,
-            CloseButtonText = "Cancel",
-            Content = $"Are you sure to delete {name}?",
+            CloseButtonText = "Dialog_Cancel".GetLocalized(),
+            Content = "Dialog_Delete_Content".GetLocalized().Replace("$", name),
         };
         return await App.GetService<ShellPage>().OpenDialog(dialog);
     }

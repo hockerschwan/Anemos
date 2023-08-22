@@ -95,7 +95,10 @@
 				controls:DockPanel.Dock="Right"
 				LastChildFill="True">
 				<controls:DockPanel controls:DockPanel.Dock="Top" LastChildFill="True">
-					<Button Padding="2,0" controls:DockPanel.Dock="Left">
+					<Button
+						Padding="2,0"
+						controls:DockPanel.Dock="Left"
+						Click="EditCurveButton_Click">
 						<StackPanel Orientation="Horizontal" Spacing="{StaticResource PageItemTopRightButtonIconSpacing_}">
 							<fa:FontAwesome FontSize="{StaticResource PageItemIconFontSize_}" Icon="Solid_Pencil" />
 							<TextBlock x:Uid="Curve_EditCurve" />
