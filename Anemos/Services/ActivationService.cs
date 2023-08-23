@@ -42,8 +42,6 @@ public class ActivationService : IActivationService
             App.MainWindow.Activate();
         }
 
-        App.GetService<IMessenger>().Send<ServiceStartupMessage>(new(Type.Missing));
-
         // Execute tasks after activation.
         await StartupAsync();
     }
@@ -67,21 +65,19 @@ public class ActivationService : IActivationService
     {
         _ = App.GetService<IIpcService>();
         _ = App.GetService<ISettingsService>();
-        _ = App.GetService<ILhwmService>();
-        _ = App.GetService<ISensorService>();
-        _ = App.GetService<ICurveService>();
+        _ = App.GetService<INotifyIconService>();
+        await App.GetService<ISensorService>().LoadAsync();
+        await App.GetService<ICurveService>().LoadAsync();
+        await App.GetService<IFanService>().LoadAsync();
 
-        await Task.CompletedTask;
+        App.GetService<IMessenger>().Send<ServiceStartupMessage>(new(Type.Missing));
     }
 
     private async Task StartupAsync()
     {
         App.GetService<ILhwmService>().Start();
-        await App.GetService<ISensorService>().LoadAsync();
-        await App.GetService<ICurveService>().LoadAsync();
+        App.GetService<INotifyIconService>().SetVisibility(true);
 
-        var icon = App.GetService<INotifyIconService>();
-        icon.SetTooltip(AppDomain.CurrentDomain.FriendlyName);
-        icon.SetVisibility(true);
+        await Task.CompletedTask;
     }
 }

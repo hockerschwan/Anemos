@@ -8,7 +8,7 @@ public delegate void QueueChangedEventHandler(object? sender, EventArgs e);
 
 [Serializable]
 [DebuggerDisplay("Capacity = {Capacity}")]
-public class LimitedPooledQueue<T> : IEnumerable<T>, ICollection, IReadOnlyCollection<T>, IDisposable
+public class LimitedPooledQueue<T> : IEnumerable<T>, ICollection, IReadOnlyList<T>, IDisposable
 {
     [field: NonSerialized]
     public event QueueChangedEventHandler? QueueChanged;
@@ -66,6 +66,8 @@ public class LimitedPooledQueue<T> : IEnumerable<T>, ICollection, IReadOnlyColle
     public bool IsSynchronized => false;
 
     public object SyncRoot => this;
+
+    public T this[int index] => _queue.ElementAt(index);
 
     private const string _zeroCapacityErrorString = "Capacity must be greater than 0.";
 
@@ -160,6 +162,8 @@ public class LimitedPooledQueue<T> : IEnumerable<T>, ICollection, IReadOnlyColle
     }
 
     public T Peek() => _queue.Peek();
+
+    public int RemoveWhere(Func<T, bool> match) => _queue.RemoveWhere(match);
 
     public T[] ToArray() => _queue.ToArray();
 

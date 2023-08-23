@@ -7,7 +7,6 @@ using Microsoft.UI.Xaml.Controls;
 using ScottPlot;
 using ScottPlot.DataSources;
 using ScottPlot.Plottables;
-using Serilog;
 
 namespace Anemos.Views;
 
@@ -94,6 +93,7 @@ public sealed partial class CurveView : UserControl
     {
         if (!_chartEditorOpened || ViewModel.Model is not ChartCurveModel chart) { return; }
 
+        _chartEditorOpened = false;
         chart.Points = message.Value;
     }
 
@@ -101,6 +101,7 @@ public sealed partial class CurveView : UserControl
     {
         if (!_latchEditorOpened || ViewModel.Model is not LatchCurveModel latch) { return; }
 
+        _latchEditorOpened = false;
         latch.TemperatureThresholdLow = message.Value.Item1;
         latch.OutputLowTemperature = message.Value.Item2;
         latch.TemperatureThresholdHigh = message.Value.Item3;
@@ -143,13 +144,13 @@ public sealed partial class CurveView : UserControl
 
     private async void EditCurveButton_Click(object sender, RoutedEventArgs e)
     {
-        if (ViewModel.Model is ChartCurveModel chart && await CurvesPage.OpenCurveEditorDialog(chart.Id))
+        if (ViewModel.Model is ChartCurveModel chart)
         {
-            _chartEditorOpened = true;
+            _chartEditorOpened = await CurvesPage.OpenCurveEditorDialog(chart.Id);
         }
-        else if (ViewModel.Model is LatchCurveModel latch && await CurvesPage.OpenCurveEditorDialog(latch.Id))
+        else if (ViewModel.Model is LatchCurveModel latch)
         {
-            _latchEditorOpened = true;
+            _latchEditorOpened = await CurvesPage.OpenCurveEditorDialog(latch.Id);
         }
     }
 
@@ -173,5 +174,15 @@ public sealed partial class CurveView : UserControl
                 ViewModel.EditingName = false;
                 break;
         }
+    }
+
+    private void Grid_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    {
+        PlotOverlay.Visibility = Visibility.Visible;
+    }
+
+    private void Grid_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    {
+        PlotOverlay.Visibility = Visibility.Collapsed;
     }
 }

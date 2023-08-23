@@ -136,9 +136,14 @@
 					<Button
 						controls:DockPanel.Dock="Right"
 						Click="DeleteSelfButton_Click"
-						Style="{StaticResource CloseButtonStyle_}">
+						Style="{StaticResource SmallCloseButtonStyle_}">
 						<fa:FontAwesome FontSize="{StaticResource PageItemIconFontSize_}" Icon="Solid_X" />
+
+						<ToolTipService.ToolTip>
+							<ToolTip x:Uid="Sensor_Delete_ToolTip" />
+						</ToolTipService.ToolTip>
 					</Button>
+
 					<Border controls:DockPanel.Dock="Right" BorderThickness="0" />
 				</controls:DockPanel>
 
@@ -189,7 +194,7 @@
 									Margin="4"
 									Click="DeleteSourceButton_Click"
 									CommandParameter="{x:Bind Id}"
-									Style="{StaticResource CloseButtonStyle_}">
+									Style="{StaticResource SmallCloseButtonStyle_}">
 									<fa:FontAwesome FontSize="{StaticResource PageItemIconFontSize_}" Icon="Solid_X" />
 								</Button>
 							</Grid>

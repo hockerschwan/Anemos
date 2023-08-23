@@ -44,8 +44,8 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
         ViewModel.SetPoints(ref points);
 
         InitializeComponent();
-        Closed += ChartCurveEditorDialog_Closed;
         Loaded += ChartCurveEditorDialog_Loaded;
+        Closing += ChartCurveEditorDialog_Closing;
         App.MainWindow.SizeChanged += MainWindow_SizeChanged;
 
         SetNumberFormatter();
@@ -236,8 +236,9 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
         _isDragged = false;
     }
 
-    private void ChartCurveEditorDialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
+    private void ChartCurveEditorDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
     {
+        Closing -= ChartCurveEditorDialog_Closing;
         App.MainWindow.SizeChanged -= MainWindow_SizeChanged;
 
         var points = Chart.Data.GetScatterPoints().Skip(1).SkipLast(1).Select(c => new Point2d(c.X, c.Y));

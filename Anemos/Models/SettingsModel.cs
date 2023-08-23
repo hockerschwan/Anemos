@@ -55,6 +55,8 @@ public partial class SettingsModel : ObservableObject
         set => SetProperty(ref _curveMaxTemp, value);
     }
 
+    public FanSettings FanSettings { get; set; } = new();
+
     public CurveSettings CurveSettings { get; set; } = new();
 
     public SensorSettings SensorSettings { get; set; } = new();
@@ -67,6 +69,46 @@ public class WindowSettings
     public int Y { get; set; } = 100;
     public int Width { get; set; } = 1200;
     public int Height { get; set; } = 720;
+}
+
+public class FanSettings : ObservableObject
+{
+    public IEnumerable<FanSettings_Fan> Fans { get; set; } = Enumerable.Empty<FanSettings_Fan>();
+    private bool _useRules = false;
+    public bool UseRules
+    {
+        get => _useRules;
+        set => SetProperty(ref _useRules, value);
+    }
+    public string SelectedProfileId { get; set; } = string.Empty;
+    public IEnumerable<FanSettings_Profile> Profiles { get; set; } = Enumerable.Empty<FanSettings_Profile>();
+}
+
+public class FanSettings_Fan
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public bool IsHidden { get; set; } = false;
+}
+
+public class FanSettings_Profile
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public IEnumerable<FanSettings_ProfileItem> ProfileItems { get; set; } = Enumerable.Empty<FanSettings_ProfileItem>();
+}
+
+public class FanSettings_ProfileItem
+{
+    public string Id { get; set; } = string.Empty;
+    public FanControlModes Mode { get; set; } = FanControlModes.Device;
+    public string CurveId { get; set; } = string.Empty;
+    public int ConstantSpeed { get; set; } = 50;
+    public int MinSpeed { get; set; } = 0;
+    public int MaxSpeed { get; set; } = 100;
+    public int DeltaLimitUp { get; set; } = 0;
+    public int DeltaLimitDown { get; set; } = 0;
+    public int RefractoryPeriodCyclesDown { get; set; } = 0;
 }
 
 public class CurveSettings

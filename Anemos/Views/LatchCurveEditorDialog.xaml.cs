@@ -47,7 +47,7 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
 
         InitializeComponent();
         Loaded += LatchCurveEditorDialog_Loaded;
-        Closed += LatchCurveEditorDialog_Closed;
+        Closing += LatchCurveEditorDialog_Closing;
         App.MainWindow.SizeChanged += MainWindow_SizeChanged;
 
         SetNumberFormatter();
@@ -100,8 +100,9 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
         NB_X_Low.NumberFormatter = NB_X_High.NumberFormatter = NB_Y_Low.NumberFormatter = NB_Y_High.NumberFormatter = formatter;
     }
 
-    private void LatchCurveEditorDialog_Closed(ContentDialog sender, ContentDialogClosedEventArgs args)
+    private void LatchCurveEditorDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
     {
+        Closing -= LatchCurveEditorDialog_Closing;
         App.MainWindow.SizeChanged -= MainWindow_SizeChanged;
 
         App.MainWindow.DispatcherQueue.TryEnqueue(async () =>

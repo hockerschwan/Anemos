@@ -83,3 +83,32 @@ internal class LatchCurveChangedMessage : ValueChangedMessage<Tuple<double, doub
     /// <inheritdoc cref="LatchCurveChangedMessage"/>
     public LatchCurveChangedMessage(Tuple<double, double, double, double> result) : base(result) { }
 }
+
+internal class FanProfileSwitchedMessage : ValueChangedMessage<FanProfile>
+{
+    public FanProfileSwitchedMessage(FanProfile profile) : base(profile) { }
+}
+
+/// <summary>
+/// Profiles added/removed
+/// </summary>
+internal class FanProfilesChangedMessage : PropertyChangedMessage<IEnumerable<FanProfile>>
+{
+    /// <inheritdoc cref="FanProfilesChangedMessage"/>
+    public FanProfilesChangedMessage(
+        object sender,
+        string? propertyName,
+        IEnumerable<FanProfile> oldValue,
+        IEnumerable<FanProfile> newValue)
+        : base(sender, propertyName, oldValue, newValue) { }
+}
+
+internal class FanProfileRenamedMessage : ValueChangedMessage<string>
+{
+    public FanProfileRenamedMessage(string newName) : base(newName) { }
+}
+
+internal class FanOptionsChangedMessage : ValueChangedMessage<FanOptionsResult>
+{
+    public FanOptionsChangedMessage(FanOptionsResult result) : base(result) { }
+}

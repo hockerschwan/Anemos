@@ -16,6 +16,8 @@
 			<SolidColorBrush x:Key="SystemAccentColorDark1Brush_" Color="{ThemeResource SystemAccentColorDark1}" />
 			<SolidColorBrush x:Key="SystemAccentColorDark2Brush_" Color="{ThemeResource SystemAccentColorDark2}" />
 			<SolidColorBrush x:Key="SystemAccentColorDark3Brush_" Color="{ThemeResource SystemAccentColorDark3}" />
+
+			<SolidColorBrush x:Key="PlotOverlayBackgroundBrush_" Color="#c005132e" />
 		</ResourceDictionary>
 	</ResourceDictionary.ThemeDictionaries>
 </ResourceDictionary>

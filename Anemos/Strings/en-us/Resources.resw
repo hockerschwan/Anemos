@@ -254,4 +254,68 @@
   <data name="Dialog_OK" xml:space="preserve">
     <value>OK</value>
   </data>
+  <data name="Fans_CloneName" xml:space="preserve">
+    <value>Copy of $</value>
+    <comment>$ will be replaced with name</comment>
+  </data>
+  <data name="Fan_RPM" xml:space="preserve">
+    <value>RPM</value>
+  </data>
+  <data name="Fan_EditName_ToolTip.Content" xml:space="preserve">
+    <value>Edit Name</value>
+  </data>
+  <data name="Curve_Delete_ToolTip.Content" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Fans_ProfileAdd_ToolTip.Content" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Fans_ProfileDelete_ToolTip.Content" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Fans_ProfileDuplicate_ToolTip.Content" xml:space="preserve">
+    <value>Duplicate</value>
+  </data>
+  <data name="Fans_ProfileEditName_ToolTip.Content" xml:space="preserve">
+    <value>Edit Name</value>
+  </data>
+  <data name="Fans_ShowHiddenFans.Content" xml:space="preserve">
+    <value>Show hidden fans</value>
+  </data>
+  <data name="Fans_UseRules.OffContent" xml:space="preserve">
+    <value>Use Rules</value>
+  </data>
+  <data name="Fans_UseRules.OnContent" xml:space="preserve">
+    <value>Using Rules</value>
+  </data>
+  <data name="Fan_Hide_ToolTip.Content" xml:space="preserve">
+    <value>Hide</value>
+  </data>
+  <data name="Sensor_Delete_ToolTip.Content" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="FanProfileRename_Title" xml:space="preserve">
+    <value>Edit Name</value>
+  </data>
+  <data name="Dialog_DeleteFanProfile_Title" xml:space="preserve">
+    <value>Delete Profile</value>
+  </data>
+  <data name="FanOptions_DeltaDown.Header" xml:space="preserve">
+    <value>Speed Change Limit Down [%/Cycle]</value>
+  </data>
+  <data name="FanOptions_DeltaUp.Header" xml:space="preserve">
+    <value>Speed Change Limit Up [%/Cycle]</value>
+  </data>
+  <data name="FanOptions_HoldCycleDown.Header" xml:space="preserve">
+    <value>Sticky Period Down [Cycle]</value>
+  </data>
+  <data name="FanOptions_Max.Header" xml:space="preserve">
+    <value>Maximum Speed [%]</value>
+  </data>
+  <data name="FanOptions_Min.Header" xml:space="preserve">
+    <value>Minimum Speed [%]</value>
+  </data>
+  <data name="FanOptions_Title" xml:space="preserve">
+    <value>Fan Options</value>
+  </data>
 </root>

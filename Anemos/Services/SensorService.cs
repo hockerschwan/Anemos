@@ -103,7 +103,6 @@ internal class SensorService : ISensorService
     {
         UpdateSensors();
         await Task.Run(Load);
-        Update();
         Log.Information("[Sensor] Loaded");
     }
 

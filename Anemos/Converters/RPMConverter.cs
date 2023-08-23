@@ -1,22 +1,17 @@
-﻿using Microsoft.UI.Xaml.Data;
+﻿using Anemos.Helpers;
+using Microsoft.UI.Xaml.Data;
 
 namespace Anemos.Converters;
 
-internal class PercentConverter : IValueConverter
+internal class RPMConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
         if (value == null)
         {
-            return $"--- %";
+            return $"--- {"Fan_RPM".GetLocalized()}";
         }
-
-        if (value is int)
-        {
-            return string.Format("{0:##0}%", value);
-        }
-
-        return string.Format("{0:##0.0}%", double.Round((double)value, 1));
+        return string.Format("{0:###0}{1}", value, "Fan_RPM".GetLocalized());
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) => throw new NotImplementedException();
