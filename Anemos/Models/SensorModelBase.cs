@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Anemos.Models;
 
-[DebuggerDisplay("LongName}")]
+[DebuggerDisplay("{LongName}")]
 public abstract class SensorModelBase : ObservableObject
 {
     private protected string _id = string.Empty;

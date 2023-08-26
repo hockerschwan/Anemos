@@ -1,4 +1,5 @@
 ﻿using Anemos.Contracts.Services;
+using Anemos.Helpers;
 using Anemos.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -19,7 +20,16 @@ public partial class SensorViewModel : ObservableObject
     public IEnumerable<SensorModelBase> SensorsNotInSources
         => _sensorService.Sensors.Where(m => !Model.SourceIds.Contains(m.Id) && m.Id != Model.Id);
 
-    public string[] CalcMethodNames { get; } = new[] { "Max", "Min", "Average", "Moving Average" };
+    public string[] CalcMethodNames
+    {
+        get;
+    } = new[]
+    {
+        "Sensor_CalcMethodNames_Max".GetLocalized(),
+        "Sensor_CalcMethodNames_Min".GetLocalized(),
+        "Sensor_CalcMethodNames_Average".GetLocalized(),
+        "Sensor_CalcMethodNames_MovingAverage".GetLocalized()
+    };
 
 
     private int _selectedMethodIndex = -1;

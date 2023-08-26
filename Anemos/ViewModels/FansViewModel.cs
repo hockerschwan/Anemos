@@ -2,13 +2,12 @@
 using Anemos.Contracts.Services;
 using Anemos.Models;
 using Anemos.Views;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Anemos.ViewModels;
 
-public partial class FansViewModel : ObservableObject
+public partial class FansViewModel : PageViewModelBase
 {
     private readonly IMessenger _messenger;
     private readonly ISettingsService _settingsService;
@@ -35,7 +34,7 @@ public partial class FansViewModel : ObservableObject
     }
 
     private bool _isVisible = false;
-    public bool IsVisible
+    public override bool IsVisible
     {
         get => _isVisible;
         set
@@ -113,7 +112,6 @@ public partial class FansViewModel : ObservableObject
         _messenger.Register<FanProfilesChangedMessage>(this, FanProfileChangedMessageHandler);
         _messenger.Register<FanProfileRenamedMessage>(this, FanProfileRenamedMessageHandler);
         _messenger.Register<FanProfileSwitchedMessage>(this, FanProfileSwitchedMessageHandler);
-        _messenger.Register<WindowVisibilityChangedMessage>(this, WindowVisibilityChangedMessageHandler);
 
         _settingsService.Settings.FanSettings.PropertyChanged += FanSettings_PropertyChanged;
 
@@ -183,11 +181,6 @@ public partial class FansViewModel : ObservableObject
                 VisibleViews.Insert(views.IndexOf(v), v);
             }
         }
-    }
-
-    private void WindowVisibilityChangedMessageHandler(object recipient, WindowVisibilityChangedMessage message)
-    {
-        IsVisible = message.Value;
     }
 
     [RelayCommand]

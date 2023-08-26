@@ -106,7 +106,7 @@
 					SelectsOnInvoked="False"
 					Tapped="ExitButton_Tapped">
 					<NavigationViewItem.Icon>
-						<fa:FontAwesome Icon="Solid_X" />
+						<fa:FontAwesome Icon="Solid_Xmark" />
 					</NavigationViewItem.Icon>
 
 					<NavigationViewItem.Resources>

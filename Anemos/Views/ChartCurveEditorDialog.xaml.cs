@@ -45,7 +45,8 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
 
         InitializeComponent();
         Loaded += ChartCurveEditorDialog_Loaded;
-        Closing += ChartCurveEditorDialog_Closing;
+        Unloaded += ChartCurveEditorDialog_Unloaded;
+        PrimaryButtonClick += ChartCurveEditorDialog_PrimaryButtonClick;
         App.MainWindow.SizeChanged += MainWindow_SizeChanged;
 
         SetNumberFormatter();
@@ -236,23 +237,29 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
         _isDragged = false;
     }
 
-    private void ChartCurveEditorDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
-    {
-        Closing -= ChartCurveEditorDialog_Closing;
-        App.MainWindow.SizeChanged -= MainWindow_SizeChanged;
-
-        var points = Chart.Data.GetScatterPoints().Skip(1).SkipLast(1).Select(c => new Point2d(c.X, c.Y));
-        App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
-        {
-            await Task.Delay(100);
-            _messenger.Send<ChartCurveChangedMessage>(new(points));
-        });
-    }
-
     private void ChartCurveEditorDialog_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
         Loaded -= ChartCurveEditorDialog_Loaded;
         SetDialogSize();
+    }
+
+    private void ChartCurveEditorDialog_Unloaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        Unloaded -= ChartCurveEditorDialog_Unloaded;
+        PrimaryButtonClick -= ChartCurveEditorDialog_PrimaryButtonClick;
+        App.MainWindow.SizeChanged -= MainWindow_SizeChanged;
+
+        Bindings.StopTracking();
+    }
+
+    private void ChartCurveEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    {
+        App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
+        {
+            await Task.Delay(100);
+            var points = Chart.Data.GetScatterPoints().Skip(1).SkipLast(1).Select(c => new Point2d(c.X, c.Y));
+            _messenger.Send<ChartCurveChangedMessage>(new(points));
+        });
     }
 
     private void MainWindow_SizeChanged(object sender, Microsoft.UI.Xaml.WindowSizeChangedEventArgs args)

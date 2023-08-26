@@ -1,11 +1,14 @@
 ﻿using Anemos.Contracts.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml.Navigation;
 
 namespace Anemos.ViewModels;
 
-public partial class ShellViewModel : ObservableRecipient
+public partial class ShellViewModel : ObservableObject
 {
+    private readonly IMessenger _messenger;
+
     [ObservableProperty]
     private object? selected;
 
@@ -19,8 +22,14 @@ public partial class ShellViewModel : ObservableRecipient
         get;
     }
 
-    public ShellViewModel(INavigationService navigationService, INavigationViewService navigationViewService)
+    public ShellViewModel(
+        IMessenger messenger,
+        INavigationService navigationService,
+        INavigationViewService navigationViewService)
     {
+        _messenger = messenger;
+        _messenger.Register<WindowVisibilityChangedMessage>(this, handler: WindowVisibilityChangedMessageHandler);
+
         NavigationService = navigationService;
         NavigationService.Navigated += OnNavigated;
         NavigationViewService = navigationViewService;
@@ -32,6 +41,16 @@ public partial class ShellViewModel : ObservableRecipient
         if (selectedItem != null)
         {
             Selected = selectedItem;
+        }
+    }
+
+    private void WindowVisibilityChangedMessageHandler(object recipient, WindowVisibilityChangedMessage message)
+    {
+        if (NavigationService.Frame == null) { return; }
+
+        if (Helpers.FrameExtensions.GetPageViewModel(NavigationService.Frame) is PageViewModelBase pageVM)
+        {
+            pageVM.IsVisible = message.Value;
         }
     }
 }

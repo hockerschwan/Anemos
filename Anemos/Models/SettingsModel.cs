@@ -60,6 +60,8 @@ public partial class SettingsModel : ObservableObject
     public CurveSettings CurveSettings { get; set; } = new();
 
     public SensorSettings SensorSettings { get; set; } = new();
+
+    public RuleSettings RuleSettings { get; set; } = new();
 }
 
 public class WindowSettings
@@ -145,4 +147,37 @@ public class SensorSettings_Sensor
     public int SampleSize { get; set; } = 1;
     public CustomSensorCalcMethod CalcMethod { get; set; } = CustomSensorCalcMethod.Max;
     public IEnumerable<string> SourceIds { get; set; } = Enumerable.Empty<string>();
+}
+
+public class RuleSettings
+{
+    public string DefaultProfile { get; set; } = string.Empty;
+    public IEnumerable<RuleSettings_Rule> Rules { get; set; } = Enumerable.Empty<RuleSettings_Rule>();
+}
+
+public class RuleSettings_Rule
+{
+    public string Name { get; set; } = string.Empty;
+    public RuleType Type { get; set; } = RuleType.All;
+    public string ProfileId { get; set; } = string.Empty;
+    public IEnumerable<RuleSettings_Condition> Conditions { get; set; } = Enumerable.Empty<RuleSettings_Condition>();
+}
+
+public class RuleSettings_Condition
+{
+    public RuleConditionType Type { get; set; } = RuleConditionType.Time;
+
+    public TimeOnly? TimeBeginning { get; set; } = null;
+    public TimeOnly? TimeEnding { get; set; } = null;
+
+    public string? ProcessName { get; set; } = null;
+    public int? MemoryType { get; set; } = null;
+    public int? MemoryLower { get; set; } = null;
+    public int? MemoryUpper { get; set; } = null;
+
+    public string? SensorId { get; set; } = null;
+    public double? UpperValue { get; set; } = null;
+    public double? LowerValue { get; set; } = null;
+    public bool? IncludeUpper { get; set; } = null;
+    public bool? IncludeLower { get; set; } = null;
 }

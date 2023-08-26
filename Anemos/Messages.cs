@@ -112,3 +112,44 @@ internal class FanOptionsChangedMessage : ValueChangedMessage<FanOptionsResult>
 {
     public FanOptionsChangedMessage(FanOptionsResult result) : base(result) { }
 }
+
+/// <summary>
+/// Rules added/removed
+/// </summary>
+internal class RulesChangedMessage : PropertyChangedMessage<IEnumerable<RuleModel>>
+{
+    /// <inheritdoc cref="RulesChangedMessage"/>
+    public RulesChangedMessage(
+        object sender,
+        string? propertyName,
+        IEnumerable<RuleModel> oldValue,
+        IEnumerable<RuleModel> newValue)
+        : base(sender, propertyName, oldValue, newValue) { }
+}
+
+/// <summary>
+/// Condition index, Beginning, Ending
+/// </summary>
+internal class RuleTimeChangedMessage : ValueChangedMessage<Tuple<int, TimeOnly, TimeOnly>>
+{
+    /// <inheritdoc cref="RuleTimeChangedMessage"/>
+    public RuleTimeChangedMessage(Tuple<int, TimeOnly, TimeOnly> result) : base(result) { }
+}
+
+/// <summary>
+/// Condition index, Process name, Memory low, Memory High, Type
+/// </summary>
+internal class RuleProcessChangedMessage : ValueChangedMessage<Tuple<int, string, int?, int?, int>>
+{
+    ///  <inheritdoc cref="RuleProcessChangedMessage"/>
+    public RuleProcessChangedMessage(Tuple<int, string, int?, int?, int> result) : base(result) { }
+}
+
+/// <summary>
+/// Condition index, Sensor ID, Lower, Include lower, Upper, Include upper
+/// </summary>
+internal class RuleSensorChangedMessage : ValueChangedMessage<Tuple<int, string, double?, bool, double?, bool>>
+{
+    ///  <inheritdoc cref="RuleSensorChangedMessage"/>
+    public RuleSensorChangedMessage(Tuple<int, string, double?, bool, double?, bool> result) : base(result) { }
+}

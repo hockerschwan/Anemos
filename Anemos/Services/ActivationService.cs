@@ -69,6 +69,7 @@ public class ActivationService : IActivationService
         await App.GetService<ISensorService>().LoadAsync();
         await App.GetService<ICurveService>().LoadAsync();
         await App.GetService<IFanService>().LoadAsync();
+        await App.GetService<IRuleService>().LoadAsync();
 
         App.GetService<IMessenger>().Send<ServiceStartupMessage>(new(Type.Missing));
     }
@@ -76,6 +77,7 @@ public class ActivationService : IActivationService
     private async Task StartupAsync()
     {
         App.GetService<ILhwmService>().Start();
+        App.GetService<IRuleService>().Update();
         App.GetService<INotifyIconService>().SetVisibility(true);
 
         await Task.CompletedTask;

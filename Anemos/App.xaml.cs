@@ -72,6 +72,7 @@ public partial class App : Application
                 services.AddSingleton<ISensorService, SensorService>();
                 services.AddSingleton<ICurveService, CurveService>();
                 services.AddSingleton<IFanService, FanService>();
+                services.AddSingleton<IRuleService, RuleService>();
 
                 // Views and ViewModels
                 services.AddSingleton<ShellPage>();

@@ -47,7 +47,8 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
 
         InitializeComponent();
         Loaded += LatchCurveEditorDialog_Loaded;
-        Closing += LatchCurveEditorDialog_Closing;
+        Unloaded += LatchCurveEditorDialog_Unloaded;
+        PrimaryButtonClick += LatchCurveEditorDialog_PrimaryButtonClick;
         App.MainWindow.SizeChanged += MainWindow_SizeChanged;
 
         SetNumberFormatter();
@@ -100,11 +101,23 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
         NB_X_Low.NumberFormatter = NB_X_High.NumberFormatter = NB_Y_Low.NumberFormatter = NB_Y_High.NumberFormatter = formatter;
     }
 
-    private void LatchCurveEditorDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
+    private void LatchCurveEditorDialog_Loaded(object sender, RoutedEventArgs e)
     {
-        Closing -= LatchCurveEditorDialog_Closing;
+        Loaded -= LatchCurveEditorDialog_Loaded;
+        SetDialogSize();
+    }
+
+    private void LatchCurveEditorDialog_Unloaded(object sender, RoutedEventArgs e)
+    {
+        Unloaded -= LatchCurveEditorDialog_Unloaded;
+        PrimaryButtonClick -= LatchCurveEditorDialog_PrimaryButtonClick;
         App.MainWindow.SizeChanged -= MainWindow_SizeChanged;
 
+        Bindings.StopTracking();
+    }
+
+    private void LatchCurveEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    {
         App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
         {
             await Task.Delay(100);
@@ -114,12 +127,6 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
                 ViewModel.TemperatureThresholdHigh,
                 ViewModel.OutputHighTemperature)));
         });
-    }
-
-    private void LatchCurveEditorDialog_Loaded(object sender, RoutedEventArgs e)
-    {
-        Loaded -= LatchCurveEditorDialog_Loaded;
-        SetDialogSize();
     }
 
     private void MainWindow_SizeChanged(object sender, WindowSizeChangedEventArgs args)

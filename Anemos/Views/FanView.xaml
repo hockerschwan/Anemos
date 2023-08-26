@@ -87,6 +87,10 @@
 						IsEnabled="{x:Bind ViewModel.UnlockCurveOption, Mode=OneWay}"
 						Style="{StaticResource PageItemButtonStyle_}">
 						<fa:FontAwesome FontSize="{StaticResource PageItemIconFontSize_}" Icon="Solid_Gear" />
+
+						<ToolTipService.ToolTip>
+							<ToolTip x:Uid="Fans_Options_ToolTip" />
+						</ToolTipService.ToolTip>
 					</Button>
 
 					<ComboBox

@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Anemos.Contracts.Services;
+using Anemos.Helpers;
 using Anemos.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
@@ -19,7 +20,15 @@ public partial class FanViewModel : ObservableObject
         get;
     }
 
-    public string[] ControlModeNames { get; } = new[] { "Device", "Constant", "Curve" };
+    public string[] ControlModeNames
+    {
+        get;
+    } = new[]
+    {
+        "Fan_ControlModeNames_Device".GetLocalized(),
+        "Fan_ControlModeNames_Constant".GetLocalized(),
+        "Fan_ControlModeNames_Curve".GetLocalized()
+    };
 
     private int _controlModeIndex = -1;
     public int ControlModeIndex

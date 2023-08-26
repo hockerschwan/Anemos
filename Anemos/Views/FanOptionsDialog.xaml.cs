@@ -10,7 +10,8 @@ public sealed partial class FanOptionsDialog : ContentDialog
     {
         InitializeComponent();
         Loaded += FanOptionsDialog_Loaded;
-        Closing += FanOptionsDialog_Closing;
+        Unloaded += FanOptionsDialog_Unloaded;
+        PrimaryButtonClick += FanOptionsDialog_PrimaryButtonClick;
 
         SetNumberFormatter();
 
@@ -21,10 +22,21 @@ public sealed partial class FanOptionsDialog : ContentDialog
         NB_HoldCycleDown.Value = holdCycleDown;
     }
 
-    private void FanOptionsDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
+    private void FanOptionsDialog_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        Closing -= FanOptionsDialog_Closing;
+        Loaded -= FanOptionsDialog_Loaded;
 
+        NB_Min.Focus(Microsoft.UI.Xaml.FocusState.Programmatic);
+    }
+
+    private void FanOptionsDialog_Unloaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        Unloaded -= FanOptionsDialog_Unloaded;
+        PrimaryButtonClick -= FanOptionsDialog_PrimaryButtonClick;
+    }
+
+    private void FanOptionsDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    {
         App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
         {
             await Task.Delay(100);
@@ -37,13 +49,6 @@ public sealed partial class FanOptionsDialog : ContentDialog
                 RefractoryPeriodCyclesDown = (int)NB_HoldCycleDown.Value
             }));
         });
-    }
-
-    private void FanOptionsDialog_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
-    {
-        Loaded -= FanOptionsDialog_Loaded;
-
-        NB_Min.Focus(Microsoft.UI.Xaml.FocusState.Programmatic);
     }
 
     private void SetNumberFormatter()

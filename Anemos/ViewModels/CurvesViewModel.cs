@@ -3,13 +3,12 @@ using Anemos.Contracts.Services;
 using Anemos.Helpers;
 using Anemos.Models;
 using Anemos.Views;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Anemos.ViewModels;
 
-public partial class CurvesViewModel : ObservableObject
+public partial class CurvesViewModel : PageViewModelBase
 {
     private readonly IMessenger _messenger;
     private readonly ICurveService _curveService;
@@ -18,7 +17,7 @@ public partial class CurvesViewModel : ObservableObject
     public ObservableCollection<CurveView> Views { get; } = new();
 
     private bool _isVisible;
-    public bool IsVisible
+    public override bool IsVisible
     {
         get => _isVisible;
         set
@@ -39,7 +38,6 @@ public partial class CurvesViewModel : ObservableObject
         _curveService = curveService;
 
         _messenger.Register<CurvesChangedMessage>(this, CurvesChangedMessageHandler);
-        _messenger.Register<WindowVisibilityChangedMessage>(this, WindowVisibilityChangedMessageHandler);
 
         foreach (var model in _curveService.Curves)
         {
@@ -93,11 +91,6 @@ public partial class CurvesViewModel : ObservableObject
             }
             model.Update();
         }
-    }
-
-    private void WindowVisibilityChangedMessageHandler(object recipient, WindowVisibilityChangedMessage message)
-    {
-        IsVisible = message.Value;
     }
 
     [RelayCommand]

@@ -3,13 +3,12 @@ using Anemos.Contracts.Services;
 using Anemos.Helpers;
 using Anemos.Models;
 using Anemos.Views;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Anemos.ViewModels;
 
-public partial class SensorsViewModel : ObservableObject
+public partial class SensorsViewModel : PageViewModelBase
 {
     private readonly IMessenger _messenger;
     private readonly ISensorService _sensorService;
@@ -18,7 +17,7 @@ public partial class SensorsViewModel : ObservableObject
     public ObservableCollection<SensorView> Views { get; } = new();
 
     private bool _isVisible;
-    public bool IsVisible
+    public override bool IsVisible
     {
         get => _isVisible;
         set => SetProperty(ref _isVisible, value);
@@ -29,7 +28,6 @@ public partial class SensorsViewModel : ObservableObject
         _messenger = messenger;
         _sensorService = sensorService;
 
-        _messenger.Register<WindowVisibilityChangedMessage>(this, handler: WindowVisibilityChangedMessageHandler);
         _messenger.Register<CustomSensorsChangedMessage>(this, CustomSensorsChangedMessageHandler);
 
         foreach (var m in _sensorService.CustomSensors.ConvertAll(s => s as CustomSensorModel)!)
@@ -66,11 +64,6 @@ public partial class SensorsViewModel : ObservableObject
             Views.Add(new SensorView(vm));
             model.Update();
         }
-    }
-
-    private void WindowVisibilityChangedMessageHandler(object recipient, WindowVisibilityChangedMessage message)
-    {
-        IsVisible = message.Value;
     }
 
     [RelayCommand]

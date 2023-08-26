@@ -318,4 +318,132 @@
   <data name="FanOptions_Title" xml:space="preserve">
     <value>Fan Options</value>
   </data>
+  <data name="Dialog_DeleteRule_Title" xml:space="preserve">
+    <value>Delete Rule</value>
+  </data>
+  <data name="Fan_ControlModeNames_Constant" xml:space="preserve">
+    <value>Constant</value>
+  </data>
+  <data name="Fan_ControlModeNames_Curve" xml:space="preserve">
+    <value>Curve</value>
+  </data>
+  <data name="Fan_ControlModeNames_Device" xml:space="preserve">
+    <value>Device</value>
+  </data>
+  <data name="RuleProcessEditor_Title" xml:space="preserve">
+    <value>Edit Condition (Process)</value>
+  </data>
+  <data name="RuleSensorEditor_Title" xml:space="preserve">
+    <value>Edit Condition (Sensor)</value>
+  </data>
+  <data name="Rules_AddRule_ToolTip.Content" xml:space="preserve">
+    <value>Add Rule</value>
+  </data>
+  <data name="Rules_DefaultProfile_ToolTip.Content" xml:space="preserve">
+    <value>Default Profile</value>
+  </data>
+  <data name="Rules_NewRuleName" xml:space="preserve">
+    <value>New Rule</value>
+  </data>
+  <data name="RuleTimeEditor_Title" xml:space="preserve">
+    <value>Edit Condition (Time)</value>
+  </data>
+  <data name="Rule_AddCondition.Text" xml:space="preserve">
+    <value>Add Condition</value>
+  </data>
+  <data name="Rule_ConditionTypeNames_Process" xml:space="preserve">
+    <value>Process</value>
+  </data>
+  <data name="Rule_ConditionTypeNames_Sensor" xml:space="preserve">
+    <value>Sensor</value>
+  </data>
+  <data name="Rule_ConditionTypeNames_Time" xml:space="preserve">
+    <value>Time</value>
+  </data>
+  <data name="Rule_DecreasePriority_ToolTip.Content" xml:space="preserve">
+    <value>Decrease Priority</value>
+  </data>
+  <data name="Rule_Delete_ToolTip.Content" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Rule_IncreasePriority_ToolTip.Content" xml:space="preserve">
+    <value>Increase Priority</value>
+  </data>
+  <data name="Rule_IndexText" xml:space="preserve">
+    <value>#$</value>
+    <comment>$ will be replaced (e.g. #1)</comment>
+  </data>
+  <data name="Rule_TypeNames_All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Rule_TypeNames_Any" xml:space="preserve">
+    <value>Any</value>
+  </data>
+  <data name="Sensor_CalcMethodNames_Average" xml:space="preserve">
+    <value>Average</value>
+  </data>
+  <data name="Sensor_CalcMethodNames_Max" xml:space="preserve">
+    <value>Max</value>
+  </data>
+  <data name="Sensor_CalcMethodNames_Min" xml:space="preserve">
+    <value>Min</value>
+  </data>
+  <data name="Sensor_CalcMethodNames_MovingAverage" xml:space="preserve">
+    <value>Moving Average</value>
+  </data>
+  <data name="Fans_Options_ToolTip.Content" xml:space="preserve">
+    <value>Options</value>
+  </data>
+  <data name="Fans_SelectedProfile_ToolTip.Content" xml:space="preserve">
+    <value>Current Profile</value>
+  </data>
+  <data name="RuleProcessEditor_MemoryText.Text" xml:space="preserve">
+    <value>&lt; Memory [MB] &lt;</value>
+  </data>
+  <data name="RuleProcessEditor_ProcessName.Header" xml:space="preserve">
+    <value>Process Name</value>
+  </data>
+  <data name="RuleSensorEditor_Signs_LEQ" xml:space="preserve">
+    <value>≤</value>
+  </data>
+  <data name="RuleSensorEditor_Signs_LT" xml:space="preserve">
+    <value>&lt;</value>
+  </data>
+  <data name="RuleSensorEditor_Source.Header" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="RuleSensorEditor_TemperatureText.Text" xml:space="preserve">
+    <value>T [℃]</value>
+  </data>
+  <data name="RuleTimeEditor_Begin.Header" xml:space="preserve">
+    <value>Begin</value>
+  </data>
+  <data name="RuleTimeEditor_End.Header" xml:space="preserve">
+    <value>End</value>
+  </data>
+  <data name="Rule_EditName_ToolTip.Content" xml:space="preserve">
+    <value>Edit Name</value>
+  </data>
+  <data name="RuleProcessEditor_PrivateBytes.Text" xml:space="preserve">
+    <value>Private Bytes</value>
+  </data>
+  <data name="RuleProcessEditor_WorkingSet.Text" xml:space="preserve">
+    <value>Working Set</value>
+  </data>
+  <data name="RuleProcess_MemoryLowerText" xml:space="preserve">
+    <value>$ MB &lt; </value>
+    <comment>$ will be replaced (e.g. "100 MB &lt; ")</comment>
+  </data>
+  <data name="RuleProcess_MemoryUpperText" xml:space="preserve">
+    <value> &lt; $ MB</value>
+  </data>
+  <data name="RuleProcess_ProcessAny" xml:space="preserve">
+    <value>Any</value>
+  </data>
+  <data name="RuleSensor_T" xml:space="preserve">
+    <value>T</value>
+  </data>
+  <data name="RuleSensor_ValueText" xml:space="preserve">
+    <value>$℃</value>
+  </data>
 </root>

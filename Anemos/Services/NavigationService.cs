@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-
 using Anemos.Contracts.Services;
 using Anemos.Contracts.ViewModels;
 using Anemos.Helpers;
-
+using Anemos.ViewModels;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
@@ -102,6 +101,10 @@ public class NavigationService : INavigationService
                 {
                     navigationAware.OnNavigatedFrom();
                 }
+                if (vmBeforeNavigation is PageViewModelBase pageVM)
+                {
+                    pageVM.IsVisible = false;
+                }
             }
 
             return navigated;
@@ -120,9 +123,14 @@ public class NavigationService : INavigationService
                 frame.BackStack.Clear();
             }
 
-            if (frame.GetPageViewModel() is INavigationAware navigationAware)
+            var vm = frame.GetPageViewModel();
+            if (vm is INavigationAware navigationAware)
             {
                 navigationAware.OnNavigatedTo(e.Parameter);
+            }
+            if (vm is PageViewModelBase pageVM)
+            {
+                pageVM.IsVisible = true;
             }
 
             Navigated?.Invoke(sender, e);

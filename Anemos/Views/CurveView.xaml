@@ -130,7 +130,7 @@
 						controls:DockPanel.Dock="Right"
 						Click="DeleteSelfButton_Click"
 						Style="{StaticResource SmallCloseButtonStyle_}">
-						<fa:FontAwesome FontSize="{StaticResource PageItemIconFontSize_}" Icon="Solid_X" />
+						<fa:FontAwesome FontSize="{StaticResource PageItemIconFontSize_}" Icon="Solid_Xmark" />
 
 						<ToolTipService.ToolTip>
 							<ToolTip x:Uid="Curve_Delete_ToolTip" />

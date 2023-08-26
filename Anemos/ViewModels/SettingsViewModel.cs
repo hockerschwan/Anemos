@@ -3,13 +3,12 @@ using System.Reflection;
 using Anemos.Contracts.Services;
 using Anemos.Helpers;
 using Anemos.Models;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Windows.ApplicationModel;
 
 namespace Anemos.ViewModels;
 
-public partial class SettingsViewModel : ObservableRecipient
+public partial class SettingsViewModel : PageViewModelBase
 {
     private readonly ISettingsService _settingsService;
 

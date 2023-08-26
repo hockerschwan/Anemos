@@ -53,6 +53,10 @@
 									TextTrimming="CharacterEllipsis" />
 							</DataTemplate>
 						</ComboBox.ItemTemplate>
+
+						<ToolTipService.ToolTip>
+							<ToolTip x:Uid="Fans_SelectedProfile_ToolTip" />
+						</ToolTipService.ToolTip>
 					</ComboBox>
 
 					<Button

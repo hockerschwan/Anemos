@@ -9,7 +9,7 @@ public enum CurveType
     Chart, Latch
 }
 
-[DebuggerDisplay("Name}")]
+[DebuggerDisplay("{Name}")]
 public class CurveArg
 {
     public CurveType Type;
