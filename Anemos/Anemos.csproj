@@ -27,6 +27,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Libs\ADLXWrapper\ADLXWrapper.csproj" />
 		<ProjectReference Include="..\Libs\NotifyIconLib\NotifyIconLib.csproj" />
 	</ItemGroup>
 

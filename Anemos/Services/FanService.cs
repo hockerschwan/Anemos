@@ -149,6 +149,14 @@ internal class FanService : IFanService
             await Task.Delay(100);
         }
 
+        foreach (var fm in Fans.Where(fm => fm.GetType() == typeof(GpuAmdFanModel)).Cast<GpuAmdFanModel>())
+        {
+            if (fm.ControlMode != FanControlModes.Device)
+            {
+                fm.RestoreSettings();
+            }
+        }
+
         _messenger.Send<ServiceShutDownMessage>(new(GetType()));
     }
 
@@ -289,6 +297,7 @@ internal class FanService : IFanService
             switch (sensor.Hardware.HardwareType)
             {
                 case HardwareType.GpuAmd:
+                    Fans.Add(new GpuAmdFanModel(id, name, hidden));
                     break;
                 case HardwareType.GpuNvidia:
                     var idTerms = sensor.Identifier.ToString().Split("/");
@@ -335,6 +344,10 @@ internal class FanService : IFanService
 
     public async Task LoadAsync()
     {
+        if (_lhwmService.Sensors.Where(s => s.Hardware.HardwareType == HardwareType.GpuAmd).Any())
+        {
+            ADLXWrapper.ADLXWrapper.Initialize();
+        }
         await Task.Run(Load);
         _messenger.Send<FanProfilesChangedMessage>(new(this, nameof(Profiles), Enumerable.Empty<FanProfile>(), Profiles));
         Log.Information("[Fan] Loaded");

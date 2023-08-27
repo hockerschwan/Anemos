@@ -72,7 +72,11 @@ public abstract class FanModelBase : ObservableObject
         }
     }
 
-    private protected ISensor? Sensor => _lhwmService.GetSensor(Id);
+    private protected ISensor? Sensor
+    {
+        get;
+    }
+
     public int? CurrentRPM
     {
         get
@@ -247,6 +251,7 @@ public abstract class FanModelBase : ObservableObject
         }
         _id = id;
 
+        Sensor = _lhwmService.GetSensor(Id);
         if (Sensor == null)
         {
             throw new ArgumentException($"Could not find ISensor with ID:{Id}", nameof(id));
