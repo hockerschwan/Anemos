@@ -47,6 +47,7 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
         Loaded += ChartCurveEditorDialog_Loaded;
         Unloaded += ChartCurveEditorDialog_Unloaded;
         PrimaryButtonClick += ChartCurveEditorDialog_PrimaryButtonClick;
+        App.MainWindow.PositionChanged += MainWindow_PositionChanged;
         App.MainWindow.SizeChanged += MainWindow_SizeChanged;
 
         SetNumberFormatter();
@@ -66,6 +67,7 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
         Plot1.Style.ColorAxes(AxisColor);
         Plot1.Style.ColorGrids(GridColor);
         Plot1.DataBackground = Plot1.FigureBackground = BackgroundColor;
+        Plot1.ScaleFactor = (float)App.MainWindow.DisplayScale;
 
         Chart = Plot1.Add.Scatter(ViewModel.LineDataX, ViewModel.LineDataY, LineColor);
         Chart.LineStyle.Width = 2;
@@ -81,7 +83,7 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
     private Coordinates GetNearestCoordinatesInRange(double x, double y)
     {
         var px = new Pixel(x, y);
-        var mc = WinUIPlot1.GetCoordinates(px);
+        var mc = WinUIPlot1.GetCoordinates(new(x * Plot1.ScaleFactor, y * Plot1.ScaleFactor));
 
         var points = Chart.Data.GetScatterPoints();
         if (!points.Any()) { return Coordinates.NaN; }
@@ -107,7 +109,9 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
         }
 
         var nearest = near.OrderBy(c => c.Distance(mc)).First();
-        var px_d = Plot1.GetPixel(nearest) - px;
+        var nearest_scaled = new Coordinates(nearest.X / Plot1.ScaleFactor, nearest.Y / Plot1.ScaleFactor);
+        var px_d = Plot1.GetPixel(nearest_scaled) - px;
+
         var d = double.Sqrt(double.Pow(px_d.X, 2) + double.Pow(px_d.Y, 2));
         return d > _markerSize ? Coordinates.NaN : nearest;
     }
@@ -149,6 +153,8 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
     {
         if (_isDragged) // drag
         {
+            var mp = e.GetCurrentPoint((Microsoft.UI.Xaml.UIElement)sender).Position;
+
             var prev = ViewModel.LineDataX.LastOrDefault(x => x < ViewModel.SelectedX, double.NegativeInfinity);
             var next = ViewModel.LineDataX.FirstOrDefault(x => x > ViewModel.SelectedX, double.PositiveInfinity);
 
@@ -156,8 +162,7 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
             var low = double.Max(axisLimits.XRange.Min, prev + 0.1);
             var high = double.Min(axisLimits.XRange.Max, next - 0.1);
 
-            var mp = e.GetCurrentPoint((Microsoft.UI.Xaml.UIElement)sender).Position;
-            var mc = WinUIPlot1.GetCoordinates(new Pixel(mp.X, mp.Y));
+            var mc = WinUIPlot1.GetCoordinates(new Pixel(mp.X * Plot1.ScaleFactor, mp.Y * Plot1.ScaleFactor));
 
             var mc_x = double.Round(double.Max(low, double.Min(high, mc.X)), 1);
             var mc_y = double.Round(double.Max(0d, double.Min(100d, mc.Y)), 1);
@@ -178,23 +183,24 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
             ViewModel.SelectedX = MarkerCoordinates[0].X = nearest.X;
             ViewModel.SelectedY = MarkerCoordinates[0].Y = nearest.Y;
             Marker.IsVisible = true;
-        }
 
-        WinUIPlot1.Refresh();
+            NB_X.IsEnabled = NB_Y.IsEnabled = true;
+        }
     }
 
     private void WinUIPlot1_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
         var pp = e.GetCurrentPoint(this).Properties;
+        var mp = e.GetCurrentPoint((Microsoft.UI.Xaml.UIElement)sender).Position;
         if (pp.IsLeftButtonPressed) // add
         {
             _isDragged = true;
+            NB_X.IsEnabled = NB_Y.IsEnabled = false;
 
-            var mp = e.GetCurrentPoint((Microsoft.UI.Xaml.UIElement)sender).Position;
             var nearest = GetNearestCoordinatesInRange(mp.X, mp.Y);
             if (nearest != Coordinates.NaN) { return; }
 
-            var px = new Pixel(mp.X, mp.Y);
+            var px = new Pixel(mp.X * Plot1.ScaleFactor, mp.Y * Plot1.ScaleFactor);
             var mc = WinUIPlot1.GetCoordinates(px);
 
             var mc_x = double.Round(mc.X, 1);
@@ -213,13 +219,16 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
         }
         else if (pp.IsRightButtonPressed) // delete
         {
-            var mp = e.GetCurrentPoint((Microsoft.UI.Xaml.UIElement)sender).Position;
-            var nearest = GetNearestCoordinatesInRange(mp.X, mp.Y);
-            if (nearest == Coordinates.NaN) { return; }
+            var co_marker = new Coordinates(
+                MarkerCoordinates[0].X / Plot1.ScaleFactor,
+                MarkerCoordinates[0].Y / Plot1.ScaleFactor);
+            var px_selected = Plot1.GetPixel(co_marker);
+            var px_d = px_selected - new Pixel(mp.X, mp.Y);
+            var d = double.Sqrt(double.Pow(px_d.X, 2) + double.Pow(px_d.Y, 2));
+            if (d > _markerSize) { return; }
 
-            var i = ViewModel.LineDataX.IndexOf(nearest.X);
-            ViewModel.LineDataX.RemoveAt(i);
-            ViewModel.LineDataY.RemoveAt(i);
+            ViewModel.LineDataX.RemoveAt(ViewModel.SelectedIndex);
+            ViewModel.LineDataY.RemoveAt(ViewModel.SelectedIndex);
 
             MarkerCoordinates[0] = Coordinates.NaN;
             Marker.IsVisible = false;
@@ -227,27 +236,33 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
             ViewModel.SelectedX = ViewModel.SelectedY = double.NaN;
             ViewModel.SelectedIndex = -1;
             UpdateInfinity(true);
-        }
 
-        WinUIPlot1.Refresh();
+            NB_X.IsEnabled = NB_Y.IsEnabled = false;
+        }
     }
 
     private void WinUIPlot1_PointerReleased(object sender, PointerRoutedEventArgs e)
     {
         _isDragged = false;
+        NB_X.IsEnabled = NB_Y.IsEnabled = ViewModel.SelectedIndex > -1;
     }
 
     private void ChartCurveEditorDialog_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
         Loaded -= ChartCurveEditorDialog_Loaded;
         SetDialogSize();
+        NB_X.IsEnabled = NB_Y.IsEnabled = false;
     }
 
     private void ChartCurveEditorDialog_Unloaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
         Unloaded -= ChartCurveEditorDialog_Unloaded;
         PrimaryButtonClick -= ChartCurveEditorDialog_PrimaryButtonClick;
+        App.MainWindow.PositionChanged -= MainWindow_PositionChanged;
         App.MainWindow.SizeChanged -= MainWindow_SizeChanged;
+        WinUIPlot1.PointerMoved -= WinUIPlot1_PointerMoved;
+        WinUIPlot1.PointerPressed -= WinUIPlot1_PointerPressed;
+        WinUIPlot1.PointerReleased -= WinUIPlot1_PointerReleased;
 
         Bindings.StopTracking();
     }
@@ -260,6 +275,16 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
             var points = Chart.Data.GetScatterPoints().Skip(1).SkipLast(1).Select(c => new Point2d(c.X, c.Y));
             _messenger.Send<ChartCurveChangedMessage>(new(points));
         });
+    }
+
+    private void MainWindow_PositionChanged(object? sender, Windows.Graphics.PointInt32 e)
+    {
+        var scale = (float)App.MainWindow.DisplayScale;
+        if (Plot1.ScaleFactor != scale)
+        {
+            Plot1.ScaleFactor = scale;
+            WinUIPlot1.Refresh();
+        }
     }
 
     private void MainWindow_SizeChanged(object sender, Microsoft.UI.Xaml.WindowSizeChangedEventArgs args)
@@ -275,28 +300,14 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
 
     private void NB_X_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
     {
-        if (double.IsNaN(args.NewValue)) { return; }
-
-        var prev = ViewModel.LineDataX.LastOrDefault(x => x < ViewModel.SelectedX, double.NegativeInfinity);
-        var next = ViewModel.LineDataX.FirstOrDefault(x => x > ViewModel.SelectedX, double.PositiveInfinity);
-
-        var axisLimits = Plot1.GetAxisLimits();
-        var low = double.Max(axisLimits.XRange.Min, prev + 0.1);
-        var high = double.Min(axisLimits.XRange.Max, next - 0.1);
-
-        var x = double.Round(double.Max(low, double.Min(high, sender.Value)), 1);
-        ViewModel.SelectedX = ViewModel.LineDataX[ViewModel.SelectedIndex] = MarkerCoordinates[0].X = sender.Value = x;
+        MarkerCoordinates[0].X = sender.Value = args.NewValue;
 
         WinUIPlot1.Refresh();
     }
 
     private void NB_Y_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
     {
-        if (double.IsNaN(args.NewValue)) { return; }
-
-        ViewModel.SelectedY = ViewModel.LineDataY[ViewModel.SelectedIndex] = MarkerCoordinates[0].Y = sender.Value
-            = double.Round(double.Max(0d, double.Min(100d, sender.Value)), 1);
-
+        MarkerCoordinates[0].Y = sender.Value = args.NewValue;
         UpdateInfinity();
 
         WinUIPlot1.Refresh();

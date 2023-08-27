@@ -99,7 +99,7 @@ public partial class CurvesViewModel : PageViewModelBase
         _curveService.AddCurve(new()
         {
             Type = CurveType.Chart,
-            Name = "Curves_NewCurve".GetLocalized(),
+            Name = "Curves_NewCurveName".GetLocalized(),
             Points = new Point2d[] { new(30, 30), new(70, 70) }
         });
     }
@@ -110,7 +110,7 @@ public partial class CurvesViewModel : PageViewModelBase
         _curveService.AddCurve(new()
         {
             Type = CurveType.Latch,
-            Name = "Curves_NewCurve".GetLocalized(),
+            Name = "Curves_NewCurveName".GetLocalized(),
             OutputLowTemperature = 30.0,
             OutputHighTemperature = 70.0,
             TemperatureThresholdLow = 45.0,

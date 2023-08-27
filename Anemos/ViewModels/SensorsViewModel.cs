@@ -71,7 +71,7 @@ public partial class SensorsViewModel : PageViewModelBase
     {
         _sensorService.AddCustomSensor(new()
         {
-            Name = "Sensors_NewSensor".GetLocalized()
+            Name = "Sensors_NewSensorName".GetLocalized()
         });
     }
 }

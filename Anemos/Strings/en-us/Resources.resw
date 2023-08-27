@@ -181,10 +181,10 @@
   <data name="Sensor_MASampleSize.Header" xml:space="preserve">
     <value>Sample size</value>
   </data>
-  <data name="Curves_NewCurve" xml:space="preserve">
+  <data name="Curves_NewCurveName" xml:space="preserve">
     <value>New Curve</value>
   </data>
-  <data name="Sensors_NewSensor" xml:space="preserve">
+  <data name="Sensors_NewSensorName" xml:space="preserve">
     <value>New Sensor</value>
   </data>
   <data name="AppDisplayName" xml:space="preserve">
@@ -445,5 +445,8 @@
   </data>
   <data name="RuleSensor_ValueText" xml:space="preserve">
     <value>$℃</value>
+  </data>
+  <data name="Fans_NewProfileName" xml:space="preserve">
+    <value>New Profile</value>
   </data>
 </root>

@@ -5,8 +5,7 @@ namespace Anemos.ViewModels;
 
 public class LatchCurveEditorViewModel : ObservableObject
 {
-    internal double MinTemperature => ICurveService.AbsoluteMinTemperature;
-    internal double MaxTemperature => ICurveService.AbsoluteMaxTemperature;
+    private readonly ISettingsService _settingsService = App.GetService<ISettingsService>();
 
     private double _temperatureThresholdLow = double.NaN;
     public double TemperatureThresholdLow
@@ -16,14 +15,10 @@ public class LatchCurveEditorViewModel : ObservableObject
         {
             if (double.IsNaN(value)) { return; }
 
-            if (value >= TemperatureThresholdHigh)
-            {
-                value = TemperatureThresholdHigh - 1d;
-            }
-
             if (SetProperty(ref _temperatureThresholdLow, value))
             {
-                LineDataHighTempX[0] = LineDataHighToLowX[0] = LineDataHighToLowX[1] = TemperatureThresholdLow;
+                LineDataHighTempX[0] = LineDataHighToLowX[0] = LineDataHighToLowX[1] = value;
+                XHighMin = value + 1d;
             }
         }
     }
@@ -36,14 +31,10 @@ public class LatchCurveEditorViewModel : ObservableObject
         {
             if (double.IsNaN(value)) { return; }
 
-            if (value <= TemperatureThresholdLow)
-            {
-                value = TemperatureThresholdLow + 1d;
-            }
-
             if (SetProperty(ref _temperatureThresholdHigh, value))
             {
-                LineDataLowTempX[1] = LineDataLowToHighX[0] = LineDataLowToHighX[1] = TemperatureThresholdHigh;
+                LineDataLowTempX[1] = LineDataLowToHighX[0] = LineDataLowToHighX[1] = value;
+                XLowMax = value - 1d;
             }
         }
     }
@@ -78,6 +69,24 @@ public class LatchCurveEditorViewModel : ObservableObject
         }
     }
 
+    public double XLowMin => _settingsService.Settings.CurveMinTemp;
+
+    private double _xLowMax;
+    public double XLowMax
+    {
+        get => _xLowMax;
+        set => SetProperty(ref _xLowMax, value);
+    }
+
+    private double _xHighMin;
+    public double XHighMin
+    {
+        get => _xHighMin;
+        set => SetProperty(ref _xHighMin, value);
+    }
+
+    public double XHighMax => _settingsService.Settings.CurveMaxTemp;
+
     internal readonly double[] LineDataLowTempX = { 0, 0 };
     internal readonly double[] LineDataLowTempY = { 0, 0 };
 
@@ -92,7 +101,7 @@ public class LatchCurveEditorViewModel : ObservableObject
 
     public LatchCurveEditorViewModel()
     {
-        LineDataLowTempX[0] = LineDataHighTempX[0] = MinTemperature;
-        LineDataLowTempX[1] = LineDataHighTempX[1] = MaxTemperature;
+        LineDataLowTempX[0] = LineDataHighTempX[0] = XLowMin - 10d;
+        LineDataLowTempX[1] = LineDataHighTempX[1] = XHighMax + 10d;
     }
 }

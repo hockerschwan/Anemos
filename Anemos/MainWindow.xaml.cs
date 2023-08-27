@@ -40,6 +40,7 @@ public sealed partial class MainWindow : WindowEx
         settings.ColorValuesChanged += Settings_ColorValuesChanged; // cannot use FrameworkElement.ActualThemeChanged event
 
         this.MoveAndResize(WindowSettings.X, WindowSettings.Y, WindowSettings.Width, WindowSettings.Height);
+        DisplayScale = RuntimeHelper.GetDpiForWindow(this) / 96.0;
         if (WindowSettings.Maximized)
         {
             this.Maximize();
@@ -54,7 +55,10 @@ public sealed partial class MainWindow : WindowEx
         _timer.Elapsed += Timer_Elapsed;
     }
 
-    private double GetDisplayScale() => RuntimeHelper.GetDpiForWindow(this) / 96.0;
+    public double DisplayScale
+    {
+        get; private set;
+    }
 
     private bool IsWindowIdenticalToSettings(Helpers.PInvoke.RECT rect)
     {
@@ -83,6 +87,8 @@ public sealed partial class MainWindow : WindowEx
 
     private void MainWindow_PositionChanged(object? sender, Windows.Graphics.PointInt32 e)
     {
+        DisplayScale = RuntimeHelper.GetDpiForWindow(this) / 96.0;
+
         _timer.Stop();
         _timer.Start();
     }
@@ -109,13 +115,11 @@ public sealed partial class MainWindow : WindowEx
 
             if (IsWindowIdenticalToSettings(rect)) { return; }
 
-            var scale = GetDisplayScale();
-
             WindowSettings.Maximized = false;
             WindowSettings.X = rect.Left;
             WindowSettings.Y = rect.Top;
-            WindowSettings.Width = (int)((rect.Right - rect.Left) / scale);
-            WindowSettings.Height = (int)((rect.Bottom - rect.Top) / scale);
+            WindowSettings.Width = (int)((rect.Right - rect.Left) / DisplayScale);
+            WindowSettings.Height = (int)((rect.Bottom - rect.Top) / DisplayScale);
         }
 
         _settingsService.Save();

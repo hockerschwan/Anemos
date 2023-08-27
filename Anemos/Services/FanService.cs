@@ -210,7 +210,7 @@ internal class FanService : IFanService
         var p = new FanProfile()
         {
             Id = GenerateId(),
-            Name = "New Profile", // todo:localize
+            Name = "Fans_NewProfileName".GetLocalized(),
             Fans = sensors.Select(s => new FanSettings_ProfileItem()
             {
                 Id = s.Identifier.ToString(),

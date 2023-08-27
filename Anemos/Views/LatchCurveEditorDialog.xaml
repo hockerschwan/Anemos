@@ -32,11 +32,10 @@
 					x:Name="NB_X_High"
 					x:Uid="CurveEditor_Latch_NB_X_High"
 					Grid.Row="0"
-					Maximum="{x:Bind ViewModel.MaxTemperature}"
-					Minimum="{x:Bind ViewModel.MinTemperature}"
+					Maximum="{x:Bind ViewModel.XHighMax, Mode=OneWay}"
+					Minimum="{x:Bind ViewModel.XHighMin, Mode=OneWay}"
 					PreviewKeyDown="PreviewKeyDown_"
 					SpinButtonPlacementMode="Inline"
-					ValueChanged="NB_X_High_ValueChanged"
 					Value="{x:Bind ViewModel.TemperatureThresholdHigh, Mode=TwoWay}" />
 
 				<NumberBox
@@ -53,11 +52,10 @@
 					x:Name="NB_X_Low"
 					x:Uid="CurveEditor_Latch_NB_X_Low"
 					Grid.Row="3"
-					Maximum="{x:Bind ViewModel.MaxTemperature}"
-					Minimum="{x:Bind ViewModel.MinTemperature}"
+					Maximum="{x:Bind ViewModel.XLowMax, Mode=OneWay}"
+					Minimum="{x:Bind ViewModel.XLowMin, Mode=OneWay}"
 					PreviewKeyDown="PreviewKeyDown_"
 					SpinButtonPlacementMode="Inline"
-					ValueChanged="NB_X_Low_ValueChanged"
 					Value="{x:Bind ViewModel.TemperatureThresholdLow, Mode=TwoWay}" />
 
 				<NumberBox

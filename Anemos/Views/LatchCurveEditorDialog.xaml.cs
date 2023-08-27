@@ -26,7 +26,7 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
     private Plot Plot1 => WinUIPlot1.Plot;
     private readonly Scatter LatchLow;
     private readonly Scatter LatchHigh;
-    private readonly Scatter LatchLowToHighArrow;
+    private readonly Scatter LatchLowToHighArrow; // todo: replace with arrow when implementd
     private readonly Scatter LatchHighToLowArrow;
 
     private readonly Color LineColor = Color.FromARGB((uint)System.Drawing.Color.CornflowerBlue.ToArgb());
@@ -49,6 +49,7 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
         Loaded += LatchCurveEditorDialog_Loaded;
         Unloaded += LatchCurveEditorDialog_Unloaded;
         PrimaryButtonClick += LatchCurveEditorDialog_PrimaryButtonClick;
+        App.MainWindow.PositionChanged += MainWindow_PositionChanged;
         App.MainWindow.SizeChanged += MainWindow_SizeChanged;
 
         SetNumberFormatter();
@@ -65,6 +66,7 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
         Plot1.Style.ColorAxes(AxisColor);
         Plot1.Style.ColorGrids(GridColor);
         Plot1.DataBackground = Plot1.FigureBackground = BackgroundColor;
+        Plot1.ScaleFactor = (float)App.MainWindow.DisplayScale;
 
         LatchLow = Plot1.Add.Scatter(ViewModel.LineDataLowTempX, ViewModel.LineDataLowTempY, LineColor);
         LatchHigh = Plot1.Add.Scatter(ViewModel.LineDataHighTempX, ViewModel.LineDataHighTempY, LineColor);
@@ -111,6 +113,7 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
     {
         Unloaded -= LatchCurveEditorDialog_Unloaded;
         PrimaryButtonClick -= LatchCurveEditorDialog_PrimaryButtonClick;
+        App.MainWindow.PositionChanged -= MainWindow_PositionChanged;
         App.MainWindow.SizeChanged -= MainWindow_SizeChanged;
 
         Bindings.StopTracking();
@@ -127,6 +130,16 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
                 ViewModel.TemperatureThresholdHigh,
                 ViewModel.OutputHighTemperature)));
         });
+    }
+
+    private void MainWindow_PositionChanged(object? sender, Windows.Graphics.PointInt32 e)
+    {
+        var scale = (float)App.MainWindow.DisplayScale;
+        if (Plot1.ScaleFactor != scale)
+        {
+            Plot1.ScaleFactor = scale;
+            WinUIPlot1.Refresh();
+        }
     }
 
     private void MainWindow_SizeChanged(object sender, WindowSizeChangedEventArgs args)
@@ -151,26 +164,6 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
                 var be = nb.GetBindingExpression(NumberBox.ValueProperty);
                 be?.UpdateSource();
             }
-        }
-    }
-
-    private void NB_X_High_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
-    {
-        if (double.IsNaN(args.NewValue)) { return; }
-
-        if (args.NewValue <= ViewModel.TemperatureThresholdLow)
-        {
-            sender.Value = ViewModel.TemperatureThresholdLow + 1d;
-        }
-    }
-
-    private void NB_X_Low_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
-    {
-        if (double.IsNaN(args.NewValue)) { return; }
-
-        if (ViewModel.TemperatureThresholdHigh <= args.NewValue)
-        {
-            sender.Value = ViewModel.TemperatureThresholdHigh - 1d;
         }
     }
 }
