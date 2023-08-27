@@ -43,7 +43,11 @@ public sealed partial class RuleProcessEditorDialog : ContentDialog
     {
         App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
         {
-            await Task.Delay(100);
+            while (IsLoaded)
+            {
+                await Task.Delay(100);
+            }
+
             App.GetService<IMessenger>().Send<RuleProcessChangedMessage>(new(new(
                 _index,
                 TB_ProcessName.Text,

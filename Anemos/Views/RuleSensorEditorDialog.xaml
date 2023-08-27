@@ -29,7 +29,7 @@
 							Style="{StaticResource MonoTextBlockStyle_}"
 							Text="{x:Bind Value, Converter={StaticResource TemperatureConverter}, Mode=OneWay}" />
 						<TextBlock
-							Margin="0,0,5,0"
+							Margin="{StaticResource PageItemFlyoutItemMargin_}"
 							Text="{x:Bind LongName, Mode=OneWay}"
 							TextTrimming="CharacterEllipsis" />
 					</controls:DockPanel>

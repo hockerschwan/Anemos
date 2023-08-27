@@ -33,7 +33,11 @@ public sealed partial class FanProfileRenameDialog : ContentDialog
     {
         App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
         {
-            await Task.Delay(100);
+            while (IsLoaded)
+            {
+                await Task.Delay(100);
+            }
+
             App.GetService<IMessenger>().Send<FanProfileRenamedMessage>(new(TB_Name.Text));
         });
     }

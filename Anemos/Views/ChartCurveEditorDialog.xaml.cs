@@ -271,7 +271,11 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
     {
         App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
         {
-            await Task.Delay(100);
+            while (IsLoaded)
+            {
+                await Task.Delay(100);
+            }
+
             var points = Chart.Data.GetScatterPoints().Skip(1).SkipLast(1).Select(c => new Point2d(c.X, c.Y));
             _messenger.Send<ChartCurveChangedMessage>(new(points));
         });

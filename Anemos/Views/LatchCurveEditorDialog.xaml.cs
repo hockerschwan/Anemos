@@ -123,7 +123,11 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
     {
         App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
         {
-            await Task.Delay(100);
+            while (IsLoaded)
+            {
+                await Task.Delay(100);
+            }
+
             _messenger.Send<LatchCurveChangedMessage>(new(new(
                 ViewModel.TemperatureThresholdLow,
                 ViewModel.OutputLowTemperature,

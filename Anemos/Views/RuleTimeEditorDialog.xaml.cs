@@ -37,7 +37,11 @@ public sealed partial class RuleTimeEditorDialog : ContentDialog
     {
         App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
         {
-            await Task.Delay(100);
+            while (IsLoaded)
+            {
+                await Task.Delay(100);
+            }
+
             App.GetService<IMessenger>().Send<RuleTimeChangedMessage>(new(new(
                 _index,
                 TimeOnly.FromTimeSpan(TP_Begin.Time),

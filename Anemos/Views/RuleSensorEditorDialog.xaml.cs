@@ -59,7 +59,11 @@ public sealed partial class RuleSensorEditorDialog : ContentDialog
     {
         App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
         {
-            await Task.Delay(100);
+            while (IsLoaded)
+            {
+                await Task.Delay(100);
+            }
+
             App.GetService<IMessenger>().Send<RuleSensorChangedMessage>(new(new(
                 _index,
                 ViewModel.SensorId,
