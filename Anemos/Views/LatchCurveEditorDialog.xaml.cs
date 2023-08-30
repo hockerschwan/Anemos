@@ -24,10 +24,10 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
     }
 
     private Plot Plot1 => WinUIPlot1.Plot;
-    private readonly Scatter LatchLow;
-    private readonly Scatter LatchHigh;
-    private readonly Scatter LatchLowToHighArrow; // todo: replace with arrow when implementd
-    private readonly Scatter LatchHighToLowArrow;
+    private readonly Scatter OutputLow;
+    private readonly Scatter OutputHigh;
+    private readonly ArrowCoordinated ArrowLow;
+    private readonly ArrowCoordinated ArrowHigh;
 
     private readonly Color LineColor = Color.FromARGB((uint)System.Drawing.Color.CornflowerBlue.ToArgb());
     private readonly Color AxisColor = Color.FromARGB((uint)System.Drawing.Color.DarkGray.ToArgb());
@@ -68,15 +68,16 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
         Plot1.DataBackground = Plot1.FigureBackground = BackgroundColor;
         Plot1.ScaleFactor = (float)App.MainWindow.DisplayScale;
 
-        LatchLow = Plot1.Add.Scatter(ViewModel.LineDataLowTempX, ViewModel.LineDataLowTempY, LineColor);
-        LatchHigh = Plot1.Add.Scatter(ViewModel.LineDataHighTempX, ViewModel.LineDataHighTempY, LineColor);
-        LatchLowToHighArrow = Plot1.Add.Scatter(ViewModel.LineDataLowToHighX, ViewModel.LineDataLowToHighY, LineColor);
-        LatchHighToLowArrow = Plot1.Add.Scatter(ViewModel.LineDataHighToLowX, ViewModel.LineDataHighToLowY, LineColor);
+        OutputLow = Plot1.Add.Scatter(ViewModel.LineDataLowTempX, ViewModel.LineDataLowTempY, LineColor);
+        OutputHigh = Plot1.Add.Scatter(ViewModel.LineDataHighTempX, ViewModel.LineDataHighTempY, LineColor);
+        ArrowLow = new(ViewModel.ArrowLowCoordinates);
+        ArrowHigh = new(ViewModel.ArrowHighCoordinates);
+        Plot1.Add.Plottable(ArrowLow);
+        Plot1.Add.Plottable(ArrowHigh);
 
-        LatchLow.LineStyle.Width = LatchHigh.LineStyle.Width
-            = LatchLowToHighArrow.LineStyle.Width = LatchHighToLowArrow.LineStyle.Width = 2;
-        LatchLow.MarkerStyle.IsVisible = LatchHigh.MarkerStyle.IsVisible
-            = LatchLowToHighArrow.MarkerStyle.IsVisible = LatchHighToLowArrow.MarkerStyle.IsVisible = false;
+        OutputLow.LineStyle.Width = OutputHigh.LineStyle.Width = ArrowLow.LineStyle.Width = ArrowHigh.LineStyle.Width = 2;
+        OutputLow.MarkerStyle.IsVisible = OutputHigh.MarkerStyle.IsVisible = false;
+        ArrowLow.LineStyle.Color = ArrowHigh.LineStyle.Color = LineColor;
 
         WinUIPlot1.Refresh();
     }

@@ -1,4 +1,5 @@
 using Anemos.Contracts.Services;
+using Anemos.Helpers;
 using Anemos.Models;
 using Anemos.ViewModels;
 using CommunityToolkit.Mvvm.Messaging;
@@ -26,13 +27,16 @@ public sealed partial class CurveView : UserControl
 
     private readonly Color LineColor = Color.FromARGB((uint)System.Drawing.Color.CornflowerBlue.ToArgb());
     private readonly Color MarkerColor = Color.FromARGB((uint)System.Drawing.Color.Orange.ToArgb());
+    private readonly Color AxisColor = Color.FromARGB((uint)System.Drawing.Color.DarkGray.ToArgb());
+    private readonly Color BackgroundColor = Color.FromARGB((uint)System.Drawing.Color.Black.ToArgb());
+    private readonly Color GridColor = Color.FromHex("404040");
 
     private readonly Scatter? Chart;
 
     private readonly Scatter? LatchLow;
     private readonly Scatter? LatchHigh;
-    private readonly Scatter? LatchLowToHighArrow;
-    private readonly Scatter? LatchHighToLowArrow;
+    private readonly ArrowCoordinated? LatchArrowLow;
+    private readonly ArrowCoordinated? LatchArrowHigh;
 
     private bool _chartEditorOpened;
     private bool _latchEditorOpened;
@@ -45,21 +49,19 @@ public sealed partial class CurveView : UserControl
         _messenger.Register<ChartCurveChangedMessage>(this, ChartCurveChangedMessageHandler);
         _messenger.Register<LatchCurveChangedMessage>(this, LatchCurveChangedMessageHandler);
 
+        App.MainWindow.PositionChanged += MainWindow_PositionChanged;
         _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
 
         WinUIPlot1.Interaction.Actions = ScottPlot.Control.PlotActions.NonInteractive();
 
-        Plot1.Grids.Clear();
-        Plot1.Style.ColorAxes(Color.FromARGB((uint)System.Drawing.Color.DarkGray.ToArgb()));
-        Plot1.DataBackground = Plot1.FigureBackground = Color.FromARGB((uint)System.Drawing.Color.Black.ToArgb());
         Plot1.XAxis.Min = _settingsService.Settings.CurveMinTemp;
         Plot1.XAxis.Max = _settingsService.Settings.CurveMaxTemp;
         Plot1.YAxis.Min = 0;
         Plot1.YAxis.Max = 100;
-        Plot1.XAxes.ForEach(x => x.IsVisible = false);
-        Plot1.YAxes.ForEach(x => x.IsVisible = false);
-        Plot1.XAxis.TickGenerator = Plot1.YAxis.TickGenerator
-            = new ScottPlot.TickGenerators.NumericManual(Array.Empty<Tick>());
+        Plot1.Style.ColorAxes(AxisColor);
+        Plot1.Style.ColorGrids(GridColor);
+        Plot1.DataBackground = Plot1.FigureBackground = BackgroundColor;
+        Plot1.ScaleFactor = (float)App.MainWindow.DisplayScale;
 
         if (ViewModel is ChartCurveViewModel chart)
         {
@@ -71,13 +73,15 @@ public sealed partial class CurveView : UserControl
         {
             LatchLow = Plot1.Add.Scatter(latch.LineDataLowTempX, latch.LineDataLowTempY, LineColor);
             LatchHigh = Plot1.Add.Scatter(latch.LineDataHighTempX, latch.LineDataHighTempY, LineColor);
-            LatchLowToHighArrow = Plot1.Add.Scatter(latch.LineDataLowToHighX, latch.LineDataLowToHighY, LineColor);
-            LatchHighToLowArrow = Plot1.Add.Scatter(latch.LineDataHighToLowX, latch.LineDataHighToLowY, LineColor);
+            LatchArrowLow = new(latch.ArrowLowCoordinates);
+            LatchArrowHigh = new(latch.ArrowHighCoordinates);
+            Plot1.Add.Plottable(LatchArrowLow);
+            Plot1.Add.Plottable(LatchArrowHigh);
 
             LatchLow.LineStyle.Width = LatchHigh.LineStyle.Width
-                = LatchLowToHighArrow.LineStyle.Width = LatchHighToLowArrow.LineStyle.Width = 2;
-            LatchLow.MarkerStyle.IsVisible = LatchHigh.MarkerStyle.IsVisible
-                = LatchLowToHighArrow.MarkerStyle.IsVisible = LatchHighToLowArrow.MarkerStyle.IsVisible = false;
+                = LatchArrowLow.LineStyle.Width = LatchArrowHigh.LineStyle.Width = 2;
+            LatchLow.MarkerStyle.IsVisible = LatchHigh.MarkerStyle.IsVisible = false;
+            LatchArrowLow.LineStyle.Color = LatchArrowHigh.LineStyle.Color = LineColor;
         }
 
         Marker = Plot1.Add.Scatter(new ScatterSourceCoordinates(MarkerCoordinates), MarkerColor);
@@ -107,6 +111,16 @@ public sealed partial class CurveView : UserControl
         latch.TemperatureThresholdHigh = message.Value.Item3;
         latch.OutputHighTemperature = message.Value.Item4;
         latch.Update();
+    }
+
+    private void MainWindow_PositionChanged(object? sender, Windows.Graphics.PointInt32 e)
+    {
+        var scale = (float)App.MainWindow.DisplayScale;
+        if (Plot1.ScaleFactor != scale)
+        {
+            Plot1.ScaleFactor = scale;
+            WinUIPlot1.Refresh();
+        }
     }
 
     private void Settings_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

@@ -1,5 +1,6 @@
 ﻿using Anemos.Contracts.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
+using ScottPlot;
 
 namespace Anemos.ViewModels;
 
@@ -17,7 +18,7 @@ public class LatchCurveEditorViewModel : ObservableObject
 
             if (SetProperty(ref _temperatureThresholdLow, value))
             {
-                LineDataHighTempX[0] = LineDataHighToLowX[0] = LineDataHighToLowX[1] = value;
+                LineDataHighTempX[0] = ArrowLowCoordinates[0].X = ArrowLowCoordinates[1].X = value;
                 XHighMin = value + 1d;
             }
         }
@@ -33,7 +34,7 @@ public class LatchCurveEditorViewModel : ObservableObject
 
             if (SetProperty(ref _temperatureThresholdHigh, value))
             {
-                LineDataLowTempX[1] = LineDataLowToHighX[0] = LineDataLowToHighX[1] = value;
+                LineDataLowTempX[1] = ArrowHighCoordinates[0].X = ArrowHighCoordinates[1].X = value;
                 XLowMax = value - 1d;
             }
         }
@@ -49,7 +50,8 @@ public class LatchCurveEditorViewModel : ObservableObject
 
             if (SetProperty(ref _outputLowTemperature, value))
             {
-                LineDataLowTempY[0] = LineDataLowTempY[1] = LineDataLowToHighY[0] = LineDataHighToLowY[1] = OutputLowTemperature;
+                LineDataLowTempY[0] = LineDataLowTempY[1]
+                    = ArrowLowCoordinates[1].Y = ArrowHighCoordinates[0].Y = OutputLowTemperature;
             }
         }
     }
@@ -64,7 +66,8 @@ public class LatchCurveEditorViewModel : ObservableObject
 
             if (SetProperty(ref _outputHighTemperature, value))
             {
-                LineDataHighTempY[0] = LineDataHighTempY[1] = LineDataLowToHighY[1] = LineDataHighToLowY[0] = OutputHighTemperature;
+                LineDataHighTempY[0] = LineDataHighTempY[1]
+                    = ArrowLowCoordinates[0].Y = ArrowHighCoordinates[1].Y = OutputHighTemperature;
             }
         }
     }
@@ -93,11 +96,8 @@ public class LatchCurveEditorViewModel : ObservableObject
     internal readonly double[] LineDataHighTempX = { 0, 0 };
     internal readonly double[] LineDataHighTempY = { 0, 0 };
 
-    internal readonly double[] LineDataLowToHighX = { 0, 0 };
-    internal readonly double[] LineDataLowToHighY = { 0, 0 }; // base, tip
-
-    internal readonly double[] LineDataHighToLowX = { 0, 0 };
-    internal readonly double[] LineDataHighToLowY = { 0, 0 }; // base, tip
+    internal readonly Coordinates[] ArrowLowCoordinates = Enumerable.Repeat(Coordinates.Origin, 2).ToArray();
+    internal readonly Coordinates[] ArrowHighCoordinates = Enumerable.Repeat(Coordinates.Origin, 2).ToArray();
 
     public LatchCurveEditorViewModel()
     {

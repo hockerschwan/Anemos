@@ -38,6 +38,7 @@ public sealed partial class FanView : UserControl
         ViewModel = viewModel;
         InitializeComponent();
 
+        App.MainWindow.PositionChanged += MainWindow_PositionChanged;
         _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
 
         Plot1.SetAxisLimits(bottom: -25d, top: 525d);
@@ -48,6 +49,7 @@ public sealed partial class FanView : UserControl
         Plot1.Style.ColorAxes(AxisColor);
         Plot1.DataBackground = Plot1.FigureBackground = BackgroundColor;
         Plot1.Margins(horizontal: 0);
+        Plot1.ScaleFactor = (float)App.MainWindow.DisplayScale;
 
         Signal = Plot1.Add.Signal(ViewModel.LineData, color: LineColor);
         Signal.LineStyle.Width = 2;
@@ -88,6 +90,16 @@ public sealed partial class FanView : UserControl
 
         if (FansVM.IsVisible && (!ViewModel.Model.IsHidden || FansVM.ShowHiddenFans))
         {
+            WinUIPlot1.Refresh();
+        }
+    }
+
+    private void MainWindow_PositionChanged(object? sender, Windows.Graphics.PointInt32 e)
+    {
+        var scale = (float)App.MainWindow.DisplayScale;
+        if (Plot1.ScaleFactor != scale)
+        {
+            Plot1.ScaleFactor = scale;
             WinUIPlot1.Refresh();
         }
     }

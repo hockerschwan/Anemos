@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using Anemos.Contracts.Services;
 using Anemos.Models;
+using ScottPlot;
 
 namespace Anemos.ViewModels;
 
@@ -17,11 +18,8 @@ internal class LatchCurveViewModel : CurveViewModelBase
     internal readonly double[] LineDataHighTempX = { 0, 0 };
     internal readonly double[] LineDataHighTempY = { 0, 0 };
 
-    internal readonly double[] LineDataLowToHighX = { 0, 0 };
-    internal readonly double[] LineDataLowToHighY = { 0, 0 }; // base, tip
-
-    internal readonly double[] LineDataHighToLowX = { 0, 0 };
-    internal readonly double[] LineDataHighToLowY = { 0, 0 }; // base, tip
+    internal readonly Coordinates[] ArrowLowCoordinates = Enumerable.Repeat(Coordinates.Origin, 2).ToArray();
+    internal readonly Coordinates[] ArrowHighCoordinates = Enumerable.Repeat(Coordinates.Origin, 2).ToArray();
 
     private readonly System.Timers.Timer _timer = new(100) { AutoReset = false };
 
@@ -53,10 +51,10 @@ internal class LatchCurveViewModel : CurveViewModelBase
 
     private void SetLineData()
     {
-        LineDataLowTempX[1] = LineDataLowToHighX[0] = LineDataLowToHighX[1] = CurveModel.TemperatureThresholdHigh;
-        LineDataLowTempY[0] = LineDataLowTempY[1] = LineDataLowToHighY[0] = LineDataHighToLowY[1] = CurveModel.OutputLowTemperature;
-        LineDataHighTempX[0] = LineDataHighToLowX[0] = LineDataHighToLowX[1] = CurveModel.TemperatureThresholdLow;
-        LineDataHighTempY[0] = LineDataHighTempY[1] = LineDataLowToHighY[1] = LineDataHighToLowY[0] = CurveModel.OutputHighTemperature;
+        LineDataLowTempX[1] = ArrowHighCoordinates[0].X = ArrowHighCoordinates[1].X = CurveModel.TemperatureThresholdHigh;
+        LineDataLowTempY[0] = LineDataLowTempY[1] = ArrowLowCoordinates[1].Y = ArrowHighCoordinates[0].Y = CurveModel.OutputLowTemperature;
+        LineDataHighTempX[0] = ArrowLowCoordinates[0].X = ArrowLowCoordinates[1].X = CurveModel.TemperatureThresholdLow;
+        LineDataHighTempY[0] = LineDataHighTempY[1] = ArrowLowCoordinates[0].Y = ArrowHighCoordinates[1].Y = CurveModel.OutputHighTemperature;
 
         OnCurveDataChanged();
     }
