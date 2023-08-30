@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Imaging;
 using NotifyIconLib.Events;
 using NotifyIconLib.Native;
@@ -16,7 +15,7 @@ public class NotifyIcon
         get; init;
     }
 
-    public ObservableCollection<MenuItem> MenuItems { get; } = new();
+    public List<MenuItem> MenuItems { get; } = new();
 
     private readonly Icon _icon;
 
@@ -101,12 +100,6 @@ public class NotifyIcon
         }
     }
 
-    private void MenuItems_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-    {
-        _timer.Stop();
-        _timer.Start();
-    }
-
     private void Timer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
     {
         foreach (var item in MenuItems)
@@ -126,7 +119,6 @@ public class NotifyIcon
     private void Create()
     {
         _timer.Elapsed += Timer_Elapsed;
-        MenuItems.CollectionChanged += MenuItems_CollectionChanged;
 
         NativeFunctions.CreateNotifyIcon(Guid, _icon);
     }

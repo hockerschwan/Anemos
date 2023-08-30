@@ -131,10 +131,14 @@ public partial class FanViewModel : ObservableObject
         _controlModeIndex = (int)Model.ControlMode;
         _selectedCurve = Model.CurveModel;
 
-        OnPropertyChanged(nameof(ControlModeIndex));
-        OnPropertyChanged(nameof(SelectedCurve));
-        OnPropertyChanged(nameof(ShowConstantControls));
-        OnPropertyChanged(nameof(ShowCurveControls));
+        App.MainWindow.DispatcherQueue.TryEnqueue(() =>
+        {
+            OnPropertyChanged(nameof(ControlModeIndex));
+            OnPropertyChanged(nameof(SelectedCurve));
+            OnPropertyChanged(nameof(ShowConstantControls));
+            OnPropertyChanged(nameof(ShowCurveControls));
+            OnPropertyChanged(nameof(UnlockCurveOption));
+        });
     }
 
     private void Model_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -154,7 +158,10 @@ public partial class FanViewModel : ObservableObject
 
     private void FanSettings_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        OnPropertyChanged(nameof(UnlockControls));
-        OnPropertyChanged(nameof(UnlockCurveOption));
+        App.MainWindow.DispatcherQueue.TryEnqueue(() =>
+        {
+            OnPropertyChanged(nameof(UnlockControls));
+            OnPropertyChanged(nameof(UnlockCurveOption));
+        });
     }
 }

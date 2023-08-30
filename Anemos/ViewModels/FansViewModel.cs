@@ -156,7 +156,10 @@ public partial class FansViewModel : PageViewModelBase
 
     private void FanProfileSwitchedMessageHandler(object recipient, FanProfileSwitchedMessage message)
     {
-        SelectedProfile = message.Value;
+        App.MainWindow.DispatcherQueue.TryEnqueue(() =>
+        {
+            SelectedProfile = message.Value;
+        });
     }
 
     public void RemoveProfile(string id)

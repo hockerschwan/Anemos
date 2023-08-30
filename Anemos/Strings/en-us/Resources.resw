@@ -449,4 +449,13 @@
   <data name="Fans_NewProfileName" xml:space="preserve">
     <value>New Profile</value>
   </data>
+  <data name="NotifyIcon_Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="NotifyIcon_Profiles" xml:space="preserve">
+    <value>Profiles</value>
+  </data>
+  <data name="NotifyIcon_UseRules" xml:space="preserve">
+    <value>Use Rules</value>
+  </data>
 </root>

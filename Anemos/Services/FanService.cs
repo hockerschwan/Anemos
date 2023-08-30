@@ -67,7 +67,7 @@ internal class FanService : IFanService
                     if (p != null && CurrentProfile != p)
                     {
                         CurrentProfile = p;
-                        ApplyProfileToFans(p, true);
+                        ApplyProfileToFans(p);
                     }
                 }
             }

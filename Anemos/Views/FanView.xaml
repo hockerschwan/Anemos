@@ -112,6 +112,7 @@
 				<ComboBox
 					Margin="{StaticResource PageItemVerticalMargin_}"
 					HorizontalAlignment="Stretch"
+					IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}"
 					ItemsSource="{x:Bind ViewModel.Curves, Mode=OneWay}"
 					SelectedItem="{x:Bind ViewModel.SelectedCurve, Mode=TwoWay}"
 					Visibility="{x:Bind ViewModel.ShowCurveControls, Mode=OneWay}">
