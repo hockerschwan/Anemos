@@ -47,6 +47,7 @@ public sealed partial class RuleView : UserControl
         rule.MemoryUpper = message.Value.Item4;
         rule.MemoryType = message.Value.Item5;
 
+        _ruleService.Update();
         _ruleService.Save();
     }
 
@@ -67,6 +68,7 @@ public sealed partial class RuleView : UserControl
         sensor.UpperValue = message.Value.Item5;
         sensor.IncludeUpper = message.Value.Item6;
 
+        _ruleService.Update();
         _ruleService.Save();
     }
 
@@ -84,6 +86,7 @@ public sealed partial class RuleView : UserControl
         time.SetBeginningTime(message.Value.Item2);
         time.SetEndingTime(message.Value.Item3);
 
+        _ruleService.Update();
         _ruleService.Save();
     }
 
@@ -97,7 +100,7 @@ public sealed partial class RuleView : UserControl
 
     private void DeleteConditionButton_Click(object sender, RoutedEventArgs e)
     {
-        ViewModel.RemoveCondition((Models.RuleConditionBase)((Button)sender).CommandParameter);
+        ViewModel.RemoveCondition((RuleConditionBase)((Button)sender).CommandParameter);
     }
 
     private async void DeleteSelfButton_Click(object sender, RoutedEventArgs e)
