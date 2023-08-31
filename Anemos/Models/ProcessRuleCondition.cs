@@ -67,36 +67,50 @@ public class ProcessRuleCondition : RuleConditionBase
         }
     }
 
+    private readonly System.Text.StringBuilder _stringBuilder = new();
+
     public override string Text
     {
         get
         {
-            var str = ProcessName;
+            _stringBuilder.Clear();
             if (ProcessName == string.Empty)
             {
-                str += "Rule_AnyProcess".GetLocalized();
+                _stringBuilder.Append("RuleProcess_ProcessAny".GetLocalized());
+            }
+            else
+            {
+                _stringBuilder.Append(ProcessName);
             }
 
             if (MemoryLower == null && MemoryUpper == null)
             {
-                return str;
+                return _stringBuilder.ToString();
             }
 
-            str += ", ";
+            _stringBuilder.Append(", ");
 
             if (MemoryLower != null)
             {
-                str += $"{MemoryLower} {"Unit_MegaByte".GetLocalized()} < ";
+                _stringBuilder.Append("RuleProcess_MemoryLowerText".GetLocalized());
             }
 
-            str += $"{(MemoryType == 0 ? "Rule_MemoryType_PrivateBytes".GetLocalized() : "Rule_MemoryType_WorkingSet".GetLocalized())}";
+            switch (MemoryType)
+            {
+                case 0:
+                    _stringBuilder.Append("RuleProcessEditor_PrivateBytes/Text".GetLocalized());
+                    break;
+                case 1:
+                    _stringBuilder.Append("RuleProcessEditor_WorkingSet/Text".GetLocalized());
+                    break;
+            }
 
             if (MemoryUpper != null)
             {
-                str += $" < {MemoryUpper} {"Unit_MegaByte".GetLocalized()}";
+                _stringBuilder.Append("RuleProcess_MemoryLowerText".GetLocalized());
             }
 
-            return str;
+            return _stringBuilder.ToString();
         }
     }
 

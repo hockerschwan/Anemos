@@ -4,15 +4,9 @@ namespace Anemos.Models;
 
 public class GpuNvidiaFanModel : FanModelBase
 {
-    private List<string> FanIds
-    {
-        get;
-    } = new();
+    private List<string> FanIds { get; } = new();
 
-    private List<ISensor> Controls
-    {
-        get;
-    } = new();
+    private List<ISensor> Controls { get; } = new();
 
     public override FanControlModes ControlMode
     {
@@ -29,7 +23,7 @@ public class GpuNvidiaFanModel : FanModelBase
                         c.Control.SetDefault();
                     }
                 }
-                Value = null;
+                TargetValue = null;
                 _refractoryPeriodCounter = 0;
                 UpdateValue();
                 UpdateProfile();
@@ -66,9 +60,9 @@ public class GpuNvidiaFanModel : FanModelBase
             case FanControlModes.Device:
                 break;
             case FanControlModes.Constant:
-                if (Value != ConstantSpeed)
+                if (TargetValue != ConstantSpeed)
                 {
-                    Value = ConstantSpeed;
+                    TargetValue = ConstantSpeed;
                     Write(ConstantSpeed);
                 }
                 break;
@@ -77,10 +71,10 @@ public class GpuNvidiaFanModel : FanModelBase
                 if (target == null || Control == null) { break; }
 
                 target = Math.Max((int)Control.Control.MinSoftwareValue, Math.Min((int)Control.Control.MaxSoftwareValue, target.Value));
-                if (Value != target)
+                if (TargetValue != target)
                 {
-                    Value = target;
-                    Write(Value);
+                    TargetValue = target;
+                    Write(TargetValue);
                 }
                 break;
         }

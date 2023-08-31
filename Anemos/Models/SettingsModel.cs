@@ -1,11 +1,10 @@
-﻿using Anemos.Helpers;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Anemos.Models;
 
 public partial class SettingsModel : ObservableObject
 {
-    public Settings_Window Window { get; set; } = new();
+    public WindowSettings Window { get; set; } = new();
 
     private bool _startMinimized = false;
     public bool StartMinimized
@@ -42,13 +41,6 @@ public partial class SettingsModel : ObservableObject
         set => SetProperty(ref _fanHistory, value);
     }
 
-    private int _curveMaxTemp = 100;
-    public int CurveMaxTemp
-    {
-        get => _curveMaxTemp;
-        set => SetProperty(ref _curveMaxTemp, value);
-    }
-
     private int _curveMinTemp = 20;
     public int CurveMinTemp
     {
@@ -56,53 +48,11 @@ public partial class SettingsModel : ObservableObject
         set => SetProperty(ref _curveMinTemp, value);
     }
 
-    private string _navigationBackgroundColor = "#333333";
-    public string NavigationBackgroundColor
+    private int _curveMaxTemp = 100;
+    public int CurveMaxTemp
     {
-        get => _navigationBackgroundColor;
-        set => SetProperty(ref _navigationBackgroundColor, value);
-    }
-
-    private string _commandBarBackgroundColor = "#282828";
-    public string CommandBarBackgroundColor
-    {
-        get => _commandBarBackgroundColor;
-        set => SetProperty(ref _commandBarBackgroundColor, value);
-    }
-
-    private string _chartLineColor = "#6495ED";
-    public string ChartLineColor
-    {
-        get => _chartLineColor;
-        set => SetProperty(ref _chartLineColor, value);
-    }
-
-    private string _chartMarkerColor = "#FFA500";
-    public string ChartMarkerColor
-    {
-        get => _chartMarkerColor;
-        set => SetProperty(ref _chartMarkerColor, value);
-    }
-
-    private string _chartBGColor = "#000000";
-    public string ChartBGColor
-    {
-        get => _chartBGColor;
-        set => SetProperty(ref _chartBGColor, value);
-    }
-
-    private string _chartGridColor = "#808080";
-    public string ChartGridColor
-    {
-        get => _chartGridColor;
-        set => SetProperty(ref _chartGridColor, value);
-    }
-
-    private string _chartTextColor = "#D3D3D3";
-    public string ChartTextColor
-    {
-        get => _chartTextColor;
-        set => SetProperty(ref _chartTextColor, value);
+        get => _curveMaxTemp;
+        set => SetProperty(ref _curveMaxTemp, value);
     }
 
     public FanSettings FanSettings { get; set; } = new();
@@ -114,7 +64,7 @@ public partial class SettingsModel : ObservableObject
     public RuleSettings RuleSettings { get; set; } = new();
 }
 
-public class Settings_Window
+public class WindowSettings
 {
     public bool Maximized { get; set; } = false;
     public int X { get; set; } = 100;
@@ -132,7 +82,7 @@ public class FanSettings : ObservableObject
         get => _useRules;
         set => SetProperty(ref _useRules, value);
     }
-    public string CurrentProfile { get; set; } = string.Empty;
+    public string SelectedProfileId { get; set; } = string.Empty;
     public IEnumerable<FanSettings_Profile> Profiles { get; set; } = Enumerable.Empty<FanSettings_Profile>();
 }
 
@@ -156,11 +106,12 @@ public class FanSettings_ProfileItem
     public FanControlModes Mode { get; set; } = FanControlModes.Device;
     public string CurveId { get; set; } = string.Empty;
     public int ConstantSpeed { get; set; } = 50;
-    public int MaxSpeed { get; set; } = 100;
     public int MinSpeed { get; set; } = 0;
+    public int MaxSpeed { get; set; } = 100;
     public int DeltaLimitUp { get; set; } = 0;
     public int DeltaLimitDown { get; set; } = 0;
     public int RefractoryPeriodCyclesDown { get; set; } = 0;
+    public int Offset { get; set; } = 0;
 }
 
 public class CurveSettings
@@ -176,28 +127,13 @@ public class CurveSettings_Curve
     public string SourceId { get; set; } = string.Empty;
 
     // Chart
-    public IEnumerable<Point2>? Points
-    {
-        get; set;
-    }
+    public IEnumerable<Point2d>? Points { get; set; } = null;
 
     // Latch
-    public double? OutputLowTemperature
-    {
-        get; set;
-    }
-    public double? OutputHighTemperature
-    {
-        get; set;
-    }
-    public double? TemperatureThresholdLow
-    {
-        get; set;
-    }
-    public double? TemperatureThresholdHigh
-    {
-        get; set;
-    }
+    public double? OutputLowTemperature { get; set; } = null;
+    public double? OutputHighTemperature { get; set; } = null;
+    public double? TemperatureThresholdLow { get; set; } = null;
+    public double? TemperatureThresholdHigh { get; set; } = null;
 }
 
 public class SensorSettings
@@ -232,50 +168,17 @@ public class RuleSettings_Condition
 {
     public RuleConditionType Type { get; set; } = RuleConditionType.Time;
 
-    public TimeOnly? TimeBeginning
-    {
-        get; set;
-    }
-    public TimeOnly? TimeEnding
-    {
-        get; set;
-    }
+    public TimeOnly? TimeBeginning { get; set; } = null;
+    public TimeOnly? TimeEnding { get; set; } = null;
 
-    public string? ProcessName
-    {
-        get; set;
-    }
-    public int? MemoryType
-    {
-        get; set;
-    }
-    public int? MemoryLower
-    {
-        get; set;
-    }
-    public int? MemoryUpper
-    {
-        get; set;
-    }
+    public string? ProcessName { get; set; } = null;
+    public int? MemoryType { get; set; } = null;
+    public int? MemoryLower { get; set; } = null;
+    public int? MemoryUpper { get; set; } = null;
 
-    public string? SensorId
-    {
-        get; set;
-    }
-    public double? UpperValue
-    {
-        get; set;
-    }
-    public double? LowerValue
-    {
-        get; set;
-    }
-    public bool? IncludeUpper
-    {
-        get; set;
-    }
-    public bool? IncludeLower
-    {
-        get; set;
-    }
+    public string? SensorId { get; set; } = null;
+    public double? UpperValue { get; set; } = null;
+    public double? LowerValue { get; set; } = null;
+    public bool? IncludeUpper { get; set; } = null;
+    public bool? IncludeLower { get; set; } = null;
 }

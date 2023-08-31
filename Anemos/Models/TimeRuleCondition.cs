@@ -4,14 +4,12 @@ public class TimeRuleCondition : RuleConditionBase
 {
     public TimeOnly TimeBeginning
     {
-        get;
-        private set;
+        get; private set;
     }
 
     public TimeOnly TimeEnding
     {
-        get;
-        private set;
+        get; private set;
     }
 
     public override string Text => $"{TimeBeginning:HH:mm} - {TimeEnding:HH:mm}";
@@ -37,7 +35,7 @@ public class TimeRuleCondition : RuleConditionBase
     public override void Update()
     {
         var c = TimeBeginning.CompareTo(TimeEnding);
-        if (c == 0)// TimeBeginning == TimeEnding
+        if (c == 0) // TimeBeginning == TimeEnding
         {
             IsSatisfied = true;
             return;

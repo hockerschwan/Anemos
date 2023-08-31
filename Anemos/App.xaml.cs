@@ -1,4 +1,5 @@
-﻿using Anemos.Activation;
+﻿using System.Diagnostics;
+using Anemos.Activation;
 using Anemos.Contracts.Services;
 using Anemos.Services;
 using Anemos.ViewModels;
@@ -13,9 +14,97 @@ namespace Anemos;
 
 public partial class App : Application
 {
+    public readonly string AppId;
+
+    public static string AppLocation => Path.Combine(
+        AppDomain.CurrentDomain.BaseDirectory,
+        $"{AppDomain.CurrentDomain.FriendlyName}.exe");
+
+    public static UIElement? AppTitlebar
+    {
+        get; set;
+    }
+
+    public static new App Current => (App)Application.Current;
+
     public IHost Host
     {
         get;
+    }
+
+    public static bool HasShutdownStarted
+    {
+        get; private set;
+    }
+
+    public static MainWindow MainWindow { get; } = new();
+
+    private readonly IMessenger _messenger;
+
+    private readonly HashSet<object> _servicesToShutDown = new();
+
+    public App(string id) : base()
+    {
+        AppId = id;
+
+        InitializeComponent();
+
+        Host = Microsoft.Extensions.Hosting.Host
+            .CreateDefaultBuilder()
+            .UseContentRoot(AppContext.BaseDirectory)
+            .ConfigureServices((context, services) =>
+            {
+                // Default Activation Handler
+                services.AddTransient<ActivationHandler<LaunchActivatedEventArgs>, DefaultActivationHandler>();
+
+                // Services
+                services.AddTransient<INavigationViewService, NavigationViewService>();
+
+                services.AddSingleton<IActivationService, ActivationService>();
+                services.AddSingleton<IPageService, PageService>();
+                services.AddSingleton<INavigationService, NavigationService>();
+
+                services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
+                services.AddSingleton<IIpcService, IpcService>();
+                services.AddSingleton<INotifyIconService, NotifyIconService>();
+                services.AddSingleton<ISettingsService, SettingsService>();
+                services.AddSingleton<ILhwmService, LhwmService>();
+                services.AddSingleton<ISensorService, SensorService>();
+                services.AddSingleton<ICurveService, CurveService>();
+                services.AddSingleton<IFanService, FanService>();
+                services.AddSingleton<IRuleService, RuleService>();
+
+                // Views and ViewModels
+                services.AddSingleton<ShellPage>();
+                services.AddSingleton<ShellViewModel>();
+                services.AddSingleton<FansPage>();
+                services.AddSingleton<FansViewModel>();
+                services.AddSingleton<CurvesPage>();
+                services.AddSingleton<CurvesViewModel>();
+                services.AddSingleton<SensorsPage>();
+                services.AddSingleton<SensorsViewModel>();
+                services.AddSingleton<RulesPage>();
+                services.AddSingleton<RulesViewModel>();
+                services.AddSingleton<SettingsPage>();
+                services.AddSingleton<SettingsViewModel>();
+            })
+            .Build();
+
+        UnhandledException += App_UnhandledException;
+
+        _messenger = GetService<IMessenger>();
+        _messenger.Register<ServiceStartupMessage>(this, ServiceStartupMessageHandler);
+        _messenger.Register<ServiceShutDownMessage>(this, ServiceShutDownMessageHandler);
+    }
+
+    private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+    {
+        Log.Fatal("[App] {0}\n{1}", e.Message, e.Exception);
+        if (Debugger.IsAttached)
+        {
+            Debugger.Break();
+        }
+        Shutdown(true);
     }
 
     public static T GetService<T>() where T : class
@@ -28,129 +117,30 @@ public partial class App : Application
         return service;
     }
 
-    public static new App Current => (App)Application.Current;
-
-    public readonly string AppName = AppDomain.CurrentDomain.FriendlyName;
-
-    public string SettingsFolder => Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), // AppData/Local
-            AppName);
-
-    public static MainWindow MainWindow { get; } = new MainWindow();
-
-    private readonly IMessenger _messenger = WeakReferenceMessenger.Default;
-
-    public static bool HasShutdownRequested
-    {
-        get; private set;
-    }
-
-    private readonly List<Type> _servicesToShutDown = new();
-
-    public App()
-    {
-        InitializeComponent();
-
-        CheckLocalFolder();
-
-        var settingsService = new SettingsService(SettingsFolder);
-        var lhwmService = new LhwmService(settingsService);
-        var sensorService = new SensorService(settingsService, lhwmService);
-        var curveService = new CurveService(settingsService, sensorService);
-        var fanService = new FanService(settingsService, lhwmService);
-        var ruleService = new RuleService(settingsService, fanService);
-
-        Host = Microsoft.Extensions.Hosting.Host.
-            CreateDefaultBuilder().
-            UseContentRoot(AppContext.BaseDirectory).
-            ConfigureServices((context, services) =>
-            {
-                // Default Activation Handler
-                services.AddSingleton<ActivationHandler<LaunchActivatedEventArgs>, DefaultActivationHandler>();
-
-                // Services
-                services.AddSingleton<INavigationViewService, NavigationViewService>();
-
-                services.AddSingleton<IActivationService, ActivationService>();
-                services.AddSingleton<IPageService, PageService>();
-                services.AddSingleton<INavigationService, NavigationService>();
-
-                services.AddSingleton(_messenger);
-                services.AddSingleton<ISettingsService>(settingsService);
-                services.AddSingleton<ILhwmService>(lhwmService);
-                services.AddSingleton<ISensorService>(sensorService);
-                services.AddSingleton<ICurveService>(curveService);
-                services.AddSingleton<IFanService>(fanService);
-                services.AddSingleton<IRuleService>(ruleService);
-                services.AddSingleton<INotifyIconService, NotifyIconService>();
-
-                // Views and ViewModels
-                services.AddSingleton<FanOptionsViewModel>();
-                services.AddSingleton<FansViewModel>();
-                services.AddSingleton<FansPage>();
-                services.AddSingleton<ChartCurveEditorViewModel>();
-                services.AddSingleton<LatchCurveEditorViewModel>();
-                services.AddSingleton<CurvesViewModel>();
-                services.AddSingleton<CurvesPage>();
-                services.AddSingleton<SensorsViewModel>();
-                services.AddSingleton<SensorsPage>();
-                services.AddSingleton<RuleSensorEditorViewModel>();
-                services.AddSingleton<RuleProcessEditorDialog>();
-                services.AddSingleton<RuleTimeEditorDialog>();
-                services.AddSingleton<RulesViewModel>();
-                services.AddSingleton<RulesPage>();
-                services.AddSingleton<SettingsViewModel>();
-                services.AddSingleton<SettingsPage>();
-                services.AddSingleton<ShellPage>();
-                services.AddSingleton<ShellViewModel>();
-
-                // Configuration
-            }).
-            Build();
-
-        UnhandledException += App_UnhandledException;
-
-        _servicesToShutDown.AddRange(new Type[]
-        {
-            typeof(ISettingsService),
-            typeof(ILhwmService),
-            typeof(ISensorService),
-            typeof(ICurveService),
-            typeof(IFanService),
-            typeof(IRuleService),
-            typeof(INotifyIconService),
-        });
-        _messenger.Register<ServiceShutDownMessage>(this, ServiceShutDownMessageHandler);
-    }
-
-    private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
-    {
-        Log.Fatal("[App] {0}\n{1}", e.Message, e.Exception);
-        RequestShutdown();
-    }
-
     protected async override void OnLaunched(LaunchActivatedEventArgs args)
     {
         base.OnLaunched(args);
 
-        await GetService<ISettingsService>().LoadAsync();
-        await GetService<IActivationService>().ActivateAsync(args);
+        await App.GetService<IActivationService>().ActivateAsync(args);
     }
 
-    private void CheckLocalFolder()
+    private void ServiceStartupMessageHandler(object recipient, ServiceStartupMessage message)
     {
-        if (!Directory.Exists(SettingsFolder))
+        if (message.Value == Type.Missing)
         {
-            Directory.CreateDirectory(SettingsFolder);
+            _messenger.Unregister<ServiceStartupMessage>(this);
+            return;
         }
+
+        _servicesToShutDown.Add(message.Value);
     }
 
-    public static void OnIpcMessageReceived(string message)
+    private void ServiceShutDownMessageHandler(object recipient, ServiceShutDownMessage message)
     {
-        Log.Information("[App] IPC message: {message}", message);
-        if (message == "ACTIVATE")
+        if (message.Value is Type type && _servicesToShutDown.Contains(type))
         {
-            ShowWindow();
+            _servicesToShutDown.Remove(type);
+            Log.Information("[App] Shut down: {0}", type.Name);
         }
     }
 
@@ -185,12 +175,14 @@ public partial class App : Application
         });
     }
 
-    public async void RequestShutdown()
+    public async void Shutdown(bool forceShutdown = false)
     {
-        Log.Information("[App] Shut down requested");
-        HasShutdownRequested = true;
+        if (!forceShutdown && !await GetService<ShellPage>().OpenExitDialog()) { return; }
+
+        Log.Information("[App] Shutting down...");
+        HasShutdownStarted = true;
         _messenger.Send(new AppExitMessage());
-        MainWindow.Close();
+        MainWindow.Hide();
 
         while (true)
         {
@@ -198,14 +190,6 @@ public partial class App : Application
             await Task.Delay(100);
         }
 
-        GetService<ILhwmService>().Close();
-
         Current.Exit();
-    }
-
-    private void ServiceShutDownMessageHandler(object recipient, ServiceShutDownMessage message)
-    {
-        _servicesToShutDown.Remove(message.Value);
-        Log.Information("[App] Shut down: {0}", message.Value.ToString().Split(".").Last());
     }
 }

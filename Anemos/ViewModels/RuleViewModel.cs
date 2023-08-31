@@ -1,34 +1,47 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
 using Anemos.Contracts.Services;
 using Anemos.Helpers;
 using Anemos.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace Anemos.ViewModels;
 
-public partial class RuleViewModel : ObservableRecipient
+public partial class RuleViewModel : ObservableObject
 {
+    private readonly IMessenger _messenger = App.GetService<IMessenger>();
     private readonly IFanService _fanService = App.GetService<IFanService>();
-
     private readonly IRuleService _ruleService = App.GetService<IRuleService>();
 
-    public IEnumerable<FanProfile> Profiles => _fanService.Profiles;
+    public RuleModel Model
+    {
+        get;
+    }
+
+    public ObservableCollection<FanProfile> Profiles
+    {
+        get;
+    }
 
     public List<string> ConditionTypeNames
     {
         get;
     } = new()
     {
-        "Rule_ConditionType_Time".GetLocalized(),
-        "Rule_ConditionType_Process".GetLocalized(),
-        "Rule_ConditionType_Sensor".GetLocalized()
+        "Rule_ConditionTypeNames_Time".GetLocalized(),
+        "Rule_ConditionTypeNames_Process".GetLocalized(),
+        "Rule_ConditionTypeNames_Sensor".GetLocalized()
     };
 
     public List<string> RuleTypeNames
     {
         get;
-    } = new() { "Rule_RuleType_All".GetLocalized(), "Rule_RuleType_Any".GetLocalized() };
+    } = new()
+    {
+        "Rule_TypeNames_All".GetLocalized(),
+        "Rule_TypeNames_Any".GetLocalized()
+    };
 
     private int _selectedRuleTypeIndex = -1;
     public int SelectedRuleTypeIndex
@@ -52,51 +65,68 @@ public partial class RuleViewModel : ObservableRecipient
         {
             if (SetProperty(ref _selectedProfileIndex, value))
             {
-                Model.ProfileId = _fanService.Profiles.ElementAt(value).Id;
+                if (value < 0 || value >= _fanService.Profiles.Count)
+                {
+                    Model.ProfileId = string.Empty;
+                }
+                else
+                {
+                    Model.ProfileId = _fanService.Profiles.ElementAt(value).Id;
+                }
                 _ruleService.Update();
             }
         }
     }
 
-    public RuleModel Model
-    {
-        get;
-    }
-
     public bool CanIncreasePriority => _ruleService.Rules.First() != Model;
-
     public bool CanDecreasePriority => _ruleService.Rules.Last() != Model;
+
+    public string IndexText => "Rule_IndexText".GetLocalized().Replace("$", (_ruleService.Rules.IndexOf(Model) + 1).ToString());
+
+    private bool _editingName = false;
+    public bool EditingName
+    {
+        get => _editingName;
+        set => SetProperty(ref _editingName, value);
+    }
 
     public RuleViewModel(RuleModel model)
     {
         Model = model;
-        Model.PropertyChanged += Model_PropertyChanged;
+
+        _messenger.Register<FanProfilesChangedMessage>(this, FanProfilesChangedMessageHandler);
+
+        Profiles = new(_fanService.Profiles);
 
         var profile = _fanService.GetProfile(Model.ProfileId);
         if (profile != null)
         {
-            _selectedProfileIndex = _fanService.Profiles.IndexOf(profile);
+            _selectedProfileIndex = Profiles.IndexOf(profile);
         }
 
         _selectedRuleTypeIndex = (int)Model.Type;
     }
 
-    private void Model_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void FanProfilesChangedMessageHandler(object recipient, FanProfilesChangedMessage message)
     {
-        if (e.PropertyName == nameof(Model.Name) && Model == _ruleService.CurrentRule)
+        var removed = message.OldValue.Except(message.NewValue);
+        foreach (var p in removed)
         {
-            App.GetService<INotifyIconService>().UpdateTooltip();
+            Profiles.Remove(p);
+        }
+        if (removed.Select(p => p.Id).Contains(Model.ProfileId))
+        {
+            SelectedProfileIndex = -1;
+        }
+
+        var added = message.NewValue.Except(message.OldValue);
+        foreach (var p in added)
+        {
+            Profiles.Add(p);
         }
     }
 
-    public void UpdateArrows()
-    {
-        OnPropertyChanged(nameof(CanIncreasePriority));
-        OnPropertyChanged(nameof(CanDecreasePriority));
-    }
-
-    [RelayCommand]
-    private void AddCondition(string param)
+    public void AddCondition(string param)
     {
         switch (ConditionTypeNames.IndexOf(param))
         {
@@ -127,17 +157,21 @@ public partial class RuleViewModel : ObservableRecipient
         }
     }
 
-    [RelayCommand]
-    private void RemoveCondition(RuleConditionBase condition)
+    public void RemoveCondition(RuleConditionBase condition)
     {
         Model.RemoveCondition(condition);
     }
 
-    [RelayCommand]
-    private void RemoveSelf()
+    public void RemoveSelf()
     {
-        Model.PropertyChanged -= Model_PropertyChanged;
         _ruleService.RemoveRule(Model);
+    }
+
+    public void UpdatePriorityButtons()
+    {
+        OnPropertyChanged(nameof(CanIncreasePriority));
+        OnPropertyChanged(nameof(CanDecreasePriority));
+        OnPropertyChanged(nameof(IndexText));
     }
 
     [RelayCommand]

@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using Anemos.Contracts.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace Anemos.Models;
 
@@ -9,6 +11,7 @@ public enum RuleType
     All, Any
 }
 
+[DebuggerDisplay("{Name}")]
 public class RuleArg
 {
     public string Name = string.Empty;
@@ -17,10 +20,12 @@ public class RuleArg
     public IEnumerable<RuleConditionArg> Conditions = Enumerable.Empty<RuleConditionArg>();
 }
 
+[DebuggerDisplay("{Name}, {ConditionsSatisfied}")]
 public class RuleModel : ObservableObject
 {
+    private readonly IMessenger _messenger = App.GetService<IMessenger>();
     private readonly ISensorService _sensorService = App.GetService<ISensorService>();
-
+    private readonly IFanService _fanService = App.GetService<IFanService>();
     private readonly IRuleService _ruleService = App.GetService<IRuleService>();
 
     private string _name = string.Empty;
@@ -73,11 +78,22 @@ public class RuleModel : ObservableObject
 
     public RuleModel(RuleArg arg)
     {
-        _name = arg.Name;
-        _profileId = arg.ProfileId;
-        _type = arg.Type;
+        _messenger.Register<FanProfilesChangedMessage>(this, FanProfilesChangedMessageHandler);
 
         var save = false;
+
+        _name = arg.Name;
+        if (_fanService.GetProfile(arg.ProfileId) == null)
+        {
+            _profileId = string.Empty;
+            save = true;
+        }
+        else
+        {
+            _profileId = arg.ProfileId;
+        }
+        _type = arg.Type;
+
         foreach (var cond in arg.Conditions)
         {
             if (cond.Type == RuleConditionType.Time && cond.TimeBeginning != null && cond.TimeEnding != null)
@@ -102,6 +118,14 @@ public class RuleModel : ObservableObject
         if (save)
         {
             _ruleService.Save();
+        }
+    }
+
+    private void FanProfilesChangedMessageHandler(object recipient, FanProfilesChangedMessage message)
+    {
+        if (!message.NewValue.Any(p => p.Id == ProfileId))
+        {
+            ProfileId = string.Empty;
         }
     }
 

@@ -1,23 +1,20 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.ComponentModel;
 using Anemos.Contracts.Services;
 using Anemos.Models;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Serilog;
 
 namespace Anemos.Services;
-public class RuleService : ObservableRecipient, IRuleService
-{
-    private readonly ISettingsService _settingsService;
 
+internal class RuleService : IRuleService
+{
+    private readonly IMessenger _messenger;
+    private readonly ISettingsService _settingsService;
     private readonly IFanService _fanService;
 
-    public RangeObservableCollection<RuleModel> Rules { get; } = new();
+    public List<RuleModel> Rules { get; } = new();
 
-    public RuleModel? CurrentRule
-    {
-        get; private set;
-    }
+    public RuleModel? CurrentRule { get; private set; } = null;
 
     private string _defaultProfileId = string.Empty;
     public string DefaultProfileId
@@ -27,12 +24,13 @@ public class RuleService : ObservableRecipient, IRuleService
         {
             if (value == string.Empty)
             {
-                value = _fanService.CurrentProfileId;
+                value = _fanService.ManualProfileId;
             }
 
-            if (SetProperty(ref _defaultProfileId, value))
+            if (_defaultProfileId != value)
             {
-                OnPropertyChanged(nameof(DefaultProfile));
+                _defaultProfileId = value;
+
                 if (_isLoaded)
                 {
                     Save();
@@ -41,115 +39,46 @@ public class RuleService : ObservableRecipient, IRuleService
         }
     }
 
-    public FanProfile DefaultProfile => _fanService.GetProfile(DefaultProfileId) ?? _fanService.CurrentProfile;
-
     private int _updateCounter = 0;
 
-    private int UpdateIntervalCycles => _settingsService.Settings.RulesUpdateIntervalCycles;
-
-    private bool _shutdownRequested;
+    private int UpdateIntervalCycles
+    {
+        get; set;
+    }
 
     private bool _isUpdating;
 
     private bool _isLoaded;
 
-    public RuleService(ISettingsService settingsService, IFanService fanService)
+    public RuleService(
+        IMessenger messenger,
+        ISettingsService settingsService,
+        IFanService fanService)
     {
-        Messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
-        Messenger.Register<LhwmUpdateDoneMessage>(this, LhwmUpdateDoneMessageHandler);
-
+        _messenger = messenger;
         _settingsService = settingsService;
         _fanService = fanService;
 
+        _messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
+        _messenger.Register<LhwmUpdateDoneMessage>(this, LhwmUpdateDoneMessageHandler);
+
         _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
 
-        Log.Debug("[RuleService] Started");
-    }
+        UpdateIntervalCycles = _settingsService.Settings.RulesUpdateIntervalCycles;
 
-    public async Task InitializeAsync()
-    {
-        Load();
-
-        Update();
-
-        Log.Debug("[RuleService] Loaded");
-        await Task.CompletedTask;
+        _messenger.Send<ServiceStartupMessage>(new(GetType()));
+        Log.Information("[Rule] Started");
     }
 
     private async void AppExitMessageHandler(object recipient, AppExitMessage message)
     {
-        _shutdownRequested = true;
-        Messenger.Unregister<LhwmUpdateDoneMessage>(this);
+        _messenger.UnregisterAll(this);
         while (true)
         {
             if (!_isUpdating) { break; }
             await Task.Delay(100);
         }
-        Messenger.Send(new ServiceShutDownMessage(GetType().GetInterface("IRuleService")!));
-    }
-
-    private void LhwmUpdateDoneMessageHandler(object recipient, LhwmUpdateDoneMessage message)
-    {
-        ++_updateCounter;
-        if (_updateCounter < UpdateIntervalCycles) { return; }
-
-        if (!_isUpdating)
-        {
-            Update();
-        }
-    }
-
-    private void Settings_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(_settingsService.Settings.RulesUpdateIntervalCycles))
-        {
-            Update();
-            OnPropertyChanged(nameof(UpdateIntervalCycles));
-        }
-    }
-
-    public void Update()
-    {
-        _updateCounter = 0;
-
-        _isUpdating = true;
-
-        foreach (var rule in Rules)
-        {
-            if (_shutdownRequested)
-            {
-                _isUpdating = false;
-                return;
-            }
-            rule.Update();
-        }
-
-        if (_fanService.UseRules || !_isLoaded)
-        {
-            var rule = Rules.FirstOrDefault(r => r!.ConditionsSatisfied, null);
-            if (rule?.ProfileId != CurrentRule?.ProfileId || !_isLoaded)
-            {
-                if (rule != CurrentRule)
-                {
-                    CurrentRule = rule;
-                }
-
-                if (rule == null)
-                {
-                    Messenger.Send(new RuleSwitchedMessage(DefaultProfileId));
-                }
-                else
-                {
-                    Messenger.Send(new RuleSwitchedMessage(rule.ProfileId));
-                }
-            }
-        }
-        else if (CurrentRule != null)
-        {
-            CurrentRule = null;
-        }
-
-        _isUpdating = false;
+        _messenger.Send<ServiceShutDownMessage>(new(GetType()));
     }
 
     public void AddRule(RuleArg arg)
@@ -162,9 +91,12 @@ public class RuleService : ObservableRecipient, IRuleService
         var old = Rules.ToList();
         var models = args.Select(arg => new RuleModel(arg));
         Rules.AddRange(models);
-        Messenger.Send(new RulesChangedMessage(this, nameof(Rules), old, Rules));
+        _messenger.Send<RulesChangedMessage>(new(this, nameof(Rules), old, Rules));
 
-        Update();
+        if (_isLoaded)
+        {
+            Update();
+        }
 
         if (save)
         {
@@ -172,17 +104,46 @@ public class RuleService : ObservableRecipient, IRuleService
         }
     }
 
-    public void RemoveRule(RuleModel rule)
+    public void DecreasePriority(RuleModel rule)
     {
-        if (!Rules.Contains(rule)) { return; }
+        var i = Rules.IndexOf(rule);
+        if (i == -1 || i == Rules.Count - 1) { return; }
 
         var old = Rules.ToList();
-        Rules.Remove(rule);
-        Messenger.Send(new RulesChangedMessage(this, nameof(Rules), old, Rules));
+
+        Rules.RemoveAt(i);
+        Rules.Insert(i + 1, rule);
+
+        _messenger.Send<RulesChangedMessage>(new(this, nameof(Rules), old, Rules));
 
         Update();
 
         Save();
+    }
+
+    public void IncreasePriority(RuleModel rule)
+    {
+        var i = Rules.IndexOf(rule);
+        if (i < 1) { return; }
+
+        var old = Rules.ToList();
+
+        Rules.RemoveAt(i);
+        Rules.Insert(i - 1, rule);
+
+        _messenger.Send<RulesChangedMessage>(new(this, nameof(Rules), old, Rules));
+
+        Update();
+
+        Save();
+    }
+
+    private void LhwmUpdateDoneMessageHandler(object recipient, LhwmUpdateDoneMessage message)
+    {
+        ++_updateCounter;
+        if (_updateCounter < UpdateIntervalCycles || _isUpdating) { return; }
+
+        Update();
     }
 
     private void Load()
@@ -217,7 +178,7 @@ public class RuleService : ObservableRecipient, IRuleService
 
         if (_fanService.GetProfile(_settingsService.Settings.RuleSettings.DefaultProfile) == null)
         {
-            DefaultProfileId = _fanService.CurrentProfileId;
+            DefaultProfileId = _fanService.ManualProfileId;
             Save();
         }
         else
@@ -226,6 +187,25 @@ public class RuleService : ObservableRecipient, IRuleService
         }
 
         _isLoaded = true;
+    }
+
+    public async Task LoadAsync()
+    {
+        await Task.Run(Load);
+        Log.Debug("[Rule] Loaded");
+    }
+
+    public void RemoveRule(RuleModel rule)
+    {
+        if (!Rules.Contains(rule)) { return; }
+
+        var old = Rules.ToList();
+        Rules.Remove(rule);
+        _messenger.Send<RulesChangedMessage>(new(this, nameof(Rules), old, Rules));
+
+        Update();
+
+        Save();
     }
 
     public void Save()
@@ -279,37 +259,38 @@ public class RuleService : ObservableRecipient, IRuleService
         _settingsService.Save();
     }
 
-    public void IncreasePriority(RuleModel rule)
+    private void Settings_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        var i = Rules.IndexOf(rule);
-        if (i < 1) { return; }
-
-        var old = Rules.ToList();
-
-        Rules.RemoveAt(i);
-        Rules.Insert(i - 1, rule);
-
-        Messenger.Send(new RulesChangedMessage(this, nameof(Rules), old, Rules));
-
-        Update();
-
-        Save();
+        if (e.PropertyName == nameof(_settingsService.Settings.RulesUpdateIntervalCycles))
+        {
+            UpdateIntervalCycles = _settingsService.Settings.RulesUpdateIntervalCycles;
+            Update();
+        }
     }
 
-    public void DecreasePriority(RuleModel rule)
+    public void Update()
     {
-        var i = Rules.IndexOf(rule);
-        if (i == -1 || i == Rules.Count - 1) { return; }
+        _updateCounter = 0;
+        _isUpdating = true;
 
-        var old = Rules.ToList();
+        Parallel.ForEach(Rules, rule =>
+        {
+            App.MainWindow.DispatcherQueue.TryEnqueue(
+                Microsoft.UI.Dispatching.DispatcherQueuePriority.High,
+                () => rule.Update());
+        });
 
-        Rules.RemoveAt(i);
-        Rules.Insert(i + 1, rule);
+        var rule = Rules.FirstOrDefault(r => r!.ConditionsSatisfied && r!.ProfileId != string.Empty, null);
+        if (rule != CurrentRule)
+        {
+            CurrentRule = rule;
+        }
 
-        Messenger.Send(new RulesChangedMessage(this, nameof(Rules), old, Rules));
+        if (rule?.ProfileId != _fanService.AutoProfileId)
+        {
+            _fanService.AutoProfileId = rule?.ProfileId ?? DefaultProfileId;
+        }
 
-        Update();
-
-        Save();
+        _isUpdating = false;
     }
 }

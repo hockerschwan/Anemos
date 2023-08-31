@@ -3,93 +3,66 @@ using Anemos.Contracts.Services;
 using Anemos.Helpers;
 using Anemos.Models;
 using Anemos.Views;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Anemos.ViewModels;
 
-public partial class SensorsViewModel : ObservableRecipient
+public partial class SensorsViewModel : PageViewModelBase
 {
+    private readonly IMessenger _messenger;
     private readonly ISensorService _sensorService;
 
-    private List<CustomSensorModel> Models
-    {
-        get;
-    } = new();
-
-    private ObservableCollection<CustomSensorViewModel> ViewModels
-    {
-        get;
-    }
-
-    public ObservableCollection<CustomSensorView> Views
-    {
-        get;
-    }
+    public ObservableCollection<SensorViewModel> ViewModels { get; } = new();
+    public ObservableCollection<SensorView> Views { get; } = new();
 
     private bool _isVisible;
-    public bool IsVisible
+    public override bool IsVisible
     {
         get => _isVisible;
         set => SetProperty(ref _isVisible, value);
     }
 
-    public SensorsViewModel(ISensorService thermometerService)
+    public SensorsViewModel(IMessenger messenger, ISensorService sensorService)
     {
-        Messenger.Register<WindowVisibilityChangedMessage>(this, WindowVisibilityChangedMessageHandler);
-        Messenger.Register<CustomSensorsChangedMessage>(this, CustomSensorsChangedMessageHandler);
+        _messenger = messenger;
+        _sensorService = sensorService;
 
-        _sensorService = thermometerService;
+        _messenger.Register<CustomSensorsChangedMessage>(this, CustomSensorsChangedMessageHandler);
 
-        if (_sensorService.CustomSensors.Any())
+        foreach (var m in _sensorService.CustomSensors.ConvertAll(s => s as CustomSensorModel)!)
         {
-            Models = _sensorService.CustomSensors.ConvertAll(s => s as CustomSensorModel)!;
+            var vm = new SensorViewModel(m!);
+            ViewModels.Add(vm);
+            Views.Add(new SensorView(vm));
         }
-        ViewModels = new(Models.Select(m => new CustomSensorViewModel(m)));
-        Views = new(ViewModels.Select(vm => new CustomSensorView(vm)));
-    }
-
-    private void WindowVisibilityChangedMessageHandler(object recipient, WindowVisibilityChangedMessage message)
-    {
-        IsVisible = message.Value;
     }
 
     private void CustomSensorsChangedMessageHandler(object recipient, CustomSensorsChangedMessage message)
     {
-        var removed = message.OldValue.Except(message.NewValue).ToList();
-        if (removed.Any())
+        var removed = message.OldValue.Except(message.NewValue).OfType<CustomSensorModel>();
+        foreach (var model in removed)
         {
-            foreach (var model in removed.Cast<CustomSensorModel>())
+            var vm = ViewModels.FirstOrDefault(vm => vm?.Model.Id == model.Id, null);
+            if (vm != null)
             {
-                Models.Remove(model);
+                ViewModels.Remove(vm);
+            }
 
-                var vm = ViewModels.FirstOrDefault(vm => vm?.Model.Id == model.Id, null);
-                if (vm != null)
-                {
-                    ViewModels.Remove(vm);
-                }
-
-                var v = Views.FirstOrDefault(v => v?.ViewModel?.Model.Id == model.Id, null);
-                if (v != null)
-                {
-                    Views.Remove(v);
-                }
+            var v = Views.FirstOrDefault(v => v?.ViewModel?.Model.Id == model.Id, null);
+            if (v != null)
+            {
+                Views.Remove(v);
             }
         }
 
-        var added = message.NewValue.Except(message.OldValue).ToList();
-        if (added.Any())
+        var added = message.NewValue.Except(message.OldValue).OfType<CustomSensorModel>();
+        foreach (var model in added)
         {
-            foreach (var model in added.Cast<CustomSensorModel>())
-            {
-                Models.Add(model);
-
-                var vm = new CustomSensorViewModel(model);
-                ViewModels.Add(vm);
-                Views.Add(new CustomSensorView(vm));
-                model.Update();
-            }
+            var vm = new SensorViewModel(model);
+            ViewModels.Add(vm);
+            Views.Add(new SensorView(vm));
+            model.Update();
         }
     }
 
@@ -98,8 +71,7 @@ public partial class SensorsViewModel : ObservableRecipient
     {
         _sensorService.AddCustomSensor(new()
         {
-            Name = "Sensors_NewSensorName".GetLocalized(),
-            CalcMethod = CustomSensorCalcMethod.Max
+            Name = "Sensors_NewSensorName".GetLocalized()
         });
     }
 }

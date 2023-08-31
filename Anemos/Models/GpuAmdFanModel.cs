@@ -1,22 +1,18 @@
-﻿using ADLXWrapper;
-using LibreHardwareMonitor.Hardware.Gpu;
+﻿using LibreHardwareMonitor.Hardware.Gpu;
 using Serilog;
+using static ADLXWrapper.ADLXWrapper;
 
 namespace Anemos.Models;
 
-#pragma warning disable CS8500
 public class GpuAmdFanModel : FanModelBase
 {
     private readonly int _adlxId;
 
-    public bool IsSupported
-    {
-        get;
-    }
+    public bool IsSupported { get; } = false;
 
-    public readonly FanRangeResult FanRange = new();
+    private FanRange _fanRange = new();
 
-    private readonly List<Tuple<int, int>> _originalFanSpeed = new();
+    private FanSpeeds _originalFanSpeeds;
 
     private readonly bool _wasZeroRPMEnabled;
 
@@ -25,15 +21,13 @@ public class GpuAmdFanModel : FanModelBase
     {
         get
         {
-            switch (ControlMode)
+            return ControlMode switch
             {
-                case FanControlModes.Constant:
-                    return ConstantSpeed;
-                case FanControlModes.Curve:
-                    return Value;
-                default:
-                    return base.CurrentPercent;
+                FanControlModes.Constant => ConstantSpeed,
+                FanControlModes.Curve => TargetValue,
+                _ => base.CurrentPercent,
             };
+            ;
         }
     }
 
@@ -49,7 +43,7 @@ public class GpuAmdFanModel : FanModelBase
                 {
                     RestoreSettings();
                 }
-                Value = null;
+                TargetValue = null;
                 _refractoryPeriodCounter = 0;
                 UpdateValue();
                 UpdateProfile();
@@ -59,60 +53,47 @@ public class GpuAmdFanModel : FanModelBase
 
     public GpuAmdFanModel(string id, string name, bool isHidden) : base(id, name, isHidden)
     {
-        if (_fanService.ADLX == null)
-        {
-            throw new Exception("ADLX is null");
-        }
         var deviceId = (Sensor?.Hardware as GenericGpu)?.DeviceId ?? throw new Exception("DeviceId is null.");
-        _adlxId = _fanService.ADLX.GetId(deviceId);
+        _adlxId = GetId(deviceId);
         if (_adlxId < 0)
         {
             throw new Exception($"Could not find GPU with PNPString:{deviceId}");
         }
 
-        if (!_fanService.ADLX.IsSupported(_adlxId))
+        if (!IsSupported(_adlxId))
         {
             ControlMode = FanControlModes.Device;
-            Log.Warning("[GpuAmdFanModel] This GPU does not support manual tuning. ID:{0}", _adlxId);
+            Log.Warning("[GpuAmdFan] This GPU does not support manual tuning. ID:{0}", _adlxId);
             return;
         }
 
-        unsafe
+        var range = GetFanRange(_adlxId);
+        if (range != null)
         {
-            fixed (FanRangeResult* ptr = &FanRange)
-            {
-                if (!_fanService.ADLX!.GetFanRange(_adlxId, &ptr))
-                {
-                    throw new Exception("Could not get FanTuningRanges.");
-                }
-                FanRange = *ptr;
-            }
-
-            fixed (List<Tuple<int, int>>* ptr = &_originalFanSpeed)
-            {
-                if (!_fanService.ADLX!.GetFanSpeeds(_adlxId, &ptr))
-                {
-                    throw new Exception("Could not get FanSpeed.");
-                }
-                _originalFanSpeed = *ptr;
-            }
+            _fanRange = range.Value;
         }
 
-        _wasZeroRPMEnabled = _fanService.ADLX.IsZeroRPMSupported(_adlxId) && _fanService.ADLX.IsZeroRPMEnabled(_adlxId);
+        var speeds = GetFanSpeeds(_adlxId);
+        if (speeds != null)
+        {
+            _originalFanSpeeds = speeds.Value;
+        }
+
+        _wasZeroRPMEnabled = IsZeroRPMSupported(_adlxId) && IsZeroRPMEnabled(_adlxId);
         if (_wasZeroRPMEnabled)
         {
-            _fanService.ADLX.SetZeroRPM(_adlxId, false);
+            SetZeroRPM(_adlxId, false);
         }
 
         IsSupported = true;
 
         Log.Debug(
-            "[GpuAmdFanModel] GPU ID:{0}, Temp:{1}-{2}, Speed:{3}-{4}",
+            "[GpuAmdFan] GPU ID:{0}, Temp:{1}-{2}, Speed:{3}-{4}",
             _adlxId,
-            FanRange.minTemperature,
-            FanRange.maxTemperature,
-            FanRange.minSpeed,
-            FanRange.maxSpeed);
+            _fanRange.minTemperature,
+            _fanRange.maxTemperature,
+            _fanRange.minSpeed,
+            _fanRange.maxSpeed);
     }
 
     public override void Update()
@@ -133,9 +114,9 @@ public class GpuAmdFanModel : FanModelBase
             case FanControlModes.Device:
                 break;
             case FanControlModes.Constant:
-                if (Value != ConstantSpeed)
+                if (TargetValue != ConstantSpeed)
                 {
-                    Value = ConstantSpeed;
+                    TargetValue = ConstantSpeed;
                     Write(ConstantSpeed);
                 }
                 break;
@@ -143,11 +124,11 @@ public class GpuAmdFanModel : FanModelBase
                 var target = CalcTarget();
                 if (target == null) { break; }
 
-                target = Math.Max(FanRange.minSpeed, Math.Min(FanRange.maxSpeed, target.Value));
-                if (Value != target)
+                target = Math.Max(_fanRange.minSpeed, Math.Min(_fanRange.maxSpeed, target.Value));
+                if (TargetValue != target)
                 {
-                    Value = target;
-                    Write(Value);
+                    TargetValue = target;
+                    Write(TargetValue);
                 }
                 break;
         }
@@ -157,43 +138,24 @@ public class GpuAmdFanModel : FanModelBase
     {
         if (!value.HasValue) { return; }
 
-        var spd = Math.Max(FanRange.minSpeed, Math.Min(FanRange.maxSpeed, (int)value));
+        var spd = Math.Max(_fanRange.minSpeed, Math.Min(_fanRange.maxSpeed, (int)value));
         spd = Math.Max(MinSpeed, Math.Min(MaxSpeed, spd));
         SetFanSpeed(spd);
     }
 
-    private unsafe bool SetFanSpeed(int speed)
-    {
-        var res = _fanService.ADLX!.SetFanSpeed(_adlxId, speed);
-        if (!res)
-        {
-            Log.Error("[GpuAmdFanModel] SetFanSpeed failed ID:{0}", _adlxId);
-        }
-        return res;
-    }
+    private void SetFanSpeed(int speed) => ADLXWrapper.ADLXWrapper.SetFanSpeed(_adlxId, speed);
 
-    private unsafe bool SetFanSpeeds(List<Tuple<int, int>>* ptr)
-    {
-        var res = _fanService.ADLX!.SetFanSpeeds(_adlxId, ptr);
-        if (!res)
-        {
-            Log.Error("[GpuAmdFanModel] SetFanSpeeds failed ID:{0}", _adlxId);
-        }
-        return res;
-    }
+    private void SetFanSpeeds(FanSpeeds speeds) => ADLXWrapper.ADLXWrapper.SetFanSpeeds(_adlxId, speeds);
 
     public unsafe void RestoreSettings()
     {
-        if (_fanService.ADLX!.IsZeroRPMSupported(_adlxId) && _wasZeroRPMEnabled)
+        SetFanSpeeds(_originalFanSpeeds);
+
+        if (IsZeroRPMSupported(_adlxId) && _wasZeroRPMEnabled)
         {
-            _fanService.ADLX.SetZeroRPM(_adlxId, true);
+            SetZeroRPM(_adlxId, true);
         }
 
-        fixed (List<Tuple<int, int>>* ptr = &_originalFanSpeed)
-        {
-            SetFanSpeeds(ptr);
-        }
-        Log.Debug("[GpuAmdFanModel] Settings restored.");
+        Log.Debug("[GpuAmdFan] Settings restored.");
     }
 }
-#pragma warning restore CS8500

@@ -1,14 +1,12 @@
 ﻿using System.ComponentModel;
 using Anemos.Contracts.Services;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using LibreHardwareMonitor.Hardware;
-using Microsoft.UI.Xaml;
 using Serilog;
 
 namespace Anemos.Services;
 
-public class LhwmService : ObservableRecipient, ILhwmService
+internal class LhwmService : ILhwmService
 {
     private class UpdateVisitor : IVisitor
     {
@@ -35,25 +33,29 @@ public class LhwmService : ObservableRecipient, ILhwmService
         }
     }
 
+    private readonly IMessenger _messenger;
+
     private readonly ISettingsService _settingsService;
 
     private readonly Computer _computer;
 
-    private readonly UpdateVisitor _updateVisitor;
+    private readonly UpdateVisitor _updateVisitor = new();
 
     public List<IHardware> Hardware { get; } = new();
 
     public List<ISensor> Sensors { get; } = new();
 
-    private readonly DispatcherTimer _timer = new();
+    private readonly System.Timers.Timer _timer = new();
 
     private bool _isUpdating;
 
-    public LhwmService(ISettingsService settingsService)
+    public LhwmService(IMessenger messenger, ISettingsService settingsService)
     {
-        _settingsService = settingsService;
+        _messenger = messenger;
+        _messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
 
-        Messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
+        _settingsService = settingsService;
+        _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
 
         _computer = new Computer()
         {
@@ -67,97 +69,39 @@ public class LhwmService : ObservableRecipient, ILhwmService
             IsBatteryEnabled = false,
             IsNetworkEnabled = false
         };
-
-        _updateVisitor = new();
-
         _computer.Open();
         _computer.Accept(_updateVisitor);
 
         Scan();
+
+        _timer.Interval = 1000d * _settingsService.Settings.UpdateInterval;
+        _timer.Elapsed += Timer_Tick;
+
+        _messenger.Send<ServiceStartupMessage>(new(GetType()));
         Log.Information("[LHWM] Started");
     }
 
-    public async Task InitializeAsync()
+    private async void AppExitMessageHandler(object recipient, AppExitMessage message)
     {
-        _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
+        _timer.Stop();
+        _timer.Elapsed -= Timer_Tick;
 
-        var interval = _settingsService.Settings.UpdateInterval;
-        SetInterval(interval);
-        _timer.Tick += Timer_Tick;
-        _timer.Start();
-
-        await Task.CompletedTask;
-        Log.Information("[LHWM] Loaded");
-    }
-
-    private void Settings_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(_settingsService.Settings.UpdateInterval))
+        while (true)
         {
-            var interval = _settingsService.Settings.UpdateInterval;
-            SetInterval(interval);
-        }
-    }
-
-    private void SetInterval(int interval_s)
-    {
-        _timer.Interval = new(interval_s / 3600, interval_s / 60, interval_s % 60);
-    }
-
-    private void Scan()
-    {
-        foreach (var hardware in _computer.Hardware)
-        {
-            foreach (var subHardware in hardware.SubHardware)
-            {
-                foreach (var sensor in subHardware.Sensors)
-                {
-                    sensor.ValuesTimeWindow = new(0);
-                    if (IsSensorRelevant(sensor))
-                    {
-                        Sensors.Add(sensor);
-                    }
-                }
-            }
-
-            foreach (var sensor in hardware.Sensors)
-            {
-                sensor.ValuesTimeWindow = new(0);
-                if (IsSensorRelevant(sensor))
-                {
-                    Sensors.Add(sensor);
-                }
-            }
+            if (!_isUpdating) { break; }
+            await Task.Delay(100);
         }
 
-        HashSet<IHardware> hwSet = new();
-        Sensors.ForEach(s => hwSet.Add(s.Hardware));
-        Hardware.AddRange(hwSet);
+        GetSensors(SensorType.Control).ToList().ForEach(s => s.Control.SetDefault());
+        Close();
+
+        _messenger.Send<ServiceShutDownMessage>(new(GetType()));
     }
 
-    private static bool IsSensorRelevant(ISensor sensor)
+    public void Close()
     {
-        return sensor.SensorType switch
-        {
-            SensorType.Control or SensorType.Fan or SensorType.Temperature => true,
-            _ => false,
-        };
-    }
-
-    private void Timer_Tick(object? sender, object e)
-    {
-        Update();
-        Messenger.Send(new LhwmUpdateDoneMessage());
-    }
-
-    private void Update()
-    {
-        _isUpdating = true;
-        foreach (var hw in Hardware)
-        {
-            _updateVisitor.VisitHardware(hw);
-        }
-        _isUpdating = false;
+        _computer.Close();
+        Log.Information("[LHWM] Closed");
     }
 
     public ISensor? GetSensor(string id)
@@ -167,28 +111,55 @@ public class LhwmService : ObservableRecipient, ILhwmService
 
     public IEnumerable<ISensor> GetSensors(SensorType sensorType)
     {
-        return Sensors.Where(i => i.SensorType == sensorType);
+        return Sensors.Where(s => s.SensorType == sensorType);
     }
 
-    private async void AppExitMessageHandler(object recipient, AppExitMessage message)
+    private void Scan()
     {
-        _timer.Stop();
-        _timer.Tick -= Timer_Tick;
-
-        while (true)
+        foreach (var hardware in _computer.Hardware)
         {
-            if (!_isUpdating) { break; }
-            await Task.Delay(100);
+            Hardware.Add(hardware);
+
+            foreach (var subHardware in hardware.SubHardware)
+            {
+                foreach (var sensor in subHardware.Sensors)
+                {
+                    sensor.ValuesTimeWindow = TimeSpan.Zero;
+                    Sensors.Add(sensor);
+                }
+            }
+
+            foreach (var sensor in hardware.Sensors)
+            {
+                sensor.ValuesTimeWindow = TimeSpan.Zero;
+                Sensors.Add(sensor);
+            }
         }
-
-        Sensors.Where(s => s.SensorType == SensorType.Control).ToList().ForEach(s => s.Control.SetDefault());
-
-        Messenger.Send(new ServiceShutDownMessage(GetType().GetInterface("ILhwmService")!));
     }
 
-    public void Close()
+    public void Start()
     {
-        _computer.Close();
-        Log.Information("[LHWM] Closed");
+        _timer.Start();
+    }
+
+    private void Settings_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(_settingsService.Settings.UpdateInterval))
+        {
+            _timer.Interval = 1000d * _settingsService.Settings.UpdateInterval;
+        }
+    }
+
+    private void Timer_Tick(object? sender, EventArgs e)
+    {
+        Update();
+        _messenger.Send<LhwmUpdateDoneMessage>();
+    }
+
+    private void Update()
+    {
+        _isUpdating = true;
+        Parallel.ForEach(Hardware, _updateVisitor.VisitHardware);
+        _isUpdating = false;
     }
 }

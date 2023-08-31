@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Diagnostics;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Anemos.Models;
 
@@ -7,6 +8,7 @@ public enum RuleConditionType
     Time, Process, Sensor
 }
 
+[DebuggerDisplay("{Type}")]
 public class RuleConditionArg
 {
     public RuleConditionType Type;
@@ -26,6 +28,7 @@ public class RuleConditionArg
     public bool? IncludeLower;
 }
 
+[DebuggerDisplay("{Text}")]
 public abstract class RuleConditionBase : ObservableObject
 {
     public RuleModel Parent
@@ -35,8 +38,7 @@ public abstract class RuleConditionBase : ObservableObject
 
     public RuleConditionType Type
     {
-        get;
-        private set;
+        get; private set;
     }
 
     private bool _isSatisfied;
@@ -46,10 +48,7 @@ public abstract class RuleConditionBase : ObservableObject
         private protected set => SetProperty(ref _isSatisfied, value);
     }
 
-    public virtual string Text
-    {
-        get;
-    } = string.Empty;
+    public virtual string Text { get; } = string.Empty;
 
     public RuleConditionBase(RuleModel parent)
     {

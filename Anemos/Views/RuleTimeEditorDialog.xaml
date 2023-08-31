@@ -6,18 +6,15 @@
 	xmlns:local="using:Anemos.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d">
-	<StackPanel Spacing="10">
+	<StackPanel HorizontalAlignment="Center" Spacing="20">
 		<TimePicker
-			x:Name="TimePickerBeginning"
-			x:Uid="RuleTimeEditorDialog_Begin"
-			HorizontalAlignment="Center"
-			ClockIdentifier="24HourClock"
-			Header="Begin" />
+			x:Name="TP_Begin"
+			x:Uid="RuleTimeEditor_Begin"
+			ClockIdentifier="24HourClock" />
+
 		<TimePicker
-			x:Name="TimePickerEnding"
-			x:Uid="RuleTimeEditorDialog_End"
-			HorizontalAlignment="Center"
-			ClockIdentifier="24HourClock"
-			Header="End" />
+			x:Name="TP_End"
+			x:Uid="RuleTimeEditor_End"
+			ClockIdentifier="24HourClock" />
 	</StackPanel>
 </ContentDialog>

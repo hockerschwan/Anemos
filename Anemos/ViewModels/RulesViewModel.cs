@@ -3,56 +3,23 @@ using Anemos.Contracts.Services;
 using Anemos.Helpers;
 using Anemos.Models;
 using Anemos.Views;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Anemos.ViewModels;
-
-public partial class RulesViewModel : ObservableRecipient
+public partial class RulesViewModel : PageViewModelBase
 {
-    private readonly IFanService _fanService = App.GetService<IFanService>();
+    private readonly IMessenger _messenger;
+    private readonly IFanService _fanService;
+    private readonly IRuleService _ruleService;
 
-    private readonly IRuleService _ruleService = App.GetService<IRuleService>();
+    public ObservableCollection<RuleViewModel> ViewModels { get; } = new();
+    public ObservableCollection<RuleView> Views { get; } = new();
 
-    public ObservableCollection<RuleModel> Models
+    public ObservableCollection<FanProfile> Profiles
     {
         get;
     }
-
-    private ObservableCollection<RuleViewModel> ViewModels
-    {
-        get;
-    }
-
-    public ObservableCollection<RuleView> Views
-    {
-        get;
-    }
-
-    private bool _isVisible;
-    public bool IsVisible
-    {
-        get => _isVisible;
-        set => SetProperty(ref _isVisible, value);
-    }
-
-    public RuleTimeEditorDialog TimeEditorDialog
-    {
-        get;
-    }
-
-    public RuleProcessEditorDialog ProcessEditorDialog
-    {
-        get;
-    }
-
-    public RuleSensorEditorDialog SensorEditorDialog
-    {
-        get;
-    }
-
-    public IEnumerable<FanProfile> Profiles => _fanService.Profiles;
 
     private FanProfile? _defaultProfile;
     public FanProfile? DefaultProfile
@@ -60,80 +27,99 @@ public partial class RulesViewModel : ObservableRecipient
         get => _defaultProfile;
         set
         {
-            value ??= _ruleService.DefaultProfile;
-            if (SetProperty(ref _defaultProfile, value))
+            if (SetProperty(ref _defaultProfile, value) && _defaultProfile != null)
             {
-                _ruleService.DefaultProfileId = _defaultProfile?.Id ?? string.Empty;
+                _ruleService.DefaultProfileId = _defaultProfile.Id;
             }
         }
     }
 
-    public RulesViewModel()
+    private bool _isVisible;
+    public override bool IsVisible
     {
-        Messenger.Register<WindowVisibilityChangedMessage>(this, WindowVisibilityChangedMessageHandler);
-        Messenger.Register<RulesChangedMessage>(this, RulesChangedMessageHandler);
-
-        Models = new(_ruleService.Rules);
-        ViewModels = new(Models.Select(m => new RuleViewModel(m)));
-        Views = new(ViewModels.Select(vm => new RuleView(vm)));
-
-        TimeEditorDialog = new();
-        ProcessEditorDialog = new();
-        SensorEditorDialog = new();
-
-        _defaultProfile = _ruleService.DefaultProfile;
+        get => _isVisible;
+        set => SetProperty(ref _isVisible, value);
     }
 
-    private void WindowVisibilityChangedMessageHandler(object recipient, WindowVisibilityChangedMessage message)
+    public RulesViewModel(IMessenger messenger, IFanService fanService, IRuleService ruleService)
     {
-        IsVisible = message.Value;
+        _messenger = messenger;
+        _fanService = fanService;
+        _ruleService = ruleService;
+
+        _messenger.Register<FanProfilesChangedMessage>(this, FanProfilesChangedMessageHandler);
+        _messenger.Register<RulesChangedMessage>(this, RulesChangedMessageHandler);
+
+        Profiles = new(_fanService.Profiles);
+
+        foreach (var m in _ruleService.Rules)
+        {
+            var vm = new RuleViewModel(m);
+            ViewModels.Add(vm);
+            Views.Add(new RuleView(vm));
+        }
+
+        _defaultProfile = _fanService.GetProfile(_ruleService.DefaultProfileId);
+    }
+
+    private void FanProfilesChangedMessageHandler(object recipient, FanProfilesChangedMessage message)
+    {
+        var removed = message.OldValue.Except(message.NewValue);
+        foreach (var p in removed)
+        {
+            Profiles.Remove(p);
+        }
+
+        var added = message.NewValue.Except(message.OldValue);
+        foreach (var p in added)
+        {
+            Profiles.Add(p);
+        }
+
+        if (DefaultProfile == null || removed.Contains(DefaultProfile))
+        {
+            DefaultProfile = _fanService.CurrentProfile;
+            _ruleService.DefaultProfileId = DefaultProfile!.Id;
+        }
     }
 
     private void RulesChangedMessageHandler(object recipient, RulesChangedMessage message)
     {
-        var diff = message.NewValue.Count() - message.OldValue.Count();
-        if (diff > 0)
+        var removed = message.OldValue.Except(message.NewValue);
+        foreach (var model in removed.ToList())
         {
-            var added = message.NewValue.Except(message.OldValue).ToList();
-            foreach (var model in added)
+            var vm = ViewModels.FirstOrDefault(vm => vm?.Model == model, null);
+            if (vm != null)
             {
-                Models.Add(model);
+                ViewModels.Remove(vm);
+            }
 
-                var vm = new RuleViewModel(model);
-                ViewModels.Add(vm);
-                Views.Add(new RuleView(vm));
+            var v = Views.FirstOrDefault(v => (v?.ViewModel)?.Model == model, null);
+            if (v != null)
+            {
+                Views.Remove(v);
             }
         }
-        else if (diff < 0)
+
+        var added = message.NewValue.Except(message.OldValue);
+        foreach (var model in added)
         {
-            var removed = message.OldValue.Except(message.NewValue).ToList();
-            foreach (var model in removed.ToList())
-            {
-                Models.Remove(model);
-
-                var vm = ViewModels.FirstOrDefault(vm => vm?.Model == model, null);
-                if (vm != null)
-                {
-                    ViewModels.Remove(vm);
-                }
-
-                var v = Views.FirstOrDefault(v => (v?.ViewModel)?.Model == model, null);
-                if (v != null)
-                {
-                    Views.Remove(v);
-                }
-            }
+            var vm = new RuleViewModel(model);
+            ViewModels.Add(vm);
+            Views.Add(new RuleView(vm));
         }
-        else
+
+        if (!removed.Any() && !added.Any()) // priority changed
         {
+            var models = ViewModels.Select(vm => vm.Model).ToList();
             for (var i = 0; i < message.NewValue.Count(); ++i)
             {
-                var j = Models.IndexOf(message.NewValue.ElementAt(i));
+                var j = models.IndexOf(message.NewValue.ElementAt(i));
                 if (j != -1 && i != j)
                 {
-                    var model = Models[i];
-                    Models.RemoveAt(i);
-                    Models.Insert(j, model);
+                    var model = models[i];
+                    models.RemoveAt(i);
+                    models.Insert(j, model);
 
                     var vm = ViewModels[i];
                     ViewModels.RemoveAt(i);
@@ -142,15 +128,14 @@ public partial class RulesViewModel : ObservableRecipient
                     var view = Views[i];
                     Views.RemoveAt(i);
                     Views.Insert(j, view);
-
                     break;
                 }
             }
         }
 
-        foreach (var view in Views)
+        foreach (var vm in ViewModels)
         {
-            view.ViewModel.UpdateArrows();
+            vm.UpdatePriorityButtons();
         }
     }
 
@@ -159,8 +144,8 @@ public partial class RulesViewModel : ObservableRecipient
     {
         _ruleService.AddRule(new()
         {
-            Name = "Rule_NewRuleName".GetLocalized(),
-            ProfileId = _fanService.CurrentProfileId,
+            Name = "Rules_NewRuleName".GetLocalized(),
+            ProfileId = _fanService.ManualProfileId,
             Type = RuleType.All
         });
     }

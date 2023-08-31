@@ -1,7 +1,14 @@
+using Anemos.Contracts.Services;
+using Anemos.Helpers;
 using Anemos.ViewModels;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
+using ScottPlot;
+using ScottPlot.Control;
+using ScottPlot.Plottables;
+using SkiaSharp;
 using Windows.Globalization.NumberFormatting;
 
 namespace Anemos.Views;
@@ -9,68 +16,75 @@ namespace Anemos.Views;
 public sealed partial class LatchCurveEditorDialog : ContentDialog
 {
     private readonly IMessenger _messenger = App.GetService<IMessenger>();
+    private readonly ISettingsService _settingsService = App.GetService<ISettingsService>();
 
     public LatchCurveEditorViewModel ViewModel
     {
         get;
     }
 
-    public LatchCurveEditorDialog()
-    {
-        ViewModel = App.GetService<LatchCurveEditorViewModel>();
-        ViewModel.PropertyChanged += ViewModel_PropertyChanged;
-        App.MainWindow.SizeChanged += MainWindow_SizeChanged;
-        Loaded += CurveEditorDialog_Loaded;
-        Closing += CurveEditorDialog_Closing;
-        InitializeComponent();
+    private Plot Plot1 => WinUIPlot1.Plot;
+    private readonly Scatter OutputLow;
+    private readonly Scatter OutputHigh;
+    private readonly ArrowCoordinated ArrowLow;
+    private readonly ArrowCoordinated ArrowHigh;
 
-        Plot.SizeChanged += Plot_SizeChanged;
+    private readonly Color LineColor = Color.FromARGB((uint)System.Drawing.Color.CornflowerBlue.ToArgb());
+    private readonly Color AxisColor = Color.FromARGB((uint)System.Drawing.Color.DarkGray.ToArgb());
+    private readonly Color BackgroundColor = Color.FromARGB((uint)System.Drawing.Color.Black.ToArgb());
+    private readonly Color GridColor = Color.FromHex("404040");
+
+    public LatchCurveEditorDialog(double thresholdLow, double outputLow, double thresholdHigh, double outputHigh)
+    {
+        ViewModel = new()
+        {
+            TemperatureThresholdLow = thresholdLow,
+            TemperatureThresholdHigh = thresholdHigh,
+            OutputLowTemperature = outputLow,
+            OutputHighTemperature = outputHigh
+        };
+        ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+
+        InitializeComponent();
+        Loaded += LatchCurveEditorDialog_Loaded;
+        Unloaded += LatchCurveEditorDialog_Unloaded;
+        PrimaryButtonClick += LatchCurveEditorDialog_PrimaryButtonClick;
+        App.MainWindow.PositionChanged += MainWindow_PositionChanged;
+        App.MainWindow.SizeChanged += MainWindow_SizeChanged;
 
         SetNumberFormatter();
+
+        WinUIPlot1.Interaction.Actions = PlotActions.NonInteractive();
+
+        Plot1.XAxis.Min = _settingsService.Settings.CurveMinTemp;
+        Plot1.XAxis.Max = _settingsService.Settings.CurveMaxTemp;
+        Plot1.YAxis.Min = 0;
+        Plot1.YAxis.Max = 100;
+        Plot1.XAxis.Label.Text = "CurveEditor_Plot_X_Label".GetLocalized();
+        Plot1.YAxis.Label.Text = "CurveEditor_Plot_Y_Label".GetLocalized();
+        Plot1.XAxis.Label.Font.Name = SKFontManager.Default.MatchCharacter('℃').FamilyName;
+        Plot1.Style.ColorAxes(AxisColor);
+        Plot1.Style.ColorGrids(GridColor);
+        Plot1.DataBackground = Plot1.FigureBackground = BackgroundColor;
+        Plot1.ScaleFactor = (float)App.MainWindow.DisplayScale;
+
+        OutputLow = Plot1.Add.Scatter(ViewModel.LineDataLowTempX, ViewModel.LineDataLowTempY, LineColor);
+        OutputHigh = Plot1.Add.Scatter(ViewModel.LineDataHighTempX, ViewModel.LineDataHighTempY, LineColor);
+        ArrowLow = new(ViewModel.ArrowLowCoordinates);
+        ArrowHigh = new(ViewModel.ArrowHighCoordinates);
+        Plot1.Add.Plottable(ArrowLow);
+        Plot1.Add.Plottable(ArrowHigh);
+
+        OutputLow.LineStyle.Width = OutputHigh.LineStyle.Width = ArrowLow.LineStyle.Width = ArrowHigh.LineStyle.Width = 2;
+        OutputLow.MarkerStyle.IsVisible = OutputHigh.MarkerStyle.IsVisible = false;
+        ArrowLow.LineStyle.Color = ArrowHigh.LineStyle.Color = LineColor;
+
+        WinUIPlot1.Refresh();
     }
 
     private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (IsLoaded)
-        {
-            SetArrowLength();
-            ViewModel.Plot.InvalidatePlot(true);
-        }
-    }
-
-    private void MainWindow_SizeChanged(object sender, WindowSizeChangedEventArgs args)
-    {
-        if (Visibility == Visibility.Visible)
-        {
-            SetPageSize(args.Size.Width, args.Size.Height);
-        }
-    }
-
-    private async void Plot_SizeChanged(object sender, SizeChangedEventArgs e)
-    {
-        await Task.Delay(100);
-        SetArrowLength();
-        ViewModel.Plot.InvalidatePlot(false);
-    }
-
-    private void CurveEditorDialog_Loaded(object sender, RoutedEventArgs e)
-    {
-        SetPageSize(App.MainWindow.Width, App.MainWindow.Height);
-    }
-
-    private void SetPageSize(double windowWidth, double windowHeight)
-    {
-        Page.Width = Math.Min(1000, windowWidth - 200);
-        Page.Height = Math.Min(1000, windowHeight - 300);
-    }
-
-    private void CurveEditorDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
-    {
-        _messenger.Send(new LatchCurveEditorResultMessage(new(
-            ViewModel.TemperatureThresholdLow,
-            ViewModel.TemperatureThresholdHigh,
-            ViewModel.OutputLowTemperature,
-            ViewModel.OutputHighTemperature)));
+        WinUIPlot1.Refresh();
     }
 
     private void SetNumberFormatter()
@@ -86,16 +100,75 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
             FractionDigits = 1,
             NumberRounder = rounder
         };
-        NumberBoxOutputLow.NumberFormatter = NumberBoxOutputHigh.NumberFormatter
-            = NumberBoxThresholdLow.NumberFormatter = NumberBoxThresholdHigh.NumberFormatter = formatter;
+
+        NB_X_Low.NumberFormatter = NB_X_High.NumberFormatter = NB_Y_Low.NumberFormatter = NB_Y_High.NumberFormatter = formatter;
     }
 
-    private void SetArrowLength()
+    private void LatchCurveEditorDialog_Loaded(object sender, RoutedEventArgs e)
     {
-        var p1 = ViewModel.ArrowThresholdLow.Transform(ViewModel.ArrowThresholdLow.StartPoint);
-        var p2 = ViewModel.ArrowThresholdLow.Transform(ViewModel.ArrowThresholdLow.EndPoint);
-        var diff = Math.Abs((p1 - p2).Y);
-        var len = Math.Min(10, Math.Max(0, (diff - 2) / ViewModel.ArrowThresholdLow.StrokeThickness));
-        ViewModel.ArrowThresholdLow.HeadLength = ViewModel.ArrowThresholdHigh.HeadLength = len;
+        Loaded -= LatchCurveEditorDialog_Loaded;
+        SetDialogSize();
+    }
+
+    private void LatchCurveEditorDialog_Unloaded(object sender, RoutedEventArgs e)
+    {
+        Unloaded -= LatchCurveEditorDialog_Unloaded;
+        PrimaryButtonClick -= LatchCurveEditorDialog_PrimaryButtonClick;
+        App.MainWindow.PositionChanged -= MainWindow_PositionChanged;
+        App.MainWindow.SizeChanged -= MainWindow_SizeChanged;
+
+        Bindings.StopTracking();
+    }
+
+    private void LatchCurveEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    {
+        App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
+        {
+            while (IsLoaded)
+            {
+                await Task.Delay(100);
+            }
+
+            _messenger.Send<LatchCurveChangedMessage>(new(new(
+                ViewModel.TemperatureThresholdLow,
+                ViewModel.OutputLowTemperature,
+                ViewModel.TemperatureThresholdHigh,
+                ViewModel.OutputHighTemperature)));
+        });
+    }
+
+    private void MainWindow_PositionChanged(object? sender, Windows.Graphics.PointInt32 e)
+    {
+        var scale = (float)App.MainWindow.DisplayScale;
+        if (Plot1.ScaleFactor != scale)
+        {
+            Plot1.ScaleFactor = scale;
+            WinUIPlot1.Refresh();
+        }
+    }
+
+    private void MainWindow_SizeChanged(object sender, WindowSizeChangedEventArgs args)
+    {
+        SetDialogSize();
+    }
+
+    private void SetDialogSize()
+    {
+        DialogContent.Width = Math.Min(1000, App.MainWindow.Width - 200);
+        DialogContent.Height = Math.Min(1000, App.MainWindow.Height - 250);
+    }
+
+    private void PreviewKeyDown_(object sender, KeyRoutedEventArgs e)
+    {
+        if (e.Key == Windows.System.VirtualKey.Enter)
+        {
+            e.Handled = true;
+
+            if (sender is NumberBox nb)
+            {
+                var be = nb.GetBindingExpression(NumberBox.ValueProperty);
+                be?.UpdateSource();
+            }
+        }
     }
 }

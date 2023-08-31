@@ -13,18 +13,18 @@ public class NormalFanModel : FanModelBase
             case FanControlModes.Device:
                 break;
             case FanControlModes.Constant:
-                if (Value != ConstantSpeed)
+                if (TargetValue != ConstantSpeed)
                 {
-                    Value = ConstantSpeed;
+                    TargetValue = ConstantSpeed;
                     Write(ConstantSpeed);
                 }
                 break;
             case FanControlModes.Curve:
                 var v = CalcTarget();
-                if (v != Value)
+                if (v != TargetValue)
                 {
-                    Value = v;
-                    Write(Value);
+                    TargetValue = v;
+                    Write(TargetValue);
                 }
                 break;
         }

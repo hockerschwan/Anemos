@@ -3,112 +3,50 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:local="using:Anemos.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d">
-	<Grid
-		ColumnSpacing="10"
-		RowSpacing="10">
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="Auto" />
-			<ColumnDefinition Width="160" />
-		</Grid.ColumnDefinitions>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-		</Grid.RowDefinitions>
-
-		<TextBlock
-			x:Uid="FanOptionsDialog_MaxSpeed"
-			Grid.Row="0"
-			Grid.Column="0"
-			VerticalAlignment="Center" />
+	<StackPanel Spacing="8">
 		<NumberBox
-			x:Name="MaxSpeed"
-			Grid.Row="0"
-			Grid.Column="1"
-			LargeChange="10"
+			x:Name="NB_Min"
+			x:Uid="FanOptions_Min"
 			Maximum="100"
 			Minimum="0"
-			SmallChange="1"
-			SpinButtonPlacementMode="Inline"
-			Value="{x:Bind ViewModel.MaxSpeed, Mode=TwoWay}" />
+			SpinButtonPlacementMode="Inline" />
 
-		<TextBlock
-			x:Uid="FanOptionsDialog_MinSpeed"
-			Grid.Row="1"
-			Grid.Column="0"
-			VerticalAlignment="Center" />
 		<NumberBox
-			x:Name="MinSpeed"
-			Grid.Row="1"
-			Grid.Column="1"
-			LargeChange="10"
+			x:Name="NB_Max"
+			x:Uid="FanOptions_Max"
 			Maximum="100"
 			Minimum="0"
-			SmallChange="1"
-			SpinButtonPlacementMode="Inline"
-			Value="{x:Bind ViewModel.MinSpeed, Mode=TwoWay}" />
+			SpinButtonPlacementMode="Inline" />
 
-		<StackPanel
-			Grid.Row="2"
-			Grid.Column="0"
-			VerticalAlignment="Center"
-			Orientation="Horizontal">
-			<ToolTipService.ToolTip>
-				<ToolTip x:Uid="FanOptionsDialog_DeltaLimitHelp" />
-			</ToolTipService.ToolTip>
-			<TextBlock
-				x:Uid="FanOptionsDialog_DeltaLimitUp"
-				Text="Speed Change Up [%]" />
-			<FontIcon
-				Margin="5,0,0,0"
-				VerticalAlignment="Bottom"
-				Glyph="&#xE946;" />
-		</StackPanel>
 		<NumberBox
-			x:Name="DeltaLimitUp"
-			Grid.Row="2"
-			Grid.Column="1"
-			LargeChange="10"
+			x:Name="NB_DeltaUp"
+			x:Uid="FanOptions_DeltaUp"
 			Maximum="100"
 			Minimum="0"
-			SmallChange="1"
-			SpinButtonPlacementMode="Inline"
-			Value="{x:Bind ViewModel.DeltaLimitUp, Mode=TwoWay}" />
+			SpinButtonPlacementMode="Inline" />
 
-		<TextBlock
-			x:Uid="FanOptionsDialog_DeltaLimitDown"
-			Grid.Row="3"
-			Grid.Column="0"
-			VerticalAlignment="Center" />
 		<NumberBox
-			x:Name="DeltaLimitDown"
-			Grid.Row="3"
-			Grid.Column="1"
-			LargeChange="10"
+			x:Name="NB_DeltaDown"
+			x:Uid="FanOptions_DeltaDown"
 			Maximum="100"
 			Minimum="0"
-			SmallChange="1"
-			SpinButtonPlacementMode="Inline"
-			Value="{x:Bind ViewModel.DeltaLimitDown, Mode=TwoWay}" />
+			SpinButtonPlacementMode="Inline" />
 
-		<TextBlock
-			x:Uid="FanOptionsDialog_RefractoryPeriodCyclesDown"
-			Grid.Row="4"
-			Grid.Column="0"
-			VerticalAlignment="Center" />
 		<NumberBox
-			x:Name="RefractoryPeriodCyclesDown"
-			Grid.Row="4"
-			Grid.Column="1"
-			LargeChange="10"
+			x:Name="NB_HoldCycleDown"
+			x:Uid="FanOptions_HoldCycleDown"
 			Maximum="3600"
 			Minimum="0"
-			SmallChange="1"
-			SpinButtonPlacementMode="Inline"
-			Value="{x:Bind ViewModel.RefractoryPeriodCyclesDown, Mode=TwoWay}" />
-	</Grid>
+			SpinButtonPlacementMode="Inline" />
+
+		<NumberBox
+			x:Name="NB_Offset"
+			x:Uid="FanOptions_Offset"
+			Maximum="100"
+			Minimum="-100"
+			SpinButtonPlacementMode="Inline" />
+	</StackPanel>
 </ContentDialog>

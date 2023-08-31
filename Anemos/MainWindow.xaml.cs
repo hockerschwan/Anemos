@@ -1,12 +1,9 @@
-﻿using System.Timers;
-using Anemos.Contracts.Services;
+﻿using Anemos.Contracts.Services;
 using Anemos.Helpers;
 using Anemos.Models;
 using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.WinUI.Helpers;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Media;
-using Vanara.PInvoke;
+using Windows.System;
+using Windows.UI.ViewManagement;
 
 namespace Anemos;
 
@@ -16,52 +13,35 @@ public sealed partial class MainWindow : WindowEx
 
     private readonly ISettingsService _settingsService = App.GetService<ISettingsService>();
 
-    private readonly Settings_Window _windowSettings;
+    private WindowSettings WindowSettings => _settingsService.Settings.Window;
 
-    private readonly System.Timers.Timer _timer = new(250);
+    private readonly System.Timers.Timer _timer = new(250) { AutoReset = false };
 
-    public bool IsMaximized
-    {
-        get
-        {
-            User32.WINDOWPLACEMENT placement = new();
-            if (User32.GetWindowPlacement(this.GetWindowHandle(), ref placement))
-            {
-                return placement.showCmd == ShowWindowCommand.SW_SHOWMAXIMIZED;
-            }
-            throw new Exception("User32.GetWindowPlacement failed.");
-        }
-    }
+    private readonly Microsoft.UI.Dispatching.DispatcherQueue dispatcherQueue;
 
-    public bool IsMinimized
-    {
-        get
-        {
-            User32.WINDOWPLACEMENT placement = new();
-            if (User32.GetWindowPlacement(this.GetWindowHandle(), ref placement))
-            {
-                return placement.showCmd == ShowWindowCommand.SW_SHOWMINIMIZED;
-            }
-            throw new Exception("User32.GetWindowPlacement failed.");
-        }
-    }
+    private readonly UISettings settings;
 
-    private readonly SolidColorBrush NavigationBackgroundColor = new();
-    private readonly SolidColorBrush CommandBarBackgroundColor = new();
+    public bool IsMaximized => RuntimeHelper.IsMaximized(this);
+
+    public bool IsMinimized => RuntimeHelper.IsMinimized(this);
 
     public MainWindow()
     {
-        _windowSettings = _settingsService.Settings.Window;
-
         InitializeComponent();
+        Closed += MainWindow_Closed;
 
-        var hicon = User32.LoadIcon(Kernel32.GetModuleHandle(), Macros.MAKEINTRESOURCE(32512)).DangerousGetHandle();
-        AppWindow.SetIcon(Microsoft.UI.Win32Interop.GetIconIdFromIcon(hicon));
+        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets/WindowIcon.ico"));
         Content = null;
         Title = "AppDisplayName".GetLocalized();
 
-        this.MoveAndResize(_windowSettings.X, _windowSettings.Y, _windowSettings.Width, _windowSettings.Height);
-        if (_windowSettings.Maximized)
+        // Theme change code picked from https://github.com/microsoft/WinUI-Gallery/pull/1239
+        dispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
+        settings = new UISettings();
+        settings.ColorValuesChanged += Settings_ColorValuesChanged; // cannot use FrameworkElement.ActualThemeChanged event
+
+        this.MoveAndResize(WindowSettings.X, WindowSettings.Y, WindowSettings.Width, WindowSettings.Height);
+        DisplayScale = RuntimeHelper.GetDpiForWindow(this) / 96.0;
+        if (WindowSettings.Maximized)
         {
             this.Maximize();
             if (_settingsService.Settings.StartMinimized)
@@ -70,119 +50,91 @@ public sealed partial class MainWindow : WindowEx
             }
         }
 
-        Closed += MainWindow_Closed;
-        SizeChanged += MainWindow_SizeChanged;
         PositionChanged += MainWindow_PositionChanged;
-
-        _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
-
-        SetPrimaryNavColor();
-        SetSecondaryNavColor();
-
-        _timer.AutoReset = false;
+        SizeChanged += MainWindow_SizeChanged;
         _timer.Elapsed += Timer_Elapsed;
     }
 
-    private void MainWindow_Closed(object sender, WindowEventArgs args)
+    public double DisplayScale
     {
-        if (!App.HasShutdownRequested)
+        get; private set;
+    }
+
+    private bool IsWindowIdenticalToSettings(Helpers.PInvoke.RECT rect)
+    {
+        return IsMaximized == WindowSettings.Maximized &&
+               rect.Left == WindowSettings.X &&
+               rect.Top == WindowSettings.Y &&
+               Width == WindowSettings.Width &&
+               Height == WindowSettings.Height;
+    }
+
+    private void MainWindow_Closed(object sender, Microsoft.UI.Xaml.WindowEventArgs args)
+    {
+        if (!App.HasShutdownStarted)
         {
             this.Hide();
-            _messenger.Send(new WindowVisibilityChangedMessage(false));
+            _messenger.Send<WindowVisibilityChangedMessage>(new(false));
             args.Handled = true;
         }
     }
 
+    private void MainWindow_SizeChanged(object sender, Microsoft.UI.Xaml.WindowSizeChangedEventArgs args)
+    {
+        _timer.Stop();
+        _timer.Start();
+    }
+
     private void MainWindow_PositionChanged(object? sender, Windows.Graphics.PointInt32 e)
     {
+        DisplayScale = RuntimeHelper.GetDpiForWindow(this) / 96.0;
+
         _timer.Stop();
         _timer.Start();
-    }
-
-    private void MainWindow_SizeChanged(object sender, WindowSizeChangedEventArgs args)
-    {
-        _timer.Stop();
-        _timer.Start();
-    }
-
-    private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
-    {
-        OnPositionAndSizeChanged();
     }
 
     private void OnPositionAndSizeChanged()
     {
-        DispatcherQueue.TryEnqueue(() =>
+        if (IsMinimized)
         {
-            if (IsMinimized)
-            {
-                _messenger.Send(new WindowVisibilityChangedMessage(false));
-                return;
-            }
-
-            _messenger.Send(new WindowVisibilityChangedMessage(true));
-
-            if (IsMaximized)
-            {
-                if (_windowSettings.Maximized) { return; }
-
-                _windowSettings.Maximized = true;
-            }
-            else
-            {
-                User32.GetWindowRect(this.GetWindowHandle(), out var rect);
-
-                if (IsWindowIdenticalToSettings(rect)) { return; }
-
-                var dpi = GetDisplayScale();
-
-                _windowSettings.Maximized = false;
-                _windowSettings.X = rect.left;
-                _windowSettings.Y = rect.top;
-                _windowSettings.Width = (int)((rect.right - rect.left) / dpi);
-                _windowSettings.Height = (int)((rect.bottom - rect.top) / dpi);
-            }
-
-            _settingsService.Save();
-        });
-    }
-
-    private bool IsWindowIdenticalToSettings(RECT rect)
-    {
-        return IsMaximized == _windowSettings.Maximized &&
-               rect.left == _windowSettings.X &&
-               rect.top == _windowSettings.Y &&
-               Width == _windowSettings.Width &&
-               Height == _windowSettings.Height;
-    }
-
-    private double GetDisplayScale()
-    {
-        var dpi = User32.GetDpiForWindow(this.GetWindowHandle());
-        return dpi / 96.0;
-    }
-
-    private void Settings_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(_settingsService.Settings.NavigationBackgroundColor))
-        {
-            SetPrimaryNavColor();
+            _messenger.Send(new WindowVisibilityChangedMessage(false));
+            return;
         }
-        else if (e.PropertyName == nameof(_settingsService.Settings.CommandBarBackgroundColor))
+
+        _messenger.Send(new WindowVisibilityChangedMessage(true));
+
+        if (IsMaximized)
         {
-            SetSecondaryNavColor();
+            if (WindowSettings.Maximized) { return; }
+
+            WindowSettings.Maximized = true;
         }
+        else
+        {
+            var rect = RuntimeHelper.GetWindowRect(this);
+
+            if (IsWindowIdenticalToSettings(rect)) { return; }
+
+            WindowSettings.Maximized = false;
+            WindowSettings.X = rect.Left;
+            WindowSettings.Y = rect.Top;
+            WindowSettings.Width = (int)((rect.Right - rect.Left) / DisplayScale);
+            WindowSettings.Height = (int)((rect.Bottom - rect.Top) / DisplayScale);
+        }
+
+        _settingsService.Save();
     }
 
-    private void SetPrimaryNavColor()
+    // this handles updating the caption button colors correctly when indows system theme is changed
+    // while the app is open
+    private void Settings_ColorValuesChanged(UISettings sender, object args)
     {
-        NavigationBackgroundColor.Color = ColorHelper.ToColor(_settingsService.Settings.NavigationBackgroundColor);
-        App.Current.Resources["NavigationViewTopPaneBackground"] = NavigationBackgroundColor;
+        // This calls comes off-thread, hence we will need to dispatch it to current app's thread
+        dispatcherQueue.TryEnqueue(TitleBarHelper.ApplySystemThemeToCaptionButtons);
     }
 
-    private void SetSecondaryNavColor()
+    private void Timer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
     {
-        CommandBarBackgroundColor.Color = ColorHelper.ToColor(_settingsService.Settings.CommandBarBackgroundColor);
-        App.Current.Resources["CommandBarBackground"] = CommandBarBackgroundColor;
+        DispatcherQueue.TryEnqueue(OnPositionAndSizeChanged);
     }
 }

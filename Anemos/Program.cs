@@ -1,18 +1,15 @@
-﻿using System.Diagnostics;
-using Microsoft.UI.Dispatching;
+﻿using Microsoft.UI.Dispatching;
+using PlainlyIpc.IPC;
 using Serilog;
-using ZetaIpc.Runtime.Client;
-using ZetaIpc.Runtime.Server;
 
 namespace Anemos;
 
-public class Program
+public static class Program
 {
     private const string Id = "2474C51B-9ABB-4B5D-8909-7EAA97A9DE25";
-    private const int Port = 62183;
 
     [STAThread]
-    public static void Main(string[] args)
+    public static void Main()
     {
         Mutex mutex = new(false, Id);
         try
@@ -22,30 +19,23 @@ public class Program
                 GC.KeepAlive(mutex);
 
                 SetupLogger();
-
-                Log.Information("Program started.");
-
-                IpcServer receiver = new();
-                receiver.Start(Port);
-                receiver.ReceivedRequest += IpcMessageReceived;
+                Log.Information("[Program] START");
 
                 Microsoft.UI.Xaml.Application.Start((p) =>
                 {
                     var context = new DispatcherQueueSynchronizationContext(
                         DispatcherQueue.GetForCurrentThread());
                     SynchronizationContext.SetSynchronizationContext(context);
-                    _ = new App();
+                    _ = new App(Id);
                 });
 
-                receiver.Stop();
-
-                Log.Information("Program finished.");
+                Log.Information("[Program] END");
             }
-            else
+            else // already running
             {
-                IpcClient sender = new();
-                sender.Initialize(Port);
-                sender.Send("ACTIVATE");
+                var ipcFactory = new IpcFactory();
+                var client = ipcFactory.CreateNamedPipeIpcClient(Id).Result;
+                client.ExecuteRemote<Contracts.Services.IIpcService>(x => x.ShowWindow());
             }
         }
         catch (Exception ex)
@@ -57,15 +47,6 @@ public class Program
             Log.CloseAndFlush();
             mutex.Close();
         }
-    }
-
-    private static void IpcMessageReceived(object? sender, ReceivedRequestEventArgs e)
-    {
-        if (App.Current == null)
-        {
-            return;
-        }
-        App.OnIpcMessageReceived(e.Request);
     }
 
     private static void SetupLogger()
@@ -84,12 +65,10 @@ public class Program
         var template = "{Timestamp:HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}";
 
         var config = new LoggerConfiguration();
-        if (Debugger.IsAttached)
-        {
-            config.MinimumLevel.Debug();
-            config.WriteTo.Debug(
-                outputTemplate: template);
-        }
+#if DEBUG
+        config.MinimumLevel.Debug();
+        config.WriteTo.Debug(outputTemplate: template);
+#endif
 
         var fileName = $"log{DateTime.Now:yyyyMMdd-HHmmss}.txt";
 

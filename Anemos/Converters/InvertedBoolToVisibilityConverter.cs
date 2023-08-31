@@ -7,28 +7,9 @@ public class InvertedBoolToVisibilityConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object parameter, string language)
     {
-        if (parameter != null)
-        {
-            if ((bool)value!)
-            {
-                return Visibility.Visible;
-            }
-            return Visibility.Collapsed;
-        }
-
-        if ((bool)value!)
-        {
-            return Visibility.Collapsed;
-        }
-        return Visibility.Visible;
+        return (bool)value! ? Visibility.Collapsed : Visibility.Visible;
     }
 
     public object? ConvertBack(object value, Type targetType, object parameter, string language)
-    {
-        if (value is Visibility.Visible)
-        {
-            return false;
-        }
-        return true;
-    }
+        => throw new NotImplementedException();
 }

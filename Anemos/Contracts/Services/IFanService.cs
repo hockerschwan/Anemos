@@ -1,29 +1,32 @@
-﻿using System.Collections.ObjectModel;
-using ADLXWrapper;
-using Anemos.Models;
+﻿using Anemos.Models;
 
 namespace Anemos.Contracts.Services;
 
 public interface IFanService
 {
-    string CurrentProfileId
+    List<FanProfile> Profiles
+    {
+        get;
+    }
+
+    List<FanModelBase> Fans
+    {
+        get;
+    }
+
+    FanProfile? CurrentProfile
+    {
+        get;
+    }
+
+    string ManualProfileId
     {
         get; set;
     }
 
-    FanProfile CurrentProfile
+    string AutoProfileId
     {
-        get;
-    }
-
-    RangeObservableCollection<FanProfile> Profiles
-    {
-        get;
-    }
-
-    RangeObservableCollection<FanModelBase> Fans
-    {
-        get;
+        get; set;
     }
 
     bool UseRules
@@ -31,27 +34,17 @@ public interface IFanService
         get; set;
     }
 
-    string CurrentAutoProfileId
-    {
-        get;
-    }
-
-    ADLX? ADLX
-    {
-        get;
-    }
-
-    Task InitializeAsync();
-
-    void UpdateCurrentProfile();
-
-    FanProfile? GetProfile(string id);
+    void AddProfile(string? idCopyFrom);
 
     FanModelBase? GetFanModel(string id);
 
-    void AddProfile(string? idCopyFrom);
+    FanProfile? GetProfile(string id);
 
-    void DeleteProfile(string id);
+    Task LoadAsync();
+
+    void RemoveProfile(string id);
 
     void Save();
+
+    void UpdateCurrentProfile();
 }

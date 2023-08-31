@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>net7.0-windows10.0.22621.0</TargetFramework>
+		<SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+		<Platforms>x64</Platforms>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<Version>0.2.0.0</Version>
+		<AssemblyVersion>0.2.0.0</AssemblyVersion>
+		<FileVersion>0.2.0.0</FileVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="System.Drawing.Common" Version="7.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\NotifyIconLibCpp\bin\$(Platform)\$(Configuration)\NotifyIconLibCpp.dll" Link="NotifyIconLibCpp.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\NotifyIconLibCpp\NotifyIconLibCpp.vcxproj" />
+	</ItemGroup>
+
+	<!--<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+		<Exec Command="msbuild ../NotifyIconLibCpp/NotifyIconLibCpp.vcxproj /p:configuration=$(Configuration) /p:platform=$(Platform)" />
+	</Target>-->
+</Project>

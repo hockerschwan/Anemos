@@ -42,7 +42,8 @@ public class LatchCurveModel : CurveModelBase
 
     public override void Update()
     {
-        Value = CalcValue();
+        Input = SourceModel?.Value;
+        Output = CalcValue();
     }
 
     private double? CalcValue()

@@ -1,11 +1,10 @@
-﻿using System.Collections.ObjectModel;
-using Anemos.Models;
+﻿using Anemos.Models;
 
 namespace Anemos.Contracts.Services;
 
 public interface IRuleService
 {
-    RangeObservableCollection<RuleModel> Rules
+    List<RuleModel> Rules
     {
         get;
     }
@@ -20,24 +19,17 @@ public interface IRuleService
         get; set;
     }
 
-    FanProfile DefaultProfile
-    {
-        get;
-    }
-
-    Task InitializeAsync();
-
-    void Update();
-
     void AddRule(RuleArg arg);
 
-    void AddRules(IEnumerable<RuleArg> args, bool save);
+    void DecreasePriority(RuleModel rule);
+
+    void IncreasePriority(RuleModel rule);
+
+    Task LoadAsync();
 
     void RemoveRule(RuleModel rule);
 
     void Save();
 
-    void IncreasePriority(RuleModel rule);
-
-    void DecreasePriority(RuleModel rule);
+    void Update();
 }

@@ -1,8 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Diagnostics;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Anemos.Models;
 
-public class SensorModelBase : ObservableObject
+[DebuggerDisplay("{LongName}")]
+public abstract class SensorModelBase : ObservableObject
 {
     private protected string _id = string.Empty;
     public string Id => _id;

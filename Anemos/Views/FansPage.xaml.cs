@@ -1,5 +1,4 @@
-using Anemos.Contracts.Services;
-using Anemos.Helpers;
+﻿using Anemos.Helpers;
 using Anemos.Models;
 using Anemos.ViewModels;
 using CommunityToolkit.Mvvm.Messaging;
@@ -12,135 +11,90 @@ public sealed partial class FansPage : Page
 {
     private readonly IMessenger _messenger = App.GetService<IMessenger>();
 
-    private readonly IFanService _fanService = App.GetService<IFanService>();
-
-    private FanOptionsResult? _optionsResult;
-
-    private string _newName = string.Empty;
-
-    private bool _isDialogShown = false;
-
-    private bool _hasLoaded = false;
-
     public FansViewModel ViewModel
     {
         get;
     }
 
+    private bool _renameDialogOpended;
+
     public FansPage()
     {
-        _messenger.Register<OpenFanOptionsMessage>(this, OpenFanOptionsMessageHandler);
-        _messenger.Register<FanOptionsResultMessage>(this, FanOptionsResultMessageHandler);
-        _messenger.Register<OpenFanProfileNameEditorMessage>(this, OpenFanProfileNameEditorMessageHandler);
-        _messenger.Register<FanProfileNameEditorResultMessage>(this, FanProfileNameEditorResultMessageHandler);
+        _messenger.Register<FanProfileRenamedMessage>(this, FanProfileRenamedMessageHandler);
 
         ViewModel = App.GetService<FansViewModel>();
-        Loaded += FansPage_Loaded;
-        Unloaded += FansPage_Unloaded;
         InitializeComponent();
+
+        Loaded += FansPage_Loaded;
     }
 
-    private async void OpenFanOptionsMessageHandler(object recipient, OpenFanOptionsMessage message)
+    private void FanProfileRenamedMessageHandler(object recipient, FanProfileRenamedMessage message)
     {
-        if (_isDialogShown) { return; }
+        if (!_renameDialogOpended || ViewModel.SelectedProfile == null || message.Value == string.Empty) { return; }
 
-        var fanId = message.Value;
-        var model = _fanService.GetFanModel(fanId);
-        if (model == null) { return; }
-
-        ViewModel.OptionsDialog.ViewModel.SetId(fanId);
-
-        SetOptionsDialogStyle();
-
-        _isDialogShown = true;
-
-        var result = await ViewModel.OptionsDialog.ShowAsync();
-        if (result == ContentDialogResult.Primary && _optionsResult != null)
-        {
-            model.SetOptions(_optionsResult);
-        }
-
-        _optionsResult = null;
-        _isDialogShown = false;
-    }
-
-    private void FanOptionsResultMessageHandler(object recipient, FanOptionsResultMessage message)
-    {
-        _optionsResult = message.Value;
-    }
-
-    private async void OpenFanProfileNameEditorMessageHandler(object recipient, OpenFanProfileNameEditorMessage message)
-    {
-        if (_isDialogShown || ViewModel.SelectedProfile == null)
-        {
-            return;
-        }
-
-        ViewModel.ProfileNameEditorDialog.SetText(ViewModel.SelectedProfile.Name);
-
-        SetProfileNameEditorDialogStyle();
-
-        _isDialogShown = true;
-
-        var result = await ViewModel.ProfileNameEditorDialog.ShowAsync();
-        if (result == ContentDialogResult.Primary)
-        {
-            _fanService.CurrentProfile.Name = _newName;
-            _fanService.UpdateCurrentProfile();
-
-            App.GetService<INotifyIconService>().SetupMenu();
-        }
-
-        _newName = string.Empty;
-        _isDialogShown = false;
-    }
-
-    private void FanProfileNameEditorResultMessageHandler(object recipient, FanProfileNameEditorResultMessage message)
-    {
-        _newName = message.Value;
-    }
-
-    private void SetOptionsDialogStyle()
-    {
-        var dialog = ViewModel.OptionsDialog;
-        dialog.XamlRoot = XamlRoot;
-        dialog.Style = App.Current.Resources["DefaultContentDialogStyle"] as Style;
-        dialog.Title = "FanOptionsDialog_Title".GetLocalized();
-        dialog.PrimaryButtonText = "Dialog_OK".GetLocalized();
-        dialog.CloseButtonText = "Dialog_Cancel".GetLocalized();
-        dialog.DefaultButton = ContentDialogButton.Primary;
-    }
-
-    private void SetProfileNameEditorDialogStyle()
-    {
-        var dialog = ViewModel.ProfileNameEditorDialog;
-        dialog.XamlRoot = XamlRoot;
-        dialog.Style = App.Current.Resources["DefaultContentDialogStyle"] as Style;
-        dialog.Title = "FanProfileNameEditorDialog_Title".GetLocalized();
-        dialog.PrimaryButtonText = "Dialog_OK".GetLocalized();
-        dialog.CloseButtonText = "Dialog_Cancel".GetLocalized();
-        dialog.DefaultButton = ContentDialogButton.Primary;
+        _renameDialogOpended = false;
+        ViewModel.SelectedProfile.Name = message.Value;
     }
 
     private void FansPage_Loaded(object sender, RoutedEventArgs e)
     {
-        if (_hasLoaded)
-        {
-            ViewModel.IsVisible = true;
-        }
-        else
-        {
-            if (!App.GetService<ISettingsService>().Settings.StartMinimized)
-            {
-                ViewModel.IsVisible = true;
-            }
-
-            _hasLoaded = true;
-        }
+        Loaded -= FansPage_Loaded;
+        ViewModel.IsVisible = true;
     }
 
-    private void FansPage_Unloaded(object sender, RoutedEventArgs e)
+    public static async Task<bool> OpenDeleteDialog(string name)
     {
-        ViewModel.IsVisible = false;
+        var dialog = new ContentDialog()
+        {
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+            PrimaryButtonStyle = Application.Current.Resources["DangerButtonStyle_"] as Style,
+            Title = "Dialog_DeleteFanProfile_Title".GetLocalized(),
+            PrimaryButtonText = "Dialog_Delete".GetLocalized(),
+            IsSecondaryButtonEnabled = false,
+            CloseButtonText = "Dialog_Cancel".GetLocalized(),
+            Content = "Dialog_Delete_Content".GetLocalized().Replace("$", name),
+        };
+        return await App.GetService<ShellPage>().OpenDialog(dialog);
+    }
+
+    public static async Task<bool> OpenOptionsDialog(FanOptionsResult args)
+    {
+        var dialog = new FanOptionsDialog(args)
+        {
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+            PrimaryButtonStyle = Application.Current.Resources["AccentButtonStyle"] as Style,
+            Title = "FanOptions_Title".GetLocalized(),
+            PrimaryButtonText = "Dialog_OK".GetLocalized(),
+            IsSecondaryButtonEnabled = false,
+            CloseButtonText = "Dialog_Cancel".GetLocalized(),
+        };
+        return await App.GetService<ShellPage>().OpenDialog(dialog);
+    }
+
+    public static async Task<bool> OpenRenameDialog(string name)
+    {
+        var dialog = new FanProfileRenameDialog(name)
+        {
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+            PrimaryButtonStyle = Application.Current.Resources["AccentButtonStyle"] as Style,
+            Title = "FanProfileRename_Title".GetLocalized(),
+            PrimaryButtonText = "Dialog_OK".GetLocalized(),
+            IsSecondaryButtonEnabled = false,
+            CloseButtonText = "Dialog_Cancel".GetLocalized(),
+        };
+        return await App.GetService<ShellPage>().OpenDialog(dialog);
+    }
+
+    private async void ProfileRenameButton_Click(object sender, RoutedEventArgs e)
+    {
+        _renameDialogOpended = ViewModel.SelectedProfile != null && await OpenRenameDialog(ViewModel.SelectedProfile.Name);
+    }
+
+    private async void ProfileDeleteButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.SelectedProfile != null && await OpenDeleteDialog(ViewModel.SelectedProfile.Name))
+        {
+            ViewModel.RemoveProfile(ViewModel.SelectedProfile.Id);
+        }
     }
 }

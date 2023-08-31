@@ -1,5 +1,5 @@
-﻿using Anemos.Contracts.Services;
-using Anemos.Helpers;
+﻿using System.Diagnostics;
+using Anemos.Contracts.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Anemos.Models;
@@ -9,6 +9,7 @@ public enum CurveType
     Chart, Latch
 }
 
+[DebuggerDisplay("{Name}")]
 public class CurveArg
 {
     public CurveType Type;
@@ -17,7 +18,7 @@ public class CurveArg
     public string SourceId = string.Empty;
 
     // Chart
-    public IEnumerable<Point2>? Points;
+    public IEnumerable<Point2d>? Points;
 
     // Latch
     public double? OutputLowTemperature;
@@ -26,7 +27,8 @@ public class CurveArg
     public double? TemperatureThresholdHigh;
 }
 
-public class CurveModelBase : ObservableObject
+[DebuggerDisplay("{Name}")]
+public abstract class CurveModelBase : ObservableObject
 {
     private protected readonly ICurveService _curveService = App.GetService<ICurveService>();
     private protected readonly ISensorService _sensorService = App.GetService<ISensorService>();
@@ -71,11 +73,18 @@ public class CurveModelBase : ObservableObject
 
     public SensorModelBase? SourceModel => _sensorService.GetSensor(SourceId);
 
-    private protected double? _value;
-    public virtual double? Value
+    private protected double? _input;
+    public virtual double? Input
     {
-        get => _value;
-        set => SetProperty(ref _value, value);
+        get => _input;
+        set => SetProperty(ref _input, value);
+    }
+
+    private protected double? _output;
+    public virtual double? Output
+    {
+        get => _output;
+        set => SetProperty(ref _output, value);
     }
 
     public CurveModelBase(CurveArg args)
@@ -92,7 +101,5 @@ public class CurveModelBase : ObservableObject
         }
     }
 
-    public virtual void Update()
-    {
-    }
+    public abstract void Update();
 }

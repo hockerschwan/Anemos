@@ -1,8 +1,5 @@
-using Anemos.Contracts.Services;
 using Anemos.Helpers;
-using Anemos.Models;
 using Anemos.ViewModels;
-using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -10,160 +7,89 @@ namespace Anemos.Views;
 
 public sealed partial class RulesPage : Page
 {
-    private readonly IMessenger _messenger = App.GetService<IMessenger>();
-
-    private readonly IRuleService _ruleService = App.GetService<IRuleService>();
-
     public RulesViewModel ViewModel
     {
         get;
     }
 
-    private RuleConditionArg _result = new();
-
-    private bool _isDialogShown = false;
-
     public RulesPage()
     {
-        _messenger.Register<OpenRuleTimeEditorMessage>(this, OpenRuleTimeEditorMessageHandler);
-        _messenger.Register<OpenRuleProcessEditorMessage>(this, OpenRuleProcessEditorMessageHandler);
-        _messenger.Register<OpenRuleSensorEditorMessage>(this, OpenRuleSensorEditorMessageHandler);
-        _messenger.Register<RuleEditorResultMessage>(this, RuleEditorResultMessageHandler);
-
         ViewModel = App.GetService<RulesViewModel>();
-        Loaded += RulesPage_Loaded;
-        Unloaded += RulesPage_Unloaded;
         InitializeComponent();
+        Loaded += RulesPage_Loaded;
     }
 
     private void RulesPage_Loaded(object sender, RoutedEventArgs e)
     {
+        Loaded -= RulesPage_Loaded;
         ViewModel.IsVisible = true;
     }
 
-    private void RulesPage_Unloaded(object sender, RoutedEventArgs e)
+    public static async Task<bool> OpenDeleteDialog(string name)
     {
-        ViewModel.IsVisible = false;
-    }
-
-    private async void OpenRuleTimeEditorMessageHandler(object recipient, OpenRuleTimeEditorMessage message)
-    {
-        if (_isDialogShown) { return; }
-
-        var cond = message.Value;
-
-        var dialog = ViewModel.TimeEditorDialog;
-        dialog.SetTime(
-            new TimeSpan(cond.TimeBeginning.Hour, cond.TimeBeginning.Minute, 0),
-            new TimeSpan(cond.TimeEnding.Hour, cond.TimeEnding.Minute, 0));
-
-        SetDialogStyle(ViewModel.TimeEditorDialog);
-
-        _isDialogShown = true;
-
-        var result = await ViewModel.TimeEditorDialog.ShowAsync();
-        if (result == ContentDialogResult.Primary)
+        var dialog = new ContentDialog
         {
-            cond.SetBeginningTime((TimeOnly)_result.TimeBeginning!);
-            cond.SetEndingTime((TimeOnly)_result.TimeEnding!);
-
-            var model = ViewModel.Models.Single(m => m == cond.Parent);
-            model.Update();
-
-            _ruleService.Update();
-            _ruleService.Save();
-        }
-
-        _isDialogShown = false;
-        _result = new();
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+            PrimaryButtonStyle = Application.Current.Resources["DangerButtonStyle_"] as Style,
+            Title = "Dialog_DeleteRule_Title".GetLocalized(),
+            PrimaryButtonText = "Dialog_Delete".GetLocalized(),
+            IsSecondaryButtonEnabled = false,
+            CloseButtonText = "Dialog_Cancel".GetLocalized(),
+            Content = "Dialog_Delete_Content".GetLocalized().Replace("$", name),
+        };
+        return await App.GetService<ShellPage>().OpenDialog(dialog);
     }
 
-    private async void OpenRuleProcessEditorMessageHandler(object recipient, OpenRuleProcessEditorMessage message)
+    public static async Task<bool> OpenProcessEditor(
+        int index,
+        string processName,
+        int? memoryLow,
+        int? memoryHigh,
+        int type)
     {
-        if (_isDialogShown) { return; }
-
-        var cond = message.Value;
-        ViewModel.ProcessEditorDialog.Set(cond);
-
-        SetDialogStyle(ViewModel.ProcessEditorDialog);
-
-        _isDialogShown = true;
-
-        var result = await ViewModel.ProcessEditorDialog.ShowAsync();
-        if (result == ContentDialogResult.Primary)
+        var dialog = new RuleProcessEditorDialog(index, processName, memoryLow, memoryHigh, type)
         {
-            cond.ProcessName = _result.ProcessName!;
-            cond.MemoryType = _result.MemoryType ?? 0;
-            cond.MemoryLower = _result.MemoryLower;
-            cond.MemoryUpper = _result.MemoryUpper;
-
-            var model = ViewModel.Models.Single(m => m == cond.Parent);
-            model.Update();
-
-            _ruleService.Update();
-            _ruleService.Save();
-        }
-
-        _isDialogShown = false;
-        _result = new();
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+            PrimaryButtonStyle = Application.Current.Resources["AccentButtonStyle"] as Style,
+            Title = "RuleProcessEditor_Title".GetLocalized(),
+            PrimaryButtonText = "Dialog_OK".GetLocalized(),
+            IsSecondaryButtonEnabled = false,
+            CloseButtonText = "Dialog_Cancel".GetLocalized(),
+        };
+        return await App.GetService<ShellPage>().OpenDialog(dialog);
     }
 
-    private async void OpenRuleSensorEditorMessageHandler(object recipient, OpenRuleSensorEditorMessage message)
+    public static async Task<bool> OpenSensorEditor(
+        int index,
+        string id,
+        double? lower,
+        bool includeLower,
+        double? upper,
+        bool includeUpper)
     {
-        if (_isDialogShown) { return; }
-
-        var cond = message.Value;
-        ViewModel.SensorEditorDialog.ViewModel.SensorId = cond.SensorId ?? string.Empty;
-        ViewModel.SensorEditorDialog.ViewModel.LowerValue = cond.LowerValue ?? double.NaN;
-        ViewModel.SensorEditorDialog.ViewModel.UpperValue = cond.UpperValue ?? double.NaN;
-        ViewModel.SensorEditorDialog.ViewModel.IndexIncludeLower = cond.IncludeLower ? 1 : 0;
-        ViewModel.SensorEditorDialog.ViewModel.IndexIncludeUpper = cond.IncludeUpper ? 1 : 0;
-
-        SetDialogStyle(ViewModel.SensorEditorDialog);
-
-        _isDialogShown = true;
-
-        var result = await ViewModel.SensorEditorDialog.ShowAsync();
-        if (result == ContentDialogResult.Primary)
+        var dialog = new RuleSensorEditorDialog(index, id, lower, includeLower, upper, includeUpper)
         {
-            cond.SensorId = _result.SensorId!;
-            cond.LowerValue = _result.LowerValue;
-            cond.UpperValue = _result.UpperValue;
-            cond.IncludeLower = _result.IncludeLower!.Value;
-            cond.IncludeUpper = _result.IncludeUpper!.Value;
-
-            var model = ViewModel.Models.Single(m => m == cond.Parent);
-            model.Update();
-
-            _ruleService.Update();
-            _ruleService.Save();
-        }
-
-        _isDialogShown = false;
-        _result = new();
-        ViewModel.SensorEditorDialog.ViewModel.Reset();
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+            PrimaryButtonStyle = Application.Current.Resources["AccentButtonStyle"] as Style,
+            Title = "RuleSensorEditor_Title".GetLocalized(),
+            PrimaryButtonText = "Dialog_OK".GetLocalized(),
+            IsSecondaryButtonEnabled = false,
+            CloseButtonText = "Dialog_Cancel".GetLocalized(),
+        };
+        return await App.GetService<ShellPage>().OpenDialog(dialog);
     }
 
-    private void RuleEditorResultMessageHandler(object recipient, RuleEditorResultMessage message)
+    public static async Task<bool> OpenTimeEditor(int index, TimeOnly begin, TimeOnly end)
     {
-        _result = message.Value;
-    }
-
-    private void SetDialogStyle(ContentDialog dialog)
-    {
-        dialog.XamlRoot = XamlRoot;
-        dialog.Style = App.Current.Resources["DefaultContentDialogStyle"] as Style;
-        dialog.PrimaryButtonText = "Dialog_OK".GetLocalized();
-        dialog.CloseButtonText = "Dialog_Cancel".GetLocalized();
-        dialog.DefaultButton = ContentDialogButton.Primary;
-    }
-
-    private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        var cb = (ComboBox)sender;
-        if (cb.SelectedIndex == -1)
+        var dialog = new RuleTimeEditorDialog(index, begin, end)
         {
-            cb.SelectedIndex = ViewModel.Profiles.ToList().IndexOf(ViewModel.DefaultProfile!);
-        }
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+            PrimaryButtonStyle = Application.Current.Resources["AccentButtonStyle"] as Style,
+            Title = "RuleTimeEditor_Title".GetLocalized(),
+            PrimaryButtonText = "Dialog_OK".GetLocalized(),
+            IsSecondaryButtonEnabled = false,
+            CloseButtonText = "Dialog_Cancel".GetLocalized(),
+        };
+        return await App.GetService<ShellPage>().OpenDialog(dialog);
     }
 }

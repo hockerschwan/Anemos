@@ -1,0 +1,23 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<ResourceDictionary.ThemeDictionaries>
+		<ResourceDictionary x:Key="Dark">
+			<Color x:Key="SystemAccentColor">#1b61e4</Color>
+			<Color x:Key="SystemAccentColorLight1">#4881ea</Color>
+			<Color x:Key="SystemAccentColorLight2">#76a0ef</Color>
+			<Color x:Key="SystemAccentColorLight3">#a4c0f4</Color>
+			<Color x:Key="SystemAccentColorDark1">#154eb7</Color>
+			<Color x:Key="SystemAccentColorDark2">#103a89</Color>
+			<Color x:Key="SystemAccentColorDark3">#0b275b</Color>
+
+			<SolidColorBrush x:Key="SystemAccentColorBrush_" Color="{ThemeResource SystemAccentColor}" />
+			<SolidColorBrush x:Key="SystemAccentColorLight1Brush_" Color="{ThemeResource SystemAccentColorLight1}" />
+			<SolidColorBrush x:Key="SystemAccentColorLight2Brush_" Color="{ThemeResource SystemAccentColorLight2}" />
+			<SolidColorBrush x:Key="SystemAccentColorLight3Brush_" Color="{ThemeResource SystemAccentColorLight3}" />
+			<SolidColorBrush x:Key="SystemAccentColorDark1Brush_" Color="{ThemeResource SystemAccentColorDark1}" />
+			<SolidColorBrush x:Key="SystemAccentColorDark2Brush_" Color="{ThemeResource SystemAccentColorDark2}" />
+			<SolidColorBrush x:Key="SystemAccentColorDark3Brush_" Color="{ThemeResource SystemAccentColorDark3}" />
+
+			<SolidColorBrush x:Key="PlotOverlayBackgroundBrush_" Color="#c01a1a1a" />
+		</ResourceDictionary>
+	</ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

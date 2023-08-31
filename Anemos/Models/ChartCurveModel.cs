@@ -1,15 +1,18 @@
-﻿using Anemos.Helpers;
-
-namespace Anemos.Models;
+﻿namespace Anemos.Models;
 
 public class ChartCurveModel : CurveModelBase
 {
-    private IEnumerable<Point2> _points;
-    public IEnumerable<Point2> Points
+    private IEnumerable<Point2d> _points;
+    public IEnumerable<Point2d> Points
     {
         get => _points;
         set
         {
+            if (!Helpers.Point2dHelper.IsSorted(value))
+            {
+                value = Helpers.Point2dHelper.Sort(value);
+            }
+
             if (SetProperty(ref _points, value))
             {
                 _curveService.Save();
@@ -20,18 +23,17 @@ public class ChartCurveModel : CurveModelBase
 
     public ChartCurveModel(CurveArg args) : base(args)
     {
-        _points = args.Points!.OrderBy(p => p.X);
+        _points = Helpers.Point2dHelper.Sort(args.Points!);
     }
 
     public override void Update()
     {
-        Value = CalcValue();
+        Input = SourceModel?.Value;
+        Output = CalcValue();
     }
 
     private double? CalcValue()
     {
-        // assume points are sorted by X in ascending order
-
         if (SourceModel == null || SourceModel.Value == null || !Points.Any())
         {
             return null;

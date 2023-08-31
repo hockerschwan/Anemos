@@ -1,7 +1,7 @@
 ﻿using Anemos.Activation;
 using Anemos.Contracts.Services;
 using Anemos.Views;
-
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -11,29 +11,14 @@ public class ActivationService : IActivationService
 {
     private readonly ActivationHandler<LaunchActivatedEventArgs> _defaultHandler;
     private readonly IEnumerable<IActivationHandler> _activationHandlers;
-    private readonly ILhwmService _lhwmService;
-    private readonly ISensorService _sensorService;
-    private readonly ICurveService _curveService;
-    private readonly IFanService _fanService;
-    private readonly IRuleService _ruleService;
     private UIElement? _shell = null;
 
     public ActivationService(
         ActivationHandler<LaunchActivatedEventArgs> defaultHandler,
-        IEnumerable<IActivationHandler> activationHandlers,
-        ILhwmService lhwmService,
-        ISensorService sensorService,
-        ICurveService curveService,
-        IFanService fanService,
-        IRuleService ruleService)
+        IEnumerable<IActivationHandler> activationHandlers)
     {
         _defaultHandler = defaultHandler;
         _activationHandlers = activationHandlers;
-        _lhwmService = lhwmService;
-        _sensorService = sensorService;
-        _curveService = curveService;
-        _fanService = fanService;
-        _ruleService = ruleService;
     }
 
     public async Task ActivateAsync(object activationArgs)
@@ -53,6 +38,7 @@ public class ActivationService : IActivationService
 
         if (!App.GetService<ISettingsService>().Settings.StartMinimized)
         {
+            // Activate the MainWindow.
             App.MainWindow.Activate();
         }
 
@@ -77,17 +63,22 @@ public class ActivationService : IActivationService
 
     private async Task InitializeAsync()
     {
-        await _lhwmService.InitializeAsync();
-        await _sensorService.InitializeAsync();
-        await _curveService.InitializeAsync();
-        await _fanService.InitializeAsync();
-        await _ruleService.InitializeAsync();
-        await Task.CompletedTask;
+        _ = App.GetService<IIpcService>();
+        _ = App.GetService<ISettingsService>();
+        _ = App.GetService<INotifyIconService>();
+        await App.GetService<ISensorService>().LoadAsync();
+        await App.GetService<ICurveService>().LoadAsync();
+        await App.GetService<IFanService>().LoadAsync();
+        await App.GetService<IRuleService>().LoadAsync();
+
+        App.GetService<IMessenger>().Send<ServiceStartupMessage>(new(Type.Missing));
     }
 
     private async Task StartupAsync()
     {
-        App.GetService<INotifyIconService>().SetVisible(true);
+        App.GetService<ILhwmService>().Start();
+        App.GetService<IRuleService>().Update();
+        App.GetService<INotifyIconService>().SetVisibility(true);
 
         await Task.CompletedTask;
     }

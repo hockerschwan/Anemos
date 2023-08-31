@@ -66,7 +66,7 @@ public class NavigationViewService : INavigationViewService
 
             if (selectedItem?.GetValue(NavigationHelper.NavigateToProperty) is string pageKey)
             {
-                _navigationService.NavigateTo(pageKey, transitionInfo: args.RecommendedNavigationTransitionInfo);
+                _navigationService.NavigateTo(pageKey);
             }
         }
     }

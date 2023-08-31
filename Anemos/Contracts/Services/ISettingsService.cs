@@ -4,12 +4,15 @@ namespace Anemos.Contracts.Services;
 
 public interface ISettingsService
 {
-    SettingsModel Settings
+    string SettingsFolder
     {
         get;
     }
 
-    Task LoadAsync();
+    SettingsModel Settings
+    {
+        get;
+    }
 
     void Save(bool immediate = false);
 }

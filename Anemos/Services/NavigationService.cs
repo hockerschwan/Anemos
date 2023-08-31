@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-
 using Anemos.Contracts.Services;
 using Anemos.Contracts.ViewModels;
 using Anemos.Helpers;
-
+using Anemos.ViewModels;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
@@ -17,6 +16,10 @@ public class NavigationService : INavigationService
     private readonly IPageService _pageService;
     private object? _lastParameterUsed;
     private Frame? _frame;
+    private readonly NavigationTransitionInfo _transitionInfo = new SlideNavigationTransitionInfo()
+    {
+        Effect = SlideNavigationTransitionEffect.FromRight
+    };
 
     public event NavigatedEventHandler? Navigated;
 
@@ -82,11 +85,7 @@ public class NavigationService : INavigationService
         return false;
     }
 
-    public bool NavigateTo(
-        string pageKey,
-        object? parameter = null,
-        bool clearNavigation = false,
-        NavigationTransitionInfo? transitionInfo = null)
+    public bool NavigateTo(string pageKey, object? parameter = null, bool clearNavigation = false)
     {
         var pageType = _pageService.GetPageType(pageKey);
 
@@ -94,21 +93,17 @@ public class NavigationService : INavigationService
         {
             _frame.Tag = clearNavigation;
             var vmBeforeNavigation = _frame.GetPageViewModel();
-            bool navigated;
-            if (transitionInfo == null)
-            {
-                navigated = _frame.Navigate(pageType, parameter);
-            }
-            else
-            {
-                navigated = _frame.Navigate(pageType, parameter, transitionInfo);
-            }
+            var navigated = _frame.Navigate(pageType, parameter, _transitionInfo);
             if (navigated)
             {
                 _lastParameterUsed = parameter;
                 if (vmBeforeNavigation is INavigationAware navigationAware)
                 {
                     navigationAware.OnNavigatedFrom();
+                }
+                if (vmBeforeNavigation is PageViewModelBase pageVM)
+                {
+                    pageVM.IsVisible = false;
                 }
             }
 
@@ -128,9 +123,14 @@ public class NavigationService : INavigationService
                 frame.BackStack.Clear();
             }
 
-            if (frame.GetPageViewModel() is INavigationAware navigationAware)
+            var vm = frame.GetPageViewModel();
+            if (vm is INavigationAware navigationAware)
             {
                 navigationAware.OnNavigatedTo(e.Parameter);
+            }
+            if (vm is PageViewModelBase pageVM)
+            {
+                pageVM.IsVisible = true;
             }
 
             Navigated?.Invoke(sender, e);

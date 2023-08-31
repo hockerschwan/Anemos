@@ -1,4 +1,5 @@
 ﻿using Anemos.Contracts.Services;
+using Anemos.Helpers;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Anemos.Models;
@@ -18,6 +19,7 @@ public class SensorRuleCondition : RuleConditionBase
             if (SetProperty(ref _sensorId, value))
             {
                 OnPropertyChanged(nameof(Sensor));
+                OnPropertyChanged(nameof(Text));
             }
         }
     }
@@ -76,13 +78,34 @@ public class SensorRuleCondition : RuleConditionBase
         }
     }
 
+    private readonly System.Text.StringBuilder _stringBuilder = new();
+
     public override string Text
     {
         get
         {
-            var str1 = $"{(LowerValue != null ? $"{LowerValue}℃ {(IncludeLower ? "≤" : "<")} " : string.Empty)}";
-            var str2 = $"{(UpperValue != null ? $" {(IncludeUpper ? "≤" : "<")} {UpperValue}℃" : string.Empty)}";
-            return $"{str1}T{str2}{(Sensor != null ? $", {Sensor?.LongName}" : string.Empty)}";
+            _stringBuilder.Clear();
+
+            if (LowerValue != null)
+            {
+                _stringBuilder.Append("RuleSensor_ValueText".GetLocalized().Replace("$", LowerValue.ToString()));
+                _stringBuilder.Append(IncludeLower ? $" {"RuleSensorEditor_Signs_LEQ".GetLocalized()} " : $" {"RuleSensorEditor_Signs_LEQ".GetLocalized()} ");
+            }
+
+            _stringBuilder.Append("RuleSensor_T".GetLocalized());
+
+            if (UpperValue != null)
+            {
+                _stringBuilder.Append(IncludeUpper ? $" {"RuleSensorEditor_Signs_LEQ".GetLocalized()} " : $" {"RuleSensorEditor_Signs_LEQ".GetLocalized()} ");
+                _stringBuilder.Append("RuleSensor_ValueText".GetLocalized().Replace("$", UpperValue.ToString()));
+            }
+
+            if (Sensor != null)
+            {
+                _stringBuilder.Append($", {Sensor.LongName}");
+            }
+
+            return _stringBuilder.ToString();
         }
     }
 

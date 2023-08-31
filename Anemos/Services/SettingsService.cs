@@ -1,37 +1,38 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 using System.Timers;
 using Anemos.Contracts.Services;
 using Anemos.Models;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Serilog;
 
 namespace Anemos.Services;
 
-public partial class SettingsService : ObservableRecipient, ISettingsService
+public class SettingsService : ISettingsService
 {
+    private readonly IMessenger _messenger;
+
+    public string SettingsFolder => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), // AppData/Local
+        AppDomain.CurrentDomain.FriendlyName);
+
     private readonly string _path;
 
     public SettingsModel Settings { get; private set; } = new();
 
     private readonly System.Timers.Timer _timer = new(1000);
 
-    [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, WriteIndented = true)]
-    [JsonSerializable(typeof(SettingsModel))]
-    internal partial class SettingsModelSourceGenerationContext : JsonSerializerContext
+    public SettingsService(IMessenger messenger)
     {
-    }
-
-    private readonly JsonTypeInfo<SettingsModel> _typeInfo = SettingsModelSourceGenerationContext.Default.SettingsModel;
-
-    public SettingsService(string folder)
-    {
-        Messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
+        _messenger = messenger;
+        _messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
 
         var fileNotFound = false;
-        _path = Path.Combine(folder, "settings.json");
+        if (!Directory.Exists(SettingsFolder))
+        {
+            Directory.CreateDirectory(SettingsFolder);
+        }
+        _path = Path.Combine(SettingsFolder, "settings.json");
         if (!File.Exists(_path))
         {
             File.WriteAllText(_path, "{}");
@@ -42,20 +43,11 @@ public partial class SettingsService : ObservableRecipient, ISettingsService
         {
             SaveToFile().Wait();
         }
+
+        Load();
+
+        _messenger.Send<ServiceStartupMessage>(new(GetType()));
         Log.Information("[Settings] Started");
-    }
-
-    public async Task LoadAsync()
-    {
-        var jsonString = File.ReadAllText(_path);
-        Settings = JsonSerializer.Deserialize(jsonString, _typeInfo)!;
-        Settings.PropertyChanged += Settings_PropertyChanged;
-
-        await Task.CompletedTask;
-
-        _timer.AutoReset = false;
-        _timer.Elapsed += Timer_Elapsed;
-        Log.Information("[Settings] Loaded");
     }
 
     private async void AppExitMessageHandler(object recipient, AppExitMessage message)
@@ -64,17 +56,18 @@ public partial class SettingsService : ObservableRecipient, ISettingsService
         {
             await SaveToFile();
         }
-        Messenger.Send(new ServiceShutDownMessage(GetType().GetInterface("ISettingsService")!));
+        _messenger.Send<ServiceShutDownMessage>(new(GetType()));
     }
 
-    private void Settings_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    private void Load()
     {
-        _timer.Start();
-    }
+        var jsonString = File.ReadAllText(_path);
+        Settings = JsonSerializer.Deserialize<SettingsModel>(jsonString) ?? throw new Exception("Could not deserialize json");
+        Settings.PropertyChanged += Settings_PropertyChanged;
 
-    private async void Timer_Elapsed(object? sender, ElapsedEventArgs e)
-    {
-        await SaveToFile();
+        _timer.AutoReset = false;
+        _timer.Elapsed += Timer_Elapsed;
+        Log.Information("[Settings] Loaded");
     }
 
     public async void Save(bool immediate = false)
@@ -95,7 +88,12 @@ public partial class SettingsService : ObservableRecipient, ISettingsService
         _timer.Stop();
         try
         {
-            var jsonString = JsonSerializer.Serialize(Settings, _typeInfo);
+            var options = new JsonSerializerOptions
+            {
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                WriteIndented = true
+            };
+            var jsonString = JsonSerializer.Serialize(Settings, options: options) ?? throw new Exception("Could not serialize json");
             await File.WriteAllTextAsync(_path, jsonString).ConfigureAwait(false);
             Log.Debug("[Settings] Saved {path}", _path[(_path.LastIndexOf('\\') + 1)..]);
         }
@@ -103,5 +101,15 @@ public partial class SettingsService : ObservableRecipient, ISettingsService
         {
             Log.Error("[Settings] {error}", ex.Message);
         }
+    }
+
+    private void Settings_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        _timer.Start();
+    }
+
+    private async void Timer_Elapsed(object? sender, ElapsedEventArgs e)
+    {
+        await SaveToFile();
     }
 }

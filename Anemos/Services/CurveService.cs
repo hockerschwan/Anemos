@@ -1,69 +1,33 @@
 ﻿using Anemos.Contracts.Services;
 using Anemos.Models;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Serilog;
 
 namespace Anemos.Services;
 
-public class CurveService : ObservableRecipient, ICurveService
+internal class CurveService : ICurveService
 {
-    private readonly ISensorService _sensorService;
+    private readonly IMessenger _messenger;
 
     private readonly ISettingsService _settingsService;
 
-    public List<CurveModelBase> Curves
-    {
-        get;
-    } = new();
+    public List<CurveModelBase> Curves { get; } = new();
 
     private bool _isUpdating;
 
-    public CurveService(ISettingsService settingsService, ISensorService thermometerService)
+    public CurveService(
+        IMessenger messenger,
+        ISettingsService settingsService)
     {
-        Messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
-        Messenger.Register<CustomSensorsUpdateDoneMessage>(this, CustomSensorsUpdateDoneMessageHandler);
-
+        _messenger = messenger;
         _settingsService = settingsService;
-        _sensorService = thermometerService;
 
-        Log.Information("[CurveService] Started");
+        _messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
+        _messenger.Register<CustomSensorsUpdateDoneMessage>(this, CustomSensorsUpdateDoneMessageHandler);
+
+        _messenger.Send<ServiceStartupMessage>(new(GetType()));
+        Log.Information("[Curve] Started");
     }
-
-    public async Task InitializeAsync()
-    {
-        await Task.Run(Load);
-        Log.Information("[CurveService] Loaded");
-    }
-
-    private async void AppExitMessageHandler(object recipient, AppExitMessage message)
-    {
-        Messenger.Unregister<CustomSensorsUpdateDoneMessage>(this);
-        while (true)
-        {
-            if (!_isUpdating) { break; }
-            await Task.Delay(100);
-        }
-        Messenger.Send(new ServiceShutDownMessage(GetType().GetInterface("ICurveService")!));
-    }
-
-    private void CustomSensorsUpdateDoneMessageHandler(object recipient, CustomSensorsUpdateDoneMessage message)
-    {
-        Update();
-        Messenger.Send(new CurvesUpdateDoneMessage());
-    }
-
-    private void Update()
-    {
-        _isUpdating = true;
-        foreach (var cm in Curves)
-        {
-            cm.Update();
-        }
-        _isUpdating = false;
-    }
-
-    public CurveModelBase? GetCurve(string id) => Curves.SingleOrDefault(cm => cm?.Id == id, null);
 
     public void AddCurve(CurveArg arg)
     {
@@ -78,21 +42,65 @@ public class CurveService : ObservableRecipient, ICurveService
         {
             switch (arg.Type)
             {
+                case CurveType.Chart:
+                    models.Add(new ChartCurveModel(arg));
+                    break;
                 case CurveType.Latch:
                     models.Add(new LatchCurveModel(arg));
-                    break;
-                default:
-                    models.Add(new ChartCurveModel(arg));
                     break;
             }
         }
         Curves.AddRange(models);
-        Messenger.Send(new CurvesChangedMessage(this, nameof(Curves), old, Curves));
+        _messenger.Send<CurvesChangedMessage>(new(this, nameof(Curves), old, Curves));
 
         if (save)
         {
             Save();
         }
+    }
+
+    private async void AppExitMessageHandler(object recipient, AppExitMessage message)
+    {
+        _messenger.Unregister<CustomSensorsUpdateDoneMessage>(this);
+        while (true)
+        {
+            if (!_isUpdating) { break; }
+            await Task.Delay(100);
+        }
+        _messenger.Send<ServiceShutDownMessage>(new(GetType()));
+    }
+
+    private void CustomSensorsUpdateDoneMessageHandler(object recipient, CustomSensorsUpdateDoneMessage message)
+    {
+        Update();
+        _messenger.Send(new CurvesUpdateDoneMessage());
+    }
+
+    public CurveModelBase? GetCurve(string id) => Curves.SingleOrDefault(cm => cm?.Id == id, null);
+
+    private void Load()
+    {
+        AddCurves(
+            _settingsService.Settings.CurveSettings.Curves.Select(
+                s => new CurveArg()
+                {
+                    Type = s.Type,
+                    Id = s.Id,
+                    Name = s.Name,
+                    SourceId = s.SourceId,
+                    Points = s.Points,
+                    OutputLowTemperature = s.OutputLowTemperature,
+                    OutputHighTemperature = s.OutputHighTemperature,
+                    TemperatureThresholdLow = s.TemperatureThresholdLow,
+                    TemperatureThresholdHigh = s.TemperatureThresholdHigh
+                }),
+            false);
+    }
+
+    public async Task LoadAsync()
+    {
+        await Task.Run(Load);
+        Log.Information("[Curve] Loaded");
     }
 
     public void RemoveCurve(string id)
@@ -105,7 +113,7 @@ public class CurveService : ObservableRecipient, ICurveService
 
         var old = Curves.ToList();
         Curves.Remove(model);
-        Messenger.Send(new CurvesChangedMessage(this, nameof(Curves), old, Curves));
+        _messenger.Send<CurvesChangedMessage>(new(this, nameof(Curves), old, Curves));
 
         Save();
     }
@@ -146,22 +154,15 @@ public class CurveService : ObservableRecipient, ICurveService
         _settingsService.Save();
     }
 
-    private void Load()
+    private void Update()
     {
-        AddCurves(
-            _settingsService.Settings.CurveSettings.Curves.Select(
-                s => new CurveArg()
-                {
-                    Type = s.Type,
-                    Id = s.Id,
-                    Name = s.Name,
-                    SourceId = s.SourceId,
-                    Points = s.Points,
-                    OutputLowTemperature = s.OutputLowTemperature,
-                    OutputHighTemperature = s.OutputHighTemperature,
-                    TemperatureThresholdLow = s.TemperatureThresholdLow,
-                    TemperatureThresholdHigh = s.TemperatureThresholdHigh
-                }),
-            false);
+        _isUpdating = true;
+        Parallel.ForEach(Curves, c =>
+        {
+            App.MainWindow.DispatcherQueue.TryEnqueue(
+                Microsoft.UI.Dispatching.DispatcherQueuePriority.High,
+                () => c.Update());
+        });
+        _isUpdating = false;
     }
 }

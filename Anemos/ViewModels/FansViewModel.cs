@@ -2,14 +2,15 @@
 using Anemos.Contracts.Services;
 using Anemos.Models;
 using Anemos.Views;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Anemos.ViewModels;
 
-public partial class FansViewModel : ObservableRecipient
+public partial class FansViewModel : PageViewModelBase
 {
+    private readonly IMessenger _messenger;
+    private readonly ISettingsService _settingsService;
     private readonly IFanService _fanService;
 
     private List<FanModelBase> Models
@@ -17,12 +18,12 @@ public partial class FansViewModel : ObservableRecipient
         get;
     }
 
-    private ObservableCollection<FanViewModel> ViewModels
+    public List<FanViewModel> ViewModels
     {
         get;
     }
 
-    public ObservableCollection<FanView> Views
+    public List<FanView> Views
     {
         get;
     }
@@ -32,24 +33,26 @@ public partial class FansViewModel : ObservableRecipient
         get;
     }
 
-    public FanOptionsDialog OptionsDialog
-    {
-        get;
-    }
-
-    public FanProfileNameEditorDialog ProfileNameEditorDialog
-    {
-        get;
-    }
-
     private bool _isVisible = false;
-    public bool IsVisible
+    public override bool IsVisible
     {
         get => _isVisible;
-        set => SetProperty(ref _isVisible, value);
+        set
+        {
+            if (SetProperty(ref _isVisible, value))
+            {
+                foreach (var v in VisibleViews)
+                {
+                    v.ViewModel.IsVisible = value;
+                }
+            }
+        }
     }
 
-    public RangeObservableCollection<FanProfile> FanProfiles => _fanService.Profiles;
+    public ObservableCollection<FanProfile> FanProfiles
+    {
+        get;
+    }
 
     private FanProfile? _selectedProfile;
     public FanProfile? SelectedProfile
@@ -57,9 +60,9 @@ public partial class FansViewModel : ObservableRecipient
         get => _selectedProfile;
         set
         {
-            if (SetProperty(ref _selectedProfile, value) && !UseRules)
+            if (SetProperty(ref _selectedProfile, value) && !UseRules && _selectedProfile != null)
             {
-                _fanService.CurrentProfileId = _selectedProfile?.Id ?? string.Empty;
+                _fanService.ManualProfileId = _selectedProfile.Id;
             }
         }
     }
@@ -71,8 +74,11 @@ public partial class FansViewModel : ObservableRecipient
         {
             _fanService.UseRules = value;
             OnPropertyChanged(nameof(UseRules));
+            OnPropertyChanged(nameof(UnlockControls));
         }
     }
+
+    public bool UnlockControls => !UseRules;
 
     private bool _showHiddenFans;
     public bool ShowHiddenFans
@@ -87,39 +93,78 @@ public partial class FansViewModel : ObservableRecipient
         }
     }
 
-    public FansViewModel(IFanService fanService)
+    private bool _isFlyoutOpened = false;
+    public bool IsFlyoutOpened
     {
+        get => _isFlyoutOpened;
+        set => SetProperty(ref _isFlyoutOpened, value);
+    }
+
+    public FansViewModel(
+        IMessenger messenger,
+        ISettingsService settingsService,
+        IFanService fanService)
+    {
+        _messenger = messenger;
+        _settingsService = settingsService;
         _fanService = fanService;
 
-        Messenger.Register<WindowVisibilityChangedMessage>(this, WindowVisibilityChangedMessageHandler);
-        Messenger.Register<FanProfileChangedMessage>(this, FanProfileChangedMessageHandler);
+        _messenger.Register<FanProfilesChangedMessage>(this, FanProfileChangedMessageHandler);
+        _messenger.Register<FanProfileRenamedMessage>(this, FanProfileRenamedMessageHandler);
+        _messenger.Register<FanProfileSwitchedMessage>(this, FanProfileSwitchedMessageHandler);
+
+        _settingsService.Settings.FanSettings.PropertyChanged += FanSettings_PropertyChanged;
 
         Models = _fanService.Fans.ToList();
         ViewModels = new(Models.Select(m => new FanViewModel(m)));
         Views = new(ViewModels.Select(vm => new FanView(vm)));
         VisibleViews = new(Views.Where(v => !v.ViewModel.Model.IsHidden));
-        OptionsDialog = new();
-        ProfileNameEditorDialog = new();
+        FanProfiles = new(_fanService.Profiles);
 
         _selectedProfile = _fanService.CurrentProfile;
     }
 
-    private void WindowVisibilityChangedMessageHandler(object recipient, WindowVisibilityChangedMessage message)
+    private void FanSettings_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        IsVisible = message.Value;
-        if (IsVisible)
+        if (e.PropertyName == nameof(_settingsService.Settings.FanSettings.UseRules))
         {
-            foreach (var v in VisibleViews)
-            {
-                v.ViewModel.Plot.InvalidatePlot(true);
-            }
+            UseRules = _settingsService.Settings.FanSettings.UseRules;
         }
     }
 
-    private void FanProfileChangedMessageHandler(object recipient, FanProfileChangedMessage message)
+    private void FanProfileChangedMessageHandler(object recipient, FanProfilesChangedMessage message)
     {
-        SelectedProfile = message.Value;
+        var removed = message.OldValue.Except(message.NewValue);
+        foreach (var p in removed)
+        {
+            FanProfiles.Remove(p);
+        }
+
+        var added = message.NewValue.Except(message.OldValue);
+        if (added.Any())
+        {
+            added.ToList().ForEach(FanProfiles.Add);
+        }
+
         OnPropertyChanged(nameof(FanProfiles));
+        SelectedProfile = _fanService.CurrentProfile;
+    }
+
+    private void FanProfileRenamedMessageHandler(object recipient, FanProfileRenamedMessage message)
+    {
+    }
+
+    private void FanProfileSwitchedMessageHandler(object recipient, FanProfileSwitchedMessage message)
+    {
+        App.MainWindow.DispatcherQueue.TryEnqueue(() =>
+        {
+            SelectedProfile = message.Value;
+        });
+    }
+
+    public void RemoveProfile(string id)
+    {
+        _fanService.RemoveProfile(id);
     }
 
     public void UpdateView()
@@ -142,12 +187,6 @@ public partial class FansViewModel : ObservableRecipient
     }
 
     [RelayCommand]
-    private void OpenProfileNameEditor()
-    {
-        Messenger.Send(new OpenFanProfileNameEditorMessage());
-    }
-
-    [RelayCommand]
     private void AddProfile(string? param)
     {
         if (param == null)
@@ -156,13 +195,7 @@ public partial class FansViewModel : ObservableRecipient
         }
         else
         {
-            _fanService.AddProfile(_fanService.CurrentProfileId);
+            _fanService.AddProfile(_fanService.ManualProfileId);
         }
-    }
-
-    [RelayCommand]
-    private void DeleteProfile()
-    {
-        _fanService.DeleteProfile(SelectedProfile?.Id!);
     }
 }

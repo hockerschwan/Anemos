@@ -1,329 +1,250 @@
-﻿using Anemos.Contracts.Services;
+﻿using System.Diagnostics;
+using System.Text;
+using Anemos.Contracts.Services;
 using Anemos.Helpers;
-using Anemos.ViewModels;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using NotifyIconLib;
 using Serilog;
 
 namespace Anemos.Services;
 
-public class MenuItem
+internal enum ItemRoles
 {
-    public TypeManaged Type;
-    public string Text = string.Empty;
-    public bool IsEnabled = true;
-    public bool IsChecked;
-    public int RadioGroup;
-    public List<MenuItem> Children = new();
+    Default, Exit, Rule, Profile
+}
 
-    public string ProfileId = string.Empty;
-
-    public event EventHandler<EventArgs>? Click;
-
-    public void OnClick()
+[DebuggerDisplay("{Role}, {ProfileId}")]
+internal class MyMenuItem : MenuItem
+{
+    public ItemRoles Role
     {
-        Click?.Invoke(this, EventArgs.Empty);
+        get; init;
     }
 
-    public void Add(MenuItem item)
+    public string? ProfileId
     {
-        Children.Add(item);
-    }
-
-    public void ClearClickEventHandler()
-    {
-        Click = null;
-    }
-
-    public void ClearChildren()
-    {
-        foreach (var child in Children)
-        {
-            child.ClearClickEventHandler();
-        }
-        Children.Clear();
+        get; init;
     }
 }
 
-public class NotifyIconService : ObservableRecipient, INotifyIconService
+public class NotifyIconService : INotifyIconService
 {
-    private readonly IFanService _fanService = App.GetService<IFanService>();
+    private readonly IMessenger _messenger;
+    private readonly ISettingsService _settingsService;
+    private readonly IFanService _fanService;
+    private readonly IRuleService _ruleService;
 
-    private readonly IRuleService _ruleService = App.GetService<IRuleService>();
+    private readonly NotifyIconLib.NotifyIconLib _notifyIconLib = NotifyIconLib.NotifyIconLib.Instance;
 
-    private readonly FansViewModel _fansVM;
+    private readonly Guid _guid;
+    private readonly NotifyIcon _notifyIcon;
+    private string _tooltip = string.Empty;
 
-    private bool UseRules => _fanService.UseRules;
-
-    private string CurrentProfileId => UseRules ? _fanService.CurrentAutoProfileId : _fanService.CurrentProfileId;
-
-    private string Tooltip
+    public NotifyIconService(
+        IMessenger messenger,
+        ISettingsService settingsService,
+        IFanService fanService,
+        IRuleService ruleService)
     {
-        get
-        {
-            var profile = _fanService.GetProfile(CurrentProfileId);
-            if (profile == null) { return string.Empty; }
+        _messenger = messenger;
+        _settingsService = settingsService;
+        _fanService = fanService;
+        _ruleService = ruleService;
 
-            if (UseRules)
-            {
-                var rule = _ruleService.CurrentRule;
-                if (rule != null)
-                {
-                    return $"{profile.Name}\n{rule.Name}";
-                }
-            }
-            return profile.Name;
-        }
-    }
+        _messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
+        _messenger.Register<FanProfilesChangedMessage>(this, FanProfilesChangedMessageHandler);
+        _messenger.Register<FanProfileRenamedMessage>(this, FanProfileRenamedMessageHandler);
+        _messenger.Register<FanProfileSwitchedMessage>(this, FanProfileSwitchedMessageHandler);
 
-    private readonly NotifyIcon _notifyIcon = NotifyIcon.Instance;
+        _settingsService.Settings.FanSettings.PropertyChanged += FanSettings_PropertyChanged;
 
-    private readonly Dictionary<int, MenuItem> _menuItemsDict = new();
+        _notifyIconLib.Close += NotifyIconLib_Close;
 
-    private List<MenuItem> Menu { get; } = new();
+        _guid = GenerateGuid(App.AppLocation);
+        Log.Debug("[NotifyIcon] GUID: {guid}", _guid.ToString());
 
-    public NotifyIconService()
-    {
-        Messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
-        Messenger.Register<RuleSwitchedMessage>(this, RuleSwitchedMessageHandler);
+        var icon = System.Drawing.Icon.ExtractAssociatedIcon(App.AppLocation);
+        _notifyIcon = _notifyIconLib.CreateIcon(_guid, icon);
 
-        _fansVM = App.GetService<FansViewModel>();
-
-        _notifyIcon.Close += NotifyIcon_Close;
-        _notifyIcon.IconClick += NotifyIcon_IconClick;
+        _notifyIcon.Click += NotifyIcon_Click;
         _notifyIcon.ItemClick += NotifyIcon_ItemClick;
 
-        SetupMenu();
+        CreateCommonItems();
 
-        Log.Information("[NotifyIconService] Started");
+        _messenger.Send<ServiceStartupMessage>(new(GetType()));
+        Log.Debug("[NotifyIcon] Started");
+        _settingsService = settingsService;
     }
 
     private void AppExitMessageHandler(object recipient, AppExitMessage message)
     {
-        Messenger.UnregisterAll(this);
-        _notifyIcon.Dispose();
-        Messenger.Send(new ServiceShutDownMessage(GetType().GetInterface("INotifyIconService")!));
+        _messenger.UnregisterAll(this);
+        _notifyIconLib.DeleteAll();
+        _messenger.Send<ServiceShutDownMessage>(new(GetType()));
     }
 
-    private void RuleSwitchedMessageHandler(object recipient, RuleSwitchedMessage message)
+    private void FanProfilesChangedMessageHandler(object recipient, FanProfilesChangedMessage message)
     {
-        SetupMenu();
+        UpdateMenu();
     }
 
-    private void NotifyIcon_Close()
+    private void FanProfileRenamedMessageHandler(object recipient, FanProfileRenamedMessage message)
     {
-        Log.Information("[NotifyIconService] WM_CLOSE received");
-        App.Current.RequestShutdown();
+        UpdateMenu();
     }
 
-    private void NotifyIcon_IconClick()
+    private void FanProfileSwitchedMessageHandler(object recipient, FanProfileSwitchedMessage message)
+    {
+        UpdateMenu();
+    }
+
+    private void FanSettings_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(_settingsService.Settings.FanSettings.UseRules))
+        {
+            _notifyIcon.MenuItems[0].IsChecked = _settingsService.Settings.FanSettings.UseRules;
+            UpdateMenu();
+        }
+    }
+
+    private void NotifyIconLib_Close(object? sender, EventArgs e)
+    {
+        App.Current.Shutdown(true);
+    }
+
+    private void NotifyIcon_Click(object? sender, NotifyIconLib.Events.NotifyIconClickEventArgs e)
     {
         App.ShowWindow();
     }
 
-    private void NotifyIcon_ItemClick(int id)
+    private void NotifyIcon_ItemClick(object? sender, NotifyIconLib.Events.MenuItemClickEventArgs e)
     {
-        if (!_menuItemsDict.TryGetValue(id, out var item)) { return; }
+        if (e.SourceItem is not MyMenuItem item) { return; }
 
-        if (item.Type == TypeManaged.Check)
+        switch (item.Role)
         {
-            item.IsChecked = !item.IsChecked;
-            Set();
+            case ItemRoles.Exit:
+                App.ShowWindow();
+                App.Current.Shutdown();
+                break;
+            case ItemRoles.Rule:
+                _fanService.UseRules = !_fanService.UseRules;
+                break;
+            case ItemRoles.Profile:
+                if (item.ProfileId != null)
+                {
+                    _fanService.ManualProfileId = item.ProfileId;
+                }
+                break;
         }
-        else if (item.Type == TypeManaged.Radio && !item.IsChecked)
+    }
+
+    private void CreateCommonItems()
+    {
+        var useRules = new MyMenuItem()
         {
-            item.IsChecked = !item.IsChecked;
-            EnsureRadioCheckedOnlyMe(id);
-            Set();
-        }
-
-        item.OnClick();
-    }
-
-    public void SetMenuItems(List<MenuItem> items)
-    {
-        ClearDict();
-
-        foreach (var item in items)
-        {
-            AddMenuItem(item);
-        }
-
-        EnsureRadioCheckedNoMoreThanTwo();
-        Set();
-    }
-
-    public void SetTooltip(string tooltip)
-    {
-        _notifyIcon.SetTooltip(tooltip);
-    }
-
-    public void SetVisible(bool visible)
-    {
-        _notifyIcon.SetVisible(visible);
-    }
-
-    public void SetupMenu()
-    {
-        ClearMenu();
-
-        var rule = new MenuItem
-        {
-            Type = TypeManaged.Check,
+            Type = MenuItemType.Check,
             Text = "NotifyIcon_UseRules".GetLocalized(),
-            IsChecked = UseRules
+            IsChecked = _fanService.UseRules,
+            Role = ItemRoles.Rule,
         };
-        rule.Click += Rule_Click;
-        Menu.Add(rule);
 
-        var subProfile = new MenuItem
+        var sub = new MyMenuItem()
         {
-            Type = TypeManaged.Submenu,
-            Text = "NotifyIcon_Profiles".GetLocalized()
+            Type = MenuItemType.Submenu,
+            Text = "NotifyIcon_Profiles".GetLocalized(),
         };
-        Menu.Add(subProfile);
 
-        foreach (var profile in _fanService.Profiles)
+        var bar = new MyMenuItem()
         {
-            var item = new MenuItem
-            {
-                Type = TypeManaged.Radio,
-                Text = profile.Name,
-                IsChecked = CurrentProfileId == profile.Id,
-                ProfileId = profile.Id
-            };
-            item.Click += Profile_Click;
-            subProfile.Add(item);
+            Type = MenuItemType.Separator,
+        };
+
+        var iconX = Helpers.RuntimeHelper.ExtractIcon("shell32.dll", -240);
+        var exit = new MyMenuItem()
+        {
+            Text = "NotifyIcon_Exit".GetLocalized(),
+            Icon = iconX,
+            Role = ItemRoles.Exit,
+        };
+
+        _notifyIcon.MenuItems.Add(useRules);
+        _notifyIcon.MenuItems.Add(sub);
+        _notifyIcon.MenuItems.Add(bar);
+        _notifyIcon.MenuItems.Add(exit);
+    }
+
+    private static Guid GenerateGuid(string str)
+    {
+        var hash = System.Security.Cryptography.SHA1.HashData(Encoding.UTF8.GetBytes(str))[..16];
+        hash[6] = (byte)((hash[6] & 0x0f) | 0x50);
+        hash[8] = (byte)((hash[8] & 0x3f) | 0x80);
+
+        var s = new StringBuilder();
+        foreach (var b in hash)
+        {
+            s.Append(b.ToString("x2"));
         }
 
-        var bar = new MenuItem { Type = TypeManaged.Separator };
-        Menu.Add(bar);
-
-        var exit = new MenuItem { Text = "NotifyIcon_Exit".GetLocalized() };
-        exit.Click += (sender, e) => { App.Current.RequestShutdown(); };
-        Menu.Add(exit);
-
-        SetMenuItems(Menu);
-
-        SetTooltip(Tooltip);
+        return new Guid(s.ToString());
     }
 
-    public void UpdateTooltip()
-    {
-        OnPropertyChanged(nameof(Tooltip));
-        SetTooltip(Tooltip);
-    }
+    public void SetTooltip(string tooltip) => _notifyIcon.SetTooltip(tooltip);
 
-    private void Rule_Click(object? sender, EventArgs e)
-    {
-        _fansVM.UseRules = !_fansVM.UseRules;
-    }
+    public void SetVisibility(bool visible) => _notifyIcon.SetVisibility(visible);
 
-    private void Profile_Click(object? sender, EventArgs e)
+    private void UpdateMenu()
     {
-        if (sender is MenuItem item)
+        var pr = _fanService.GetProfile(_fanService.UseRules ? _fanService.AutoProfileId : _fanService.ManualProfileId);
+        var sub = _notifyIcon.MenuItems[1];
+        if (sub.Children.Cast<MyMenuItem>()
+            .Select(x => x.ProfileId)
+            .SequenceEqual(_fanService.Profiles.Select(x => x.Id)))
         {
-            if (!_fanService.Profiles.Select(p => p.Id).Contains(item.ProfileId)) { return; }
-
-            _fanService.CurrentProfileId = item.ProfileId;
-            if (UseRules)
+            foreach (var item in sub.Children.Cast<MyMenuItem>())
             {
-                _fansVM.UseRules = false;
+                item.IsChecked = pr?.Id == item.ProfileId;
             }
-
-            SetupMenu();
-        }
-    }
-
-    private void ClearMenu()
-    {
-        foreach (var item in Menu)
-        {
-            item.ClearClickEventHandler();
-        }
-        Menu.Clear();
-    }
-
-    private void AddMenuItem(MenuItem item, int depth = 0)
-    {
-        int id;
-        var itemsInDepth = _menuItemsDict.Keys.Where(k => k >= 1000 * depth && k < 1000 * (depth + 1));
-        if (itemsInDepth.Any())
-        {
-            id = itemsInDepth.Max() + 1;
         }
         else
         {
-            id = 1000 * depth;
-        }
-
-        _menuItemsDict.Add(id, item);
-
-        foreach (var child in item.Children)
-        {
-            AddMenuItem(child, depth + 1);
-        }
-    }
-
-    private void ClearDict()
-    {
-        foreach (var item in _menuItemsDict.Values)
-        {
-            item.ClearClickEventHandler();
-        }
-
-        _menuItemsDict.Clear();
-    }
-
-    private void EnsureRadioCheckedNoMoreThanTwo()
-    {
-        var groups = _menuItemsDict.Values.Where(m => m.Type == TypeManaged.Radio).Select(m => m.RadioGroup).ToHashSet();
-        foreach (var group in groups)
-        {
-            KeyValuePair<int, MenuItem>? checkedPair = null;
-            foreach (var pair in _menuItemsDict.Where(p =>
-                p.Value.Type == TypeManaged.Radio &&
-                p.Value.RadioGroup == group &&
-                (!checkedPair.HasValue || p.Key != checkedPair.Value.Key)))
+            sub.Children.Clear();
+            foreach (var profile in _fanService.Profiles)
             {
-                if (pair.Value.IsChecked)
+                var item = new MyMenuItem()
                 {
-                    if (checkedPair != null)
-                    {
-                        _menuItemsDict[checkedPair.Value.Key].IsChecked = false;
-                    }
-                    checkedPair = pair;
-                }
+                    Type = MenuItemType.Radio,
+                    Text = profile.Name,
+                    IsChecked = pr?.Id == profile.Id,
+                    RadioGroup = 1,
+                    Role = ItemRoles.Profile,
+                    ProfileId = profile.Id,
+                };
+                sub.Children.Add(item);
             }
         }
+
+        _notifyIcon.MenuItems[0].IsChecked = _fanService.UseRules;
+
+        UpdateTooltip();
+
+        _notifyIcon.Update();
     }
 
-    private void EnsureRadioCheckedOnlyMe(int id)
+    private void UpdateTooltip()
     {
-        var group = _menuItemsDict[id].RadioGroup;
-
-        foreach (var pair in _menuItemsDict.Where(p =>
-            p.Value.Type == TypeManaged.Radio &&
-            p.Value.RadioGroup == group &&
-            p.Value.IsChecked &&
-            p.Key != id))
+        if (_fanService.UseRules)
         {
-            _menuItemsDict[pair.Key].IsChecked = false;
+            var profile = _fanService.GetProfile(_fanService.AutoProfileId);
+            var rule = _ruleService.CurrentRule;
+            _tooltip = $"{profile?.Name}\n{rule?.Name}";
         }
-    }
+        else
+        {
+            var profile = _fanService.GetProfile(_fanService.ManualProfileId);
+            _tooltip = profile?.Name ?? string.Empty;
+        }
 
-    private void Set()
-    {
-        var menu = _menuItemsDict.Select(m =>
-            new MenuItemManaged()
-            {
-                Id = m.Key,
-                Type = m.Value.Type,
-                Text = m.Value.Text,
-                IsChecked = m.Value.IsChecked,
-                IsEnabled = m.Value.IsEnabled
-            }).ToList();
-        _notifyIcon.SetMenuItems(menu);
+        _notifyIcon.SetTooltip(_tooltip);
     }
 }

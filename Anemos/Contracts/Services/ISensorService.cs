@@ -19,13 +19,13 @@ public interface ISensorService
         get;
     }
 
-    Task InitializeAsync();
+    void AddCustomSensor(CustomSensorArg arg);
 
     SensorModelBase? GetSensor(string id);
 
     IEnumerable<SensorModelBase> GetSensors(IEnumerable<string> idList);
 
-    void AddCustomSensor(CustomSensorArg arg);
+    Task LoadAsync();
 
     void RemoveCustomSensor(string id);
 

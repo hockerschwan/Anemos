@@ -1,4 +1,5 @@
-﻿using Anemos.Contracts.Services;
+﻿using System.Diagnostics;
+using Anemos.Contracts.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LibreHardwareMonitor.Hardware;
 
@@ -9,6 +10,7 @@ public enum FanControlModes
     Device, Constant, Curve
 }
 
+[DebuggerDisplay("{Name}, {Id}")]
 public class FanProfile : ObservableObject
 {
     public string Id { get; set; } = string.Empty;
@@ -30,9 +32,11 @@ public class FanOptionsResult
     public int DeltaLimitUp;
     public int DeltaLimitDown;
     public int RefractoryPeriodCyclesDown;
+    public int Offset;
 }
 
-public class FanModelBase : ObservableObject
+[DebuggerDisplay("{Name}")]
+public abstract class FanModelBase : ObservableObject
 {
     private protected readonly ILhwmService _lhwmService = App.GetService<ILhwmService>();
 
@@ -69,7 +73,11 @@ public class FanModelBase : ObservableObject
         }
     }
 
-    private protected ISensor? Sensor => _lhwmService.GetSensor(Id);
+    private protected ISensor? Sensor
+    {
+        get;
+    }
+
     public int? CurrentRPM
     {
         get
@@ -95,7 +103,7 @@ public class FanModelBase : ObservableObject
                 case FanControlModes.Constant:
                     return ConstantSpeed;
                 case FanControlModes.Curve:
-                    return Value;
+                    return TargetValue;
                 default:
                     if ((bool)Control?.Value.HasValue!)
                     {
@@ -118,7 +126,7 @@ public class FanModelBase : ObservableObject
                 {
                     Control?.Control.SetDefault();
                 }
-                Value = null;
+                TargetValue = null;
                 _refractoryPeriodCounter = 0;
                 UpdateValue();
                 UpdateProfile();
@@ -135,6 +143,11 @@ public class FanModelBase : ObservableObject
             if (SetProperty(ref _curveId, value))
             {
                 OnPropertyChanged(nameof(CurveModel));
+                if (CurveModel == null)
+                {
+                    Control?.Control.SetDefault();
+                }
+
                 UpdateProfile();
             }
         }
@@ -222,11 +235,24 @@ public class FanModelBase : ObservableObject
         }
     }
 
-    private protected int? _value;
-    public int? Value
+    private protected int _offset;
+    public int Offset
     {
-        get => _value;
-        private protected set => SetProperty(ref _value, value);
+        get => _offset;
+        set
+        {
+            if (SetProperty(ref _offset, value))
+            {
+                UpdateProfile();
+            }
+        }
+    }
+
+    private protected int? _targetValue;
+    public int? TargetValue
+    {
+        get => _targetValue;
+        private protected set => SetProperty(ref _targetValue, value);
     }
 
     private bool _updateProfile = true;
@@ -239,6 +265,7 @@ public class FanModelBase : ObservableObject
         }
         _id = id;
 
+        Sensor = _lhwmService.GetSensor(Id);
         if (Sensor == null)
         {
             throw new ArgumentException($"Could not find ISensor with ID:{Id}", nameof(id));
@@ -271,44 +298,46 @@ public class FanModelBase : ObservableObject
 
     private protected int? CalcTarget()
     {
-        if (CurveModel == null || CurveModel.Value == null)
+        if (CurveModel == null || CurveModel.Output == null)
         {
             return null;
         }
 
-        if (Value == null)
+        if (TargetValue == null)
         {
-            return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(CurveModel.Value.Value)));
+            return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(CurveModel.Output.Value)));
         }
+
+        var output = double.Max(0, double.Min(100, CurveModel.Output.Value + Offset));
 
         if (RefractoryPeriodCyclesDown > 0)
         {
             ++_refractoryPeriodCounter;
-            if (_refractoryPeriodCounter <= RefractoryPeriodCyclesDown && CurveModel.Value < Value)
+            if (_refractoryPeriodCounter <= RefractoryPeriodCyclesDown && output < TargetValue)
             {
-                return Math.Min(MaxSpeed, Math.Max(MinSpeed, Value.Value));
+                return Math.Min(MaxSpeed, Math.Max(MinSpeed, TargetValue.Value));
             }
 
             _refractoryPeriodCounter = 0;
         }
 
-        if (CurveModel.Value > Value)
+        if (output > TargetValue)
         {
-            var diff = CurveModel.Value - Value.Value;
+            var diff = output - TargetValue.Value;
             if (DeltaLimitUp == 0 || diff <= DeltaLimitUp)
             {
-                return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(CurveModel.Value.Value)));
+                return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(output)));
             }
-            return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(Value.Value) + DeltaLimitUp));
+            return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(TargetValue.Value) + DeltaLimitUp));
         }
         else
         {
-            var diff = Value.Value - CurveModel.Value;
+            var diff = TargetValue.Value - output;
             if (DeltaLimitDown == 0 || diff <= DeltaLimitDown)
             {
-                return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(CurveModel.Value.Value)));
+                return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(output)));
             }
-            return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(Value.Value) - DeltaLimitDown));
+            return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(TargetValue.Value) - DeltaLimitDown));
         }
     }
 
@@ -323,6 +352,7 @@ public class FanModelBase : ObservableObject
         DeltaLimitUp = item.DeltaLimitUp;
         DeltaLimitDown = item.DeltaLimitDown;
         RefractoryPeriodCyclesDown = item.RefractoryPeriodCyclesDown;
+        Offset = item.Offset;
         ControlMode = item.Mode;
 
         _updateProfile = true;
@@ -335,6 +365,7 @@ public class FanModelBase : ObservableObject
         DeltaLimitUp = options.DeltaLimitUp;
         DeltaLimitDown = options.DeltaLimitDown;
         RefractoryPeriodCyclesDown = options.RefractoryPeriodCyclesDown;
+        Offset = options.Offset;
     }
 
     private protected void UpdateProfile()

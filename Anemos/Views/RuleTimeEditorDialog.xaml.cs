@@ -5,27 +5,47 @@ namespace Anemos.Views;
 
 public sealed partial class RuleTimeEditorDialog : ContentDialog
 {
-    private readonly IMessenger _messenger = App.GetService<IMessenger>();
+    private readonly int _index;
 
-    public RuleTimeEditorDialog()
+    public RuleTimeEditorDialog(int index, TimeOnly beginning, TimeOnly ending)
     {
-        Closing += RuleTimeEditorDialog_Closing;
+        _index = index;
+
         InitializeComponent();
+        Loaded += RuleTimeEditorDialog_Loaded;
+        Unloaded += RuleTimeEditorDialog_Unloaded;
+        PrimaryButtonClick += RuleTimeEditorDialog_PrimaryButtonClick;
+
+        TP_Begin.Time = beginning.ToTimeSpan();
+        TP_End.Time = ending.ToTimeSpan();
     }
 
-    private void RuleTimeEditorDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
+    private void RuleTimeEditorDialog_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        _messenger.Send(new RuleEditorResultMessage(new()
+        Loaded -= RuleTimeEditorDialog_Loaded;
+
+        TP_Begin.Focus(Microsoft.UI.Xaml.FocusState.Programmatic);
+    }
+
+    private void RuleTimeEditorDialog_Unloaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        Unloaded -= RuleTimeEditorDialog_Unloaded;
+        PrimaryButtonClick -= RuleTimeEditorDialog_PrimaryButtonClick;
+    }
+
+    private void RuleTimeEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    {
+        App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
         {
-            Type = Models.RuleConditionType.Time,
-            TimeBeginning = TimeOnly.FromTimeSpan(TimePickerBeginning.Time),
-            TimeEnding = TimeOnly.FromTimeSpan(TimePickerEnding.Time)
-        }));
-    }
+            while (IsLoaded)
+            {
+                await Task.Delay(100);
+            }
 
-    public void SetTime(TimeSpan begin, TimeSpan end)
-    {
-        TimePickerBeginning.Time = begin;
-        TimePickerEnding.Time = end;
+            App.GetService<IMessenger>().Send<RuleTimeChangedMessage>(new(new(
+                _index,
+                TimeOnly.FromTimeSpan(TP_Begin.Time),
+                TimeOnly.FromTimeSpan(TP_End.Time))));
+        });
     }
 }

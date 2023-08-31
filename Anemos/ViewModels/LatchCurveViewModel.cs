@@ -1,90 +1,67 @@
 ﻿using System.ComponentModel;
+using Anemos.Contracts.Services;
 using Anemos.Models;
-using OxyPlot;
-using OxyPlot.Annotations;
-using OxyPlot.Series;
+using ScottPlot;
 
 namespace Anemos.ViewModels;
 
-public class LatchCurveViewModel : CurveViewModelBase
+internal class LatchCurveViewModel : CurveViewModelBase
 {
-    private readonly LatchCurveModel _model;
-
-    private readonly List<DataPoint> _lineDataOutputLow = new();
-    private readonly List<DataPoint> _lineDataOutputHigh = new();
-
-    private readonly LineSeries LineOutputLow = new()
+    private LatchCurveModel CurveModel
     {
-        StrokeThickness = 2,
-        MarkerType = MarkerType.None,
-        CanTrackerInterpolatePoints = false,
-        Selectable = false,
-    };
+        get;
+    }
 
-    private readonly LineSeries LineOutputHigh = new()
-    {
-        StrokeThickness = 2,
-        MarkerType = MarkerType.None,
-        CanTrackerInterpolatePoints = false,
-        Selectable = false,
-    };
+    internal readonly double[] LineDataLowTempX = { 0, 0 };
+    internal readonly double[] LineDataLowTempY = { 0, 0 };
 
-    internal readonly ArrowAnnotation ArrowThresholdLow = new() { Selectable = false };
-    internal readonly ArrowAnnotation ArrowThresholdHigh = new() { Selectable = false };
+    internal readonly double[] LineDataHighTempX = { 0, 0 };
+    internal readonly double[] LineDataHighTempY = { 0, 0 };
+
+    internal readonly Coordinates[] ArrowLowCoordinates = Enumerable.Repeat(Coordinates.Origin, 2).ToArray();
+    internal readonly Coordinates[] ArrowHighCoordinates = Enumerable.Repeat(Coordinates.Origin, 2).ToArray();
+
+    private readonly System.Timers.Timer _timer = new(100) { AutoReset = false };
 
     public LatchCurveViewModel(LatchCurveModel model) : base(model)
     {
-        _model = model;
+        CurveModel = model;
+
+        LineDataLowTempX[0] = LineDataHighTempX[0] = ICurveService.AbsoluteMinTemperature;
+        LineDataLowTempX[1] = LineDataHighTempX[1] = ICurveService.AbsoluteMaxTemperature;
 
         SetLineData();
-        LineOutputLow.ItemsSource = _lineDataOutputLow;
-        LineOutputHigh.ItemsSource = _lineDataOutputHigh;
-        Plot.Series.Insert(0, LineOutputLow);
-        Plot.Series.Insert(0, LineOutputHigh);
-        Plot.Annotations.Add(ArrowThresholdLow);
-        Plot.Annotations.Add(ArrowThresholdHigh);
 
-        SetColor();
+        _timer.Elapsed += Timer_Elapsed;
     }
 
-    private protected override void Model_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    internal override void Model_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         base.Model_PropertyChanged(sender, e);
 
-        if (e.PropertyName == nameof(_model.OutputLowTemperature) ||
-            e.PropertyName == nameof(_model.OutputHighTemperature) ||
-            e.PropertyName == nameof(_model.TemperatureThresholdLow) ||
-            e.PropertyName == nameof(_model.TemperatureThresholdHigh))
+        if (e.PropertyName == nameof(CurveModel.OutputLowTemperature) ||
+            e.PropertyName == nameof(CurveModel.OutputHighTemperature) ||
+            e.PropertyName == nameof(CurveModel.TemperatureThresholdLow) ||
+            e.PropertyName == nameof(CurveModel.TemperatureThresholdHigh))
         {
-            SetLineData();
-            if (IsVisible)
-            {
-                Plot.InvalidatePlot(true);
-            }
+            _timer.Stop();
+            _timer.Start();
         }
     }
 
     private void SetLineData()
     {
-        _lineDataOutputLow.Clear();
-        _lineDataOutputLow.Add(new(XAxis.AbsoluteMinimum - 10, _model.OutputLowTemperature));
-        _lineDataOutputLow.Add(new(_model.TemperatureThresholdHigh, _model.OutputLowTemperature));
+        LineDataLowTempX[1] = ArrowHighCoordinates[0].X = ArrowHighCoordinates[1].X = CurveModel.TemperatureThresholdHigh;
+        LineDataLowTempY[0] = LineDataLowTempY[1] = ArrowLowCoordinates[1].Y = ArrowHighCoordinates[0].Y = CurveModel.OutputLowTemperature;
+        LineDataHighTempX[0] = ArrowLowCoordinates[0].X = ArrowLowCoordinates[1].X = CurveModel.TemperatureThresholdLow;
+        LineDataHighTempY[0] = LineDataHighTempY[1] = ArrowLowCoordinates[0].Y = ArrowHighCoordinates[1].Y = CurveModel.OutputHighTemperature;
 
-        _lineDataOutputHigh.Clear();
-        _lineDataOutputHigh.Add(new(_model.TemperatureThresholdLow, _model.OutputHighTemperature));
-        _lineDataOutputHigh.Add(new(XAxis.AbsoluteMaximum + 10, _model.OutputHighTemperature));
-
-        ArrowThresholdLow.StartPoint = new(_model.TemperatureThresholdLow, _model.OutputHighTemperature);
-        ArrowThresholdLow.EndPoint = new(_model.TemperatureThresholdLow, _model.OutputLowTemperature);
-
-        ArrowThresholdHigh.StartPoint = new(_model.TemperatureThresholdHigh, _model.OutputLowTemperature);
-        ArrowThresholdHigh.EndPoint = new(_model.TemperatureThresholdHigh, _model.OutputHighTemperature);
+        OnCurveDataChanged();
     }
 
-    private protected override void SetColor()
+    private void Timer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
     {
-        LineOutputLow.Color = LineOutputHigh.Color = ArrowThresholdLow.Color = ArrowThresholdHigh.Color
-            = OxyColor.Parse(_settingsService.Settings.ChartLineColor);
-        base.SetColor();
+        SetLineData();
+        _curveService.Save();
     }
 }

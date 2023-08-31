@@ -1,13 +1,16 @@
 ﻿using Anemos.Contracts.Services;
+using Anemos.Helpers;
 using Anemos.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Messaging;
 
 namespace Anemos.ViewModels;
 
-public class RuleSensorEditorViewModel : ObservableRecipient
+public class RuleSensorEditorViewModel : ObservableObject
 {
     private readonly ISensorService _sensorService = App.GetService<ISensorService>();
+
+    internal double MinTemperature => ICurveService.AbsoluteMinTemperature;
+    internal double MaxTemperature => ICurveService.AbsoluteMaxTemperature;
 
     private string _sensorId = string.Empty;
     public string SensorId
@@ -15,7 +18,7 @@ public class RuleSensorEditorViewModel : ObservableRecipient
         get => _sensorId;
         set
         {
-            if (SetProperty(ref _sensorId, value))
+            if (SetProperty(ref _sensorId, value) && _sensorId != Source?.Id)
             {
                 OnPropertyChanged(nameof(Source));
             }
@@ -70,24 +73,9 @@ public class RuleSensorEditorViewModel : ObservableRecipient
         }
     }
 
-    public string[] signs = { "<", "≤" };
-
-    public RuleSensorEditorViewModel()
+    public string[] signs =
     {
-        Messenger.Register<CustomSensorsChangedMessage>(this, CustomSensorsChangedMessageHandler);
-    }
-
-    private void CustomSensorsChangedMessageHandler(object recipient, CustomSensorsChangedMessage message)
-    {
-        OnPropertyChanged(nameof(Sensors));
-    }
-
-    public void Reset()
-    {
-        SensorId = string.Empty;
-        LowerValue = double.NaN;
-        UpperValue = double.NaN;
-        IndexIncludeLower = 0;
-        IndexIncludeUpper = 0;
-    }
+        "RuleSensorEditor_Signs_LT".GetLocalized(),
+        "RuleSensorEditor_Signs_LEQ".GetLocalized()
+    };
 }

@@ -14,11 +14,11 @@ public interface ILhwmService
         get;
     }
 
+    void Close();
+
     ISensor? GetSensor(string id);
 
     IEnumerable<ISensor> GetSensors(SensorType sensorType);
 
-    Task InitializeAsync();
-
-    void Close();
+    void Start();
 }

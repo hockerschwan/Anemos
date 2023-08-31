@@ -3,141 +3,109 @@ using Anemos.Contracts.Services;
 using Anemos.Helpers;
 using Anemos.Models;
 using Anemos.Views;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Anemos.ViewModels;
 
-public partial class CurvesViewModel : ObservableRecipient
+public partial class CurvesViewModel : PageViewModelBase
 {
+    private readonly IMessenger _messenger;
     private readonly ICurveService _curveService;
 
-    private List<CurveModelBase> Models
-    {
-        get;
-    }
-
-    private ObservableCollection<CurveViewModelBase> ViewModels
-    {
-        get;
-    }
-
-    public ObservableCollection<CurveView> Views
-    {
-        get;
-    }
-
-    public ChartCurveEditorDialog ChartEditor
-    {
-        get;
-    }
-
-    public LatchCurveEditorDialog LatchEditor
-    {
-        get;
-    }
+    public ObservableCollection<CurveViewModelBase> ViewModels { get; } = new();
+    public ObservableCollection<CurveView> Views { get; } = new();
 
     private bool _isVisible;
-    public bool IsVisible
+    public override bool IsVisible
     {
         get => _isVisible;
-        set => SetProperty(ref _isVisible, value);
+        set
+        {
+            if (SetProperty(ref _isVisible, value) && value)
+            {
+                foreach (var vm in ViewModels)
+                {
+                    vm.Update();
+                }
+            }
+        }
     }
 
-    public CurvesViewModel(ICurveService curveService)
+    public CurvesViewModel(IMessenger messenger, ICurveService curveService)
     {
+        _messenger = messenger;
         _curveService = curveService;
 
-        Messenger.Register<WindowVisibilityChangedMessage>(this, WindowVisibilityChangedMessageHandler);
-        Messenger.Register<CurvesChangedMessage>(this, CurvesChangedMessageHandler);
+        _messenger.Register<CurvesChangedMessage>(this, CurvesChangedMessageHandler);
 
-        Models = _curveService.Curves.ToList();
-
-        var vms = new List<CurveViewModelBase>();
-        foreach (var model in Models)
+        foreach (var model in _curveService.Curves)
         {
             if (model is ChartCurveModel chart)
             {
-                vms.Add(new ChartCurveViewModel(chart));
+                var vm = new ChartCurveViewModel(chart);
+                ViewModels.Add(vm);
+                Views.Add(new CurveView(vm));
             }
             else if (model is LatchCurveModel latch)
             {
-                vms.Add(new LatchCurveViewModel(latch));
+                var vm = new LatchCurveViewModel(latch);
+                ViewModels.Add(vm);
+                Views.Add(new CurveView(vm));
             }
         }
-        ViewModels = new(vms);
-
-        Views = new(ViewModels.Select(vm => new CurveView(vm)));
-        ChartEditor = new();
-        LatchEditor = new();
-    }
-
-    private void WindowVisibilityChangedMessageHandler(object recipient, WindowVisibilityChangedMessage message)
-    {
-        IsVisible = message.Value;
     }
 
     private void CurvesChangedMessageHandler(object recipient, CurvesChangedMessage message)
     {
-        var removed = message.OldValue.Except(message.NewValue).ToList();
-        if (removed.Any())
+        var removed = message.OldValue.Except(message.NewValue);
+        foreach (var model in removed)
         {
-            foreach (var model in removed.ToList())
+            var vm = ViewModels.FirstOrDefault(vm => vm?.Model.Id == model.Id, null);
+            if (vm != null)
             {
-                Models.Remove(model);
+                ViewModels.Remove(vm);
+            }
 
-                var vm = ViewModels.FirstOrDefault(vm => vm?.Model.Id == model.Id, null);
-                if (vm != null)
-                {
-                    ViewModels.Remove(vm);
-                }
-
-                var v = Views.FirstOrDefault(v => (v?.ViewModel)?.Model.Id == model.Id, null);
-                if (v != null)
-                {
-                    Views.Remove(v);
-                }
+            var v = Views.FirstOrDefault(v => (v?.ViewModel)?.Model.Id == model.Id, null);
+            if (v != null)
+            {
+                Views.Remove(v);
             }
         }
 
-        var added = message.NewValue.Except(message.OldValue).ToList();
-        if (added.Any())
+        var added = message.NewValue.Except(message.OldValue);
+        foreach (var model in added)
         {
-            foreach (var model in added)
+            if (model is ChartCurveModel chart)
             {
-                Models.Add(model);
-
-                if (model is ChartCurveModel curve)
-                {
-                    var vm = new ChartCurveViewModel(curve);
-                    ViewModels.Add(vm);
-                    Views.Add(new CurveView(vm));
-                }
-                else if (model is LatchCurveModel latch)
-                {
-                    var vm = new LatchCurveViewModel(latch);
-                    ViewModels.Add(vm);
-                    Views.Add(new CurveView(vm));
-                }
-                model.Update();
+                var vm = new ChartCurveViewModel(chart);
+                ViewModels.Add(vm);
+                Views.Add(new CurveView(vm));
             }
+            else if (model is LatchCurveModel latch)
+            {
+                var vm = new LatchCurveViewModel(latch);
+                ViewModels.Add(vm);
+                Views.Add(new CurveView(vm));
+            }
+            model.Update();
         }
     }
 
     [RelayCommand]
-    private void AddChartCurve()
+    private void AddChart()
     {
         _curveService.AddCurve(new()
         {
             Type = CurveType.Chart,
             Name = "Curves_NewCurveName".GetLocalized(),
-            Points = new Point2[] { new(30, 30), new(70, 70) }
+            Points = new Point2d[] { new(30, 30), new(70, 70) }
         });
     }
 
     [RelayCommand]
-    private void AddLatchCurve()
+    private void AddLatch()
     {
         _curveService.AddCurve(new()
         {

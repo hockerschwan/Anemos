@@ -52,7 +52,7 @@ public class CustomSensorModel : SensorModelBase
 
     public IEnumerable<SensorModelBase> SourceModels => _sensorService.GetSensors(SourceIds);
 
-    private LimitedQueue<double> _data = new(1);
+    private readonly LimitedPooledQueue<double> _data = new(1);
 
     private CustomSensorCalcMethod _calcMethod;
     public CustomSensorCalcMethod CalcMethod
@@ -67,7 +67,7 @@ public class CustomSensorModel : SensorModelBase
 
             if (value == CustomSensorCalcMethod.MovingAverage)
             {
-                _data = new(SampleSize);
+                _data.Capacity = SampleSize;
             }
 
             Update();
@@ -80,12 +80,12 @@ public class CustomSensorModel : SensorModelBase
         get => _sampleSize;
         set
         {
-            if (value < 0) { return; }
+            if (value < 1) { return; }
 
             if (SetProperty(ref _sampleSize, value))
             {
                 _sensorService.Save();
-                _data.Limit = _sampleSize;
+                _data.Capacity = _sampleSize;
                 Update();
             }
         }
@@ -96,7 +96,7 @@ public class CustomSensorModel : SensorModelBase
         _id = args.Id == string.Empty ? Guid.NewGuid().ToString() : args.Id;
         _name = args.Name;
         _calcMethod = args.CalcMethod;
-        _sampleSize = args.SampleSize;
+        _sampleSize = _data.Capacity = args.SampleSize;
         _sourceIds = args.SourceIds.ToList();
 
         Update();
@@ -142,9 +142,9 @@ public class CustomSensorModel : SensorModelBase
                 {
                     _data.Enqueue(average.Value);
                 }
-                if (_data.Count > 0)
+                if (_data.Any())
                 {
-                    value = _data.Sum() / _data.Count;
+                    value = _data.Average();
                 }
                 break;
         }
@@ -183,5 +183,4 @@ public class CustomSensorModel : SensorModelBase
         _sensorService.Save();
         Update();
     }
-
 }

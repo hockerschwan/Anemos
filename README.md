@@ -9,17 +9,18 @@ Control chassis, CPU & GPU fans on Windows 10 or later.
 ## Screenshots
 
 <div>
-<img src="https://user-images.githubusercontent.com/80553357/238078414-fbb1b808-758b-469b-af83-4601d76776f1.png" width=300>
-<img src="https://user-images.githubusercontent.com/80553357/238078419-79279cfd-f916-4de2-9589-91e03b8e8590.png" width=300>
-<img src="https://user-images.githubusercontent.com/80553357/238078424-caba8b31-dae1-446e-b9c9-e1d0f1611e5e.png" width=300>
-<img src="https://user-images.githubusercontent.com/80553357/238078422-003c5968-5613-4a89-bb93-236634c52dde.png" width=300>
+<img src="https://github.com/hockerschwan/Anemos/assets/80553357/1a402336-bbe5-4355-bcfe-c5646eb7b486" width=300>
+<img src="https://github.com/hockerschwan/Anemos/assets/80553357/0e1c7cd8-5576-49fb-8310-22f9248b1278" width=300>
+<img src="https://github.com/hockerschwan/Anemos/assets/80553357/388b063b-44e6-4afc-81a3-b34a539df8ca" width=300>
+<img src="https://github.com/hockerschwan/Anemos/assets/80553357/7802f14f-6907-4eea-821f-229e1e5539dd" width=300>
 </div>
 
 ## Usage
 
-To run this app, you need to install .Net7 and [Windows App SDK runtime](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads).
+To run this app, you need to install [.NET7](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
+and [Windows App SDK runtime](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads).
 
-If amdadlx64.dll is not found, update driver or download from [here](https://download.amd.com/dir/bin/amdadlx64.dll/).
+(You don't need to if you use "Self-Contained" version.)
 
 ## GPU Support
 
@@ -42,21 +43,20 @@ Multi-GPU not tested.
 ## Building
 
 1. [Install Visual Studio components](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/set-up-your-development-environment#required-workloads-and-components) for WinUI development.
-
-    Add C++/CLI support (latest)
-
 1. Download [ADLX](https://github.com/GPUOpen-LibrariesAndSDKs/ADLX)
-1. Copy `SDK` folder to `ADLXWrapper` (even if you don't have AMD cards, otherwise build fails.)
+1. Copy `SDK` folder to `Libs/ADLXWrapperCpp` (even if you don't have AMD cards, otherwise build fails.)
 
 ## Libraries used
 
-- [Community Toolkit](https://github.com/CommunityToolkit/dotnet)
-- [FontAwesome6.Fonts](https://github.com/MartinTopfstedt/FontAwesome6)
-- [H.OxyPlot](https://github.com/HavenDV/H.OxyPlot)
+- [AMD Device Library eXtra](https://github.com/GPUOpen-LibrariesAndSDKs/ADLX)
+- [Collections.Pooled](https://github.com/jtmueller/Collections.Pooled)
+- [.NET Community Toolkit](https://github.com/CommunityToolkit/dotnet)
+- [FontAwesome6](https://github.com/MartinTopfstedt/FontAwesome6)
 - [LibreHardwareMonitorLib](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor)
+- [PlainlyIpc](https://github.com/chrbaeu/PlainlyIpc)
+- [ScottPlot](https://github.com/ScottPlot/ScottPlot)
 - [Serilog](https://github.com/serilog/serilog)
-- [Vanara](https://github.com/dahall/Vanara)
-- [ZetaIpc](https://github.com/UweKeim/ZetaIpc)
+- [WinUIEx](https://github.com/dotMorten/WinUIEx)
 
 ## Contributing
 
@@ -70,4 +70,5 @@ Use issues for issues (bug reports) only.
 
 ## Credits
 
-App icon: [Origami pack from Flaticon](https://www.flaticon.com/packs/origami-32)
+- App icon: [Origami pack from Flaticon](https://www.flaticon.com/packs/origami-32)
+- [Azeret Mono](https://github.com/displaay/Azeret)
