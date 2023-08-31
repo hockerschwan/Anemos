@@ -111,6 +111,7 @@ public class FanSettings_ProfileItem
     public int DeltaLimitUp { get; set; } = 0;
     public int DeltaLimitDown { get; set; } = 0;
     public int RefractoryPeriodCyclesDown { get; set; } = 0;
+    public int Offset { get; set; } = 0;
 }
 
 public class CurveSettings

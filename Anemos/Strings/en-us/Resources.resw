@@ -458,4 +458,7 @@
   <data name="NotifyIcon_UseRules" xml:space="preserve">
     <value>Use Rules</value>
   </data>
+  <data name="FanOptions_Offset.Header" xml:space="preserve">
+    <value>Offset</value>
+  </data>
 </root>

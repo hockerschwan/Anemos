@@ -1,3 +1,4 @@
+using Anemos.Models;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml.Controls;
 using Windows.Globalization.NumberFormatting;
@@ -6,7 +7,7 @@ namespace Anemos.Views;
 
 public sealed partial class FanOptionsDialog : ContentDialog
 {
-    public FanOptionsDialog(int min, int max, int deltaUp, int deltaDown, int holdCycleDown)
+    public FanOptionsDialog(FanOptionsResult args)
     {
         InitializeComponent();
         Loaded += FanOptionsDialog_Loaded;
@@ -15,11 +16,12 @@ public sealed partial class FanOptionsDialog : ContentDialog
 
         SetNumberFormatter();
 
-        NB_Min.Value = min;
-        NB_Max.Value = max;
-        NB_DeltaUp.Value = deltaUp;
-        NB_DeltaDown.Value = deltaDown;
-        NB_HoldCycleDown.Value = holdCycleDown;
+        NB_Min.Value = args.MinSpeed;
+        NB_Max.Value = args.MaxSpeed;
+        NB_DeltaUp.Value = args.DeltaLimitUp;
+        NB_DeltaDown.Value = args.DeltaLimitDown;
+        NB_HoldCycleDown.Value = args.RefractoryPeriodCyclesDown;
+        NB_Offset.Value = args.Offset;
     }
 
     private void FanOptionsDialog_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
@@ -50,7 +52,8 @@ public sealed partial class FanOptionsDialog : ContentDialog
                 MaxSpeed = (int)NB_Max.Value,
                 DeltaLimitUp = (int)NB_DeltaUp.Value,
                 DeltaLimitDown = (int)NB_DeltaDown.Value,
-                RefractoryPeriodCyclesDown = (int)NB_HoldCycleDown.Value
+                RefractoryPeriodCyclesDown = (int)NB_HoldCycleDown.Value,
+                Offset = (int)NB_Offset.Value
             }));
         });
     }
@@ -70,6 +73,7 @@ public sealed partial class FanOptionsDialog : ContentDialog
         };
 
         NB_Min.NumberFormatter = NB_Max.NumberFormatter
-            = NB_DeltaUp.NumberFormatter = NB_DeltaDown.NumberFormatter = NB_HoldCycleDown.NumberFormatter = formatter;
+            = NB_DeltaUp.NumberFormatter = NB_DeltaDown.NumberFormatter
+            = NB_HoldCycleDown.NumberFormatter = NB_Offset.NumberFormatter = formatter;
     }
 }

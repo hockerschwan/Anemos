@@ -32,6 +32,7 @@ public class FanOptionsResult
     public int DeltaLimitUp;
     public int DeltaLimitDown;
     public int RefractoryPeriodCyclesDown;
+    public int Offset;
 }
 
 [DebuggerDisplay("{Name}")]
@@ -234,6 +235,19 @@ public abstract class FanModelBase : ObservableObject
         }
     }
 
+    private protected int _offset;
+    public int Offset
+    {
+        get => _offset;
+        set
+        {
+            if (SetProperty(ref _offset, value))
+            {
+                UpdateProfile();
+            }
+        }
+    }
+
     private protected int? _targetValue;
     public int? TargetValue
     {
@@ -294,10 +308,12 @@ public abstract class FanModelBase : ObservableObject
             return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(CurveModel.Output.Value)));
         }
 
+        var output = double.Max(0, double.Min(100, CurveModel.Output.Value + Offset));
+
         if (RefractoryPeriodCyclesDown > 0)
         {
             ++_refractoryPeriodCounter;
-            if (_refractoryPeriodCounter <= RefractoryPeriodCyclesDown && CurveModel.Output < TargetValue)
+            if (_refractoryPeriodCounter <= RefractoryPeriodCyclesDown && output < TargetValue)
             {
                 return Math.Min(MaxSpeed, Math.Max(MinSpeed, TargetValue.Value));
             }
@@ -305,21 +321,21 @@ public abstract class FanModelBase : ObservableObject
             _refractoryPeriodCounter = 0;
         }
 
-        if (CurveModel.Output > TargetValue)
+        if (output > TargetValue)
         {
-            var diff = CurveModel.Output - TargetValue.Value;
+            var diff = output - TargetValue.Value;
             if (DeltaLimitUp == 0 || diff <= DeltaLimitUp)
             {
-                return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(CurveModel.Output.Value)));
+                return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(output)));
             }
             return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(TargetValue.Value) + DeltaLimitUp));
         }
         else
         {
-            var diff = TargetValue.Value - CurveModel.Output;
+            var diff = TargetValue.Value - output;
             if (DeltaLimitDown == 0 || diff <= DeltaLimitDown)
             {
-                return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(CurveModel.Output.Value)));
+                return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(output)));
             }
             return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(TargetValue.Value) - DeltaLimitDown));
         }
@@ -336,6 +352,7 @@ public abstract class FanModelBase : ObservableObject
         DeltaLimitUp = item.DeltaLimitUp;
         DeltaLimitDown = item.DeltaLimitDown;
         RefractoryPeriodCyclesDown = item.RefractoryPeriodCyclesDown;
+        Offset = item.Offset;
         ControlMode = item.Mode;
 
         _updateProfile = true;
@@ -348,6 +365,7 @@ public abstract class FanModelBase : ObservableObject
         DeltaLimitUp = options.DeltaLimitUp;
         DeltaLimitDown = options.DeltaLimitDown;
         RefractoryPeriodCyclesDown = options.RefractoryPeriodCyclesDown;
+        Offset = options.Offset;
     }
 
     private protected void UpdateProfile()

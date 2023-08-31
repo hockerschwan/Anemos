@@ -37,9 +37,9 @@
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
 		<PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
 		<PackageReference Include="FontAwesome6.Fonts.WinUI" Version="2.5.1" />
-		<PackageReference Include="LibreHardwareMonitorLib" Version="0.9.3-pre249" />
+		<PackageReference Include="LibreHardwareMonitorLib" Version="0.9.3-pre252" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.3.230724000" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.230822000" />
 		<PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="2.0.9" />
 		<PackageReference Include="ScottPlot.WinUI" Version="5.0.8-beta" />
 		<PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />

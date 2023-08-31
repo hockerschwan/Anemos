@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using Anemos.Contracts.Services;
+using Anemos.Models;
 using Anemos.ViewModels;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml;
@@ -145,12 +146,16 @@ public sealed partial class FanView : UserControl
 
     private async void FanOptionsButton_Click(object sender, RoutedEventArgs e)
     {
-        _optionsDialogOpened = await FansPage.OpenOptionsDialog(
-            ViewModel.Model.MinSpeed,
-            ViewModel.Model.MaxSpeed,
-            ViewModel.Model.DeltaLimitUp,
-            ViewModel.Model.DeltaLimitDown,
-            ViewModel.Model.RefractoryPeriodCyclesDown);
+        var args = new FanOptionsResult
+        {
+            MinSpeed = ViewModel.Model.MinSpeed,
+            MaxSpeed = ViewModel.Model.MaxSpeed,
+            DeltaLimitUp = ViewModel.Model.DeltaLimitUp,
+            DeltaLimitDown = ViewModel.Model.DeltaLimitDown,
+            RefractoryPeriodCyclesDown = ViewModel.Model.RefractoryPeriodCyclesDown,
+            Offset = ViewModel.Model.Offset
+        };
+        _optionsDialogOpened = await FansPage.OpenOptionsDialog(args);
     }
 
     private void Grid_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)

@@ -34,6 +34,11 @@ internal class ArrowCoordinated : IPlottable
 
     public ArrowCoordinated(IReadOnlyList<Coordinates> coordinates)
     {
+        if (coordinates.Count != 2)
+        {
+            throw new ArgumentException("Must contain exactly 2 cooordinates.", nameof(coordinates));
+        }
+
         Source = new(coordinates);
     }
 

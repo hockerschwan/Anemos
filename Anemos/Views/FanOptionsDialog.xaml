@@ -41,5 +41,12 @@
 			Maximum="3600"
 			Minimum="0"
 			SpinButtonPlacementMode="Inline" />
+
+		<NumberBox
+			x:Name="NB_Offset"
+			x:Uid="FanOptions_Offset"
+			Maximum="100"
+			Minimum="-100"
+			SpinButtonPlacementMode="Inline" />
 	</StackPanel>
 </ContentDialog>

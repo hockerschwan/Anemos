@@ -1,4 +1,5 @@
 ﻿using Anemos.Helpers;
+using Anemos.Models;
 using Anemos.ViewModels;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml;
@@ -56,9 +57,9 @@ public sealed partial class FansPage : Page
         return await App.GetService<ShellPage>().OpenDialog(dialog);
     }
 
-    public static async Task<bool> OpenOptionsDialog(int min, int max, int deltaUp, int deltaDown, int holdCycleDown)
+    public static async Task<bool> OpenOptionsDialog(FanOptionsResult args)
     {
-        var dialog = new FanOptionsDialog(min, max, deltaUp, deltaDown, holdCycleDown)
+        var dialog = new FanOptionsDialog(args)
         {
             Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
             PrimaryButtonStyle = Application.Current.Resources["AccentButtonStyle"] as Style,
