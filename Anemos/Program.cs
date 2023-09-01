@@ -34,8 +34,8 @@ public static class Program
             else // already running
             {
                 var ipcFactory = new IpcFactory();
-                var client = ipcFactory.CreateNamedPipeIpcClient(Id).Result;
-                client.ExecuteRemote<Contracts.Services.IIpcService>(x => x.ShowWindow());
+                var sender = ipcFactory.CreateNamedPipeIpcSender(Id).Result;
+                sender.SendStringAsync("SHOWWINDOW");
             }
         }
         catch (Exception ex)

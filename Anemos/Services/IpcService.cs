@@ -10,7 +10,7 @@ internal class IpcService : IIpcService
 {
     private readonly IMessenger _messenger;
 
-    private readonly IIpcHandler _server;
+    private readonly IIpcReceiver _receiver;
 
     public IpcService(IMessenger messenger)
     {
@@ -18,8 +18,8 @@ internal class IpcService : IIpcService
         _messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
 
         var ipcFactory = new IpcFactory();
-        _server = ipcFactory.CreateNamedPipeIpcServer(App.Current.AppId).Result;
-        _server.RegisterService<IIpcService>(this);
+        _receiver = ipcFactory.CreateNamedPipeIpcReceiver(App.Current.AppId).Result;
+        _receiver.MessageReceived += Receiver_MessageReceived;
 
         _messenger.Send<ServiceStartupMessage>(new(GetType()));
         Log.Information("[IPC] Started");
@@ -27,12 +27,17 @@ internal class IpcService : IIpcService
 
     private void AppExitMessageHandler(object recipient, AppExitMessage message)
     {
-        _server.Dispose();
+        _receiver.Dispose();
         _messenger.Send<ServiceShutDownMessage>(new(GetType()));
     }
 
-    public void ShowWindow()
+    private void Receiver_MessageReceived(object? sender, PlainlyIpc.EventArgs.IpcMessageReceivedEventArgs e)
     {
-        App.ShowWindow();
+        switch (e.Value)
+        {
+            case "SHOWWINDOW":
+                App.ShowWindow();
+                break;
+        }
     }
 }
