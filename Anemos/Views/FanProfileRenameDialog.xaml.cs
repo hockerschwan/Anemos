@@ -33,7 +33,7 @@ public sealed partial class FanProfileRenameDialog : ContentDialog
     {
         App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
         {
-            while (IsLoaded)
+            while (IsLoaded || !FansPage.RenameDialogOpened)
             {
                 await Task.Delay(100);
             }

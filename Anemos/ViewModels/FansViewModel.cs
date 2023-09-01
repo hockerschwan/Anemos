@@ -110,7 +110,6 @@ public partial class FansViewModel : PageViewModelBase
         _fanService = fanService;
 
         _messenger.Register<FanProfilesChangedMessage>(this, FanProfileChangedMessageHandler);
-        _messenger.Register<FanProfileRenamedMessage>(this, FanProfileRenamedMessageHandler);
         _messenger.Register<FanProfileSwitchedMessage>(this, FanProfileSwitchedMessageHandler);
 
         _settingsService.Settings.FanSettings.PropertyChanged += FanSettings_PropertyChanged;
@@ -148,10 +147,6 @@ public partial class FansViewModel : PageViewModelBase
 
         OnPropertyChanged(nameof(FanProfiles));
         SelectedProfile = _fanService.CurrentProfile;
-    }
-
-    private void FanProfileRenamedMessageHandler(object recipient, FanProfileRenamedMessage message)
-    {
     }
 
     private void FanProfileSwitchedMessageHandler(object recipient, FanProfileSwitchedMessage message)

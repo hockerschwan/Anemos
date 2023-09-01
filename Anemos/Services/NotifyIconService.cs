@@ -2,6 +2,7 @@
 using System.Text;
 using Anemos.Contracts.Services;
 using Anemos.Helpers;
+using Anemos.Views;
 using CommunityToolkit.Mvvm.Messaging;
 using NotifyIconLib;
 using Serilog;
@@ -83,13 +84,18 @@ public class NotifyIconService : INotifyIconService
         _messenger.Send<ServiceShutDownMessage>(new(GetType()));
     }
 
-    private void FanProfilesChangedMessageHandler(object recipient, FanProfilesChangedMessage message)
+    private async void FanProfilesChangedMessageHandler(object recipient, FanProfilesChangedMessage message)
     {
+        while (FansPage.RenameDialogOpened)
+        {
+            await Task.Delay(100);
+        }
         UpdateMenu();
     }
 
-    private void FanProfileRenamedMessageHandler(object recipient, FanProfileRenamedMessage message)
+    private async void FanProfileRenamedMessageHandler(object recipient, FanProfileRenamedMessage message)
     {
+        await Task.Delay(500);
         UpdateMenu();
     }
 
@@ -203,6 +209,7 @@ public class NotifyIconService : INotifyIconService
         {
             foreach (var item in sub.Children.Cast<MyMenuItem>())
             {
+                item.Text = _fanService.GetProfile(item.ProfileId!)!.Name;
                 item.IsChecked = pr?.Id == item.ProfileId;
             }
         }

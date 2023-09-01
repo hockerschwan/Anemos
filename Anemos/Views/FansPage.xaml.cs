@@ -16,7 +16,10 @@ public sealed partial class FansPage : Page
         get;
     }
 
-    private bool _renameDialogOpended;
+    internal static bool RenameDialogOpened
+    {
+        get; private set;
+    }
 
     public FansPage()
     {
@@ -30,9 +33,9 @@ public sealed partial class FansPage : Page
 
     private void FanProfileRenamedMessageHandler(object recipient, FanProfileRenamedMessage message)
     {
-        if (!_renameDialogOpended || ViewModel.SelectedProfile == null || message.Value == string.Empty) { return; }
+        if (!RenameDialogOpened || ViewModel.SelectedProfile == null || message.Value == string.Empty) { return; }
 
-        _renameDialogOpended = false;
+        RenameDialogOpened = false;
         ViewModel.SelectedProfile.Name = message.Value;
     }
 
@@ -87,7 +90,7 @@ public sealed partial class FansPage : Page
 
     private async void ProfileRenameButton_Click(object sender, RoutedEventArgs e)
     {
-        _renameDialogOpended = ViewModel.SelectedProfile != null && await OpenRenameDialog(ViewModel.SelectedProfile.Name);
+        RenameDialogOpened = ViewModel.SelectedProfile != null && await OpenRenameDialog(ViewModel.SelectedProfile.Name);
     }
 
     private async void ProfileDeleteButton_Click(object sender, RoutedEventArgs e)
