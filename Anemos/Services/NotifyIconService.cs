@@ -199,6 +199,8 @@ public class NotifyIconService : INotifyIconService
 
     public void SetVisibility(bool visible) => _notifyIcon.SetVisibility(visible);
 
+    public void Update() => UpdateMenu();
+
     private void UpdateMenu()
     {
         var pr = _fanService.GetProfile(_fanService.UseRules ? _fanService.AutoProfileId : _fanService.ManualProfileId);

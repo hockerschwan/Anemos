@@ -78,6 +78,7 @@ public class ActivationService : IActivationService
     {
         App.GetService<ILhwmService>().Start();
         App.GetService<IRuleService>().Update();
+        App.GetService<INotifyIconService>().Update();
         App.GetService<INotifyIconService>().SetVisibility(true);
 
         await Task.CompletedTask;
