@@ -28,6 +28,7 @@ public sealed partial class MainWindow : WindowEx
     public MainWindow()
     {
         InitializeComponent();
+        Activated += MainWindow_Activated;
         Closed += MainWindow_Closed;
 
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets/WindowIcon.ico"));
@@ -49,10 +50,6 @@ public sealed partial class MainWindow : WindowEx
                 this.Hide();
             }
         }
-
-        PositionChanged += MainWindow_PositionChanged;
-        SizeChanged += MainWindow_SizeChanged;
-        _timer.Elapsed += Timer_Elapsed;
     }
 
     public double DisplayScale
@@ -67,6 +64,24 @@ public sealed partial class MainWindow : WindowEx
                rect.Top == WindowSettings.Y &&
                Width == WindowSettings.Width &&
                Height == WindowSettings.Height;
+    }
+
+    private void MainWindow_Activated(object sender, Microsoft.UI.Xaml.WindowActivatedEventArgs args)
+    {
+        Activated -= MainWindow_Activated;
+
+        if (_settingsService.Settings.StartMinimized)
+        {
+            DispatcherQueue.TryEnqueue(async () =>
+            {
+                await Task.Delay(1000);
+                _messenger.Send(new WindowVisibilityChangedMessage(false));
+            });
+        }
+
+        PositionChanged += MainWindow_PositionChanged;
+        SizeChanged += MainWindow_SizeChanged;
+        _timer.Elapsed += Timer_Elapsed;
     }
 
     private void MainWindow_Closed(object sender, Microsoft.UI.Xaml.WindowEventArgs args)

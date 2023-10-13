@@ -26,7 +26,7 @@ internal class ArrowCoordinated : IPlottable
         get;
     } = new(MarkerShape.FilledCircle, 5)
     {
-        Outline = LineStyle.NoLine,
+        Outline = LineStyle.None,
         IsVisible = false
     };
 

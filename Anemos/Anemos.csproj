@@ -17,9 +17,9 @@
 		<WindowsPackageType>None</WindowsPackageType>
 		<StartupObject>Anemos.Program</StartupObject>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<Version>0.2.2.0</Version>
-		<AssemblyVersion>0.2.2.0</AssemblyVersion>
-		<FileVersion>0.2.2.0</FileVersion>
+		<Version>0.2.3.0</Version>
+		<AssemblyVersion>0.2.3.0</AssemblyVersion>
+		<FileVersion>0.2.3.0</FileVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -34,17 +34,17 @@
 	<ItemGroup>
 		<PackageReference Include="Chriffizient.PlainlyIpc" Version="0.8.0" />
 		<PackageReference Include="Collections.Pooled" Version="1.0.82" />
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
 		<PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
 		<PackageReference Include="FontAwesome6.Fonts.WinUI" Version="2.5.1" />
-		<PackageReference Include="LibreHardwareMonitorLib" Version="0.9.3-pre252" />
+		<PackageReference Include="LibreHardwareMonitorLib" Version="0.9.3-pre256" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.230822000" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.231008000" />
 		<PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="2.0.9" />
-		<PackageReference Include="ScottPlot.WinUI" Version="5.0.8-beta" />
+		<PackageReference Include="ScottPlot.WinUI" Version="5.0.9-beta" />
 		<PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-		<PackageReference Include="WinUIEx" Version="2.2" />
+		<PackageReference Include="WinUIEx" Version="2.3.2" />
 	</ItemGroup>
 
 	<ItemGroup>
