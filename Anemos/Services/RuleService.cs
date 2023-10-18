@@ -280,6 +280,8 @@ internal class RuleService : IRuleService
                 () => rule.Update());
         });
 
+        Task.Delay(10).Wait();
+
         var rule = Rules.FirstOrDefault(r => r!.ConditionsSatisfied && r!.ProfileId != string.Empty, null);
         if (rule != CurrentRule)
         {
