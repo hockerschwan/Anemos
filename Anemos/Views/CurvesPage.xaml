@@ -5,13 +5,17 @@
 	xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
 	xmlns:cv="using:Anemos.Converters"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:fa="using:FontAwesome6.Fonts"
 	xmlns:local="using:Anemos.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:tabler="using:Anemos.TablerIcon"
 	NavigationCacheMode="Required"
 	mc:Ignorable="d">
 	<Page.Resources>
 		<cv:BoolToVisibilityConverter x:Key="VisibilityConverter" />
+
+		<Style TargetType="tabler:TablerIcon">
+			<Setter Property="FontSize" Value="{StaticResource PageToolbarIconFontSize_}" />
+		</Style>
 	</Page.Resources>
 
 	<controls:DockPanel LastChildFill="True">
@@ -23,8 +27,8 @@
 			<StackPanel Orientation="Horizontal" Spacing="{StaticResource PageToolbarButtonSpacing_}">
 				<Button VerticalAlignment="Stretch" Command="{x:Bind ViewModel.AddChartCommand}">
 					<StackPanel Orientation="Horizontal" Spacing="{StaticResource PageToolbarButtonIconSpacing_}">
-						<fa:FontAwesome FontSize="{StaticResource PageToolbarIconFontSize_}" Icon="Solid_Plus" />
-						<fa:FontAwesome FontSize="{StaticResource PageToolbarIconFontSize_}" Icon="Solid_ChartLine" />
+						<tabler:TablerIcon Symbol="Plus" />
+						<tabler:TablerIcon Symbol="ChartLine" />
 					</StackPanel>
 
 					<ToolTipService.ToolTip>
@@ -34,8 +38,8 @@
 
 				<Button VerticalAlignment="Stretch" Command="{x:Bind ViewModel.AddLatchCommand}">
 					<StackPanel Orientation="Horizontal" Spacing="{StaticResource PageToolbarButtonIconSpacing_}">
-						<fa:FontAwesome FontSize="{StaticResource PageToolbarIconFontSize_}" Icon="Solid_Plus" />
-						<fa:FontAwesome FontSize="{StaticResource PageToolbarIconFontSize_}" Icon="Solid_Repeat" />
+						<tabler:TablerIcon Symbol="Plus" />
+						<tabler:TablerIcon Symbol="Repeat" />
 					</StackPanel>
 
 					<ToolTipService.ToolTip>

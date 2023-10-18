@@ -5,10 +5,10 @@
 	xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
 	xmlns:cv="using:Anemos.Converters"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:fa="using:FontAwesome6.Fonts"
 	xmlns:local="using:Anemos.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:models="using:Anemos.Models"
+	xmlns:tabler="using:Anemos.TablerIcon"
 	IsTabStop="False"
 	mc:Ignorable="d">
 	<UserControl.Resources>
@@ -17,7 +17,11 @@
 		<cv:InvertedBoolToVisibilityConverter x:Key="InvertedVisibilityConverter" />
 
 		<SolidColorBrush x:Key="_ConditionBrush1" Color="LimeGreen" />
-		<SolidColorBrush x:Key="_ConditionBrush2" Color="Red" />
+		<SolidColorBrush x:Key="_ConditionBrush2" Color="OrangeRed" />
+
+		<Style TargetType="tabler:TablerIcon">
+			<Setter Property="FontSize" Value="{StaticResource PageItemIconFontSize_}" />
+		</Style>
 	</UserControl.Resources>
 
 	<Border Style="{StaticResource PageItemContainerBorderStyle_}">
@@ -33,7 +37,7 @@
 						VerticalAlignment="Center"
 						controls:DockPanel.Dock="Right"
 						IsChecked="{x:Bind ViewModel.EditingName, Mode=TwoWay}">
-						<fa:FontAwesome FontSize="{StaticResource PageItemIconFontSize_}" Icon="Solid_Pencil" />
+						<tabler:TablerIcon Symbol="Pencil" />
 
 						<ToolTipService.ToolTip>
 							<ToolTip x:Uid="Rule_EditName_ToolTip" />
@@ -62,13 +66,15 @@
 
 				<controls:DockPanel Margin="{StaticResource PageItemVerticalMargin_}" LastChildFill="True">
 					<Grid controls:DockPanel.Dock="Left">
-						<fa:FontAwesome
+						<tabler:TablerIcon
+							FontSize="{StaticResource PageItemMediumFontSize_}"
 							Foreground="{StaticResource _ConditionBrush1}"
-							Icon="Solid_CircleCheck"
+							Symbol="CircleCheck"
 							Visibility="{x:Bind ViewModel.Model.ConditionsSatisfied, Converter={StaticResource VisibilityConverter}, Mode=OneWay}" />
-						<fa:FontAwesome
+						<tabler:TablerIcon
+							FontSize="{StaticResource PageItemMediumFontSize_}"
 							Foreground="{StaticResource _ConditionBrush2}"
-							Icon="Solid_CircleXmark"
+							Symbol="CircleX"
 							Visibility="{x:Bind ViewModel.Model.ConditionsSatisfied, Converter={StaticResource InvertedVisibilityConverter}, Mode=OneWay}" />
 					</Grid>
 
@@ -84,7 +90,7 @@
 							Command="{x:Bind ViewModel.IncreasePriorityCommand}"
 							IsEnabled="{x:Bind ViewModel.CanIncreasePriority, Mode=OneWay}"
 							Style="{StaticResource PageItemButtonStyle_}">
-							<fa:FontAwesome FontSize="{StaticResource PageItemIconFontSize_}" Icon="Solid_ChevronUp" />
+							<tabler:TablerIcon Symbol="ChevronUp" />
 
 							<ToolTipService.ToolTip>
 								<ToolTip x:Uid="Rule_IncreasePriority_ToolTip" />
@@ -97,7 +103,7 @@
 							Command="{x:Bind ViewModel.DecreasePriorityCommand}"
 							IsEnabled="{x:Bind ViewModel.CanDecreasePriority, Mode=OneWay}"
 							Style="{StaticResource PageItemButtonStyle_}">
-							<fa:FontAwesome FontSize="{StaticResource PageItemIconFontSize_}" Icon="Solid_ChevronDown" />
+							<tabler:TablerIcon Symbol="ChevronDown" />
 
 							<ToolTipService.ToolTip>
 								<ToolTip x:Uid="Rule_DecreasePriority_ToolTip" />
@@ -135,7 +141,7 @@
 				<controls:DockPanel controls:DockPanel.Dock="Top" LastChildFill="True">
 					<Button Padding="2,0" controls:DockPanel.Dock="Left">
 						<StackPanel Orientation="Horizontal" Spacing="{StaticResource PageItemTopRightButtonIconSpacing_}">
-							<fa:FontAwesome FontSize="{StaticResource PageItemIconFontSize_}" Icon="Solid_Plus" />
+							<tabler:TablerIcon Symbol="Plus" />
 							<TextBlock x:Uid="Rule_AddCondition" />
 						</StackPanel>
 
@@ -170,7 +176,7 @@
 						controls:DockPanel.Dock="Right"
 						Click="DeleteSelfButton_Click"
 						Style="{StaticResource SmallCloseButtonStyle_}">
-						<fa:FontAwesome FontSize="{StaticResource PageItemIconFontSize_}" Icon="Solid_Xmark" />
+						<tabler:TablerIcon Symbol="X" />
 
 						<ToolTipService.ToolTip>
 							<ToolTip x:Uid="Rule_Delete_ToolTip" />
@@ -207,13 +213,15 @@
 								</Grid.ColumnDefinitions>
 
 								<Grid Grid.Column="0">
-									<fa:FontAwesome
+									<tabler:TablerIcon
+										FontSize="{StaticResource PageItemMediumFontSize_}"
 										Foreground="{StaticResource _ConditionBrush1}"
-										Icon="Solid_CircleCheck"
+										Symbol="CircleCheck"
 										Visibility="{x:Bind IsSatisfied, Converter={StaticResource VisibilityConverter}, Mode=OneWay}" />
-									<fa:FontAwesome
+									<tabler:TablerIcon
+										FontSize="{StaticResource PageItemMediumFontSize_}"
 										Foreground="{StaticResource _ConditionBrush2}"
-										Icon="Solid_CircleXmark"
+										Symbol="CircleX"
 										Visibility="{x:Bind IsSatisfied, Converter={StaticResource InvertedVisibilityConverter}, Mode=OneWay}" />
 								</Grid>
 
@@ -244,7 +252,7 @@
 									Click="DeleteConditionButton_Click"
 									CommandParameter="{x:Bind}"
 									Style="{StaticResource SmallCloseButtonStyle_}">
-									<fa:FontAwesome FontSize="{StaticResource PageItemIconFontSize_}" Icon="Solid_Xmark" />
+									<tabler:TablerIcon FontSize="{StaticResource PageItemIconFontSize_}" Symbol="X" />
 								</Button>
 							</Grid>
 						</DataTemplate>

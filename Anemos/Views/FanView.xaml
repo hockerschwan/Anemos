@@ -6,16 +6,20 @@
 	xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
 	xmlns:cv="using:Anemos.Converters"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:fa="using:FontAwesome6.Fonts"
 	xmlns:local="using:Anemos.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:models="using:Anemos.Models"
+	xmlns:tabler="using:Anemos.TablerIcon"
 	mc:Ignorable="d">
 	<UserControl.Resources>
 		<cv:PercentConverter x:Key="PercentConverter" />
 		<cv:RPMConverter x:Key="RPMConverter" />
 		<cv:BoolToVisibilityConverter x:Key="VisibilityConverter" />
 		<cv:InvertedBoolToVisibilityConverter x:Key="InvertedVisibilityConverter" />
+
+		<Style TargetType="tabler:TablerIcon">
+			<Setter Property="FontSize" Value="{StaticResource PageItemIconFontSize_}" />
+		</Style>
 	</UserControl.Resources>
 
 	<Border Style="{StaticResource PageItemContainerBorderStyle_}">
@@ -32,7 +36,7 @@
 						controls:DockPanel.Dock="Right"
 						IsChecked="{x:Bind ViewModel.EditingName, Mode=TwoWay}"
 						Style="{StaticResource PageItemToggleButtonStyle_}">
-						<fa:FontAwesome FontSize="{StaticResource PageItemIconFontSize_}" Icon="Solid_Pencil" />
+						<tabler:TablerIcon Symbol="Pencil" />
 
 						<ToolTipService.ToolTip>
 							<ToolTip x:Uid="Fan_EditName_ToolTip" />
@@ -86,7 +90,7 @@
 						Click="FanOptionsButton_Click"
 						IsEnabled="{x:Bind ViewModel.UnlockCurveOption, Mode=OneWay}"
 						Style="{StaticResource PageItemButtonStyle_}">
-						<fa:FontAwesome FontSize="{StaticResource PageItemIconFontSize_}" Icon="Solid_Gear" />
+						<tabler:TablerIcon Symbol="SettingsFilled" />
 
 						<ToolTipService.ToolTip>
 							<ToolTip x:Uid="Fans_Options_ToolTip" />
@@ -165,7 +169,7 @@
 						controls:DockPanel.Dock="Right"
 						IsChecked="{x:Bind ViewModel.Model.IsHidden, Mode=TwoWay}"
 						Style="{StaticResource FanHideButtonStyle_}">
-						<fa:FontAwesome FontSize="{StaticResource PageItemIconFontSize_}" Icon="Solid_Minus" />
+						<tabler:TablerIcon Symbol="Minus" />
 
 						<ToolTipService.ToolTip>
 							<ToolTip x:Uid="Fan_Hide_ToolTip" />

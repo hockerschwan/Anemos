@@ -51,11 +51,11 @@ Multi-GPU not tested.
 - [AMD Device Library eXtra](https://github.com/GPUOpen-LibrariesAndSDKs/ADLX)
 - [Collections.Pooled](https://github.com/jtmueller/Collections.Pooled)
 - [.NET Community Toolkit](https://github.com/CommunityToolkit/dotnet)
-- [FontAwesome6](https://github.com/MartinTopfstedt/FontAwesome6)
 - [LibreHardwareMonitorLib](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor)
 - [PlainlyIpc](https://github.com/chrbaeu/PlainlyIpc)
 - [ScottPlot](https://github.com/ScottPlot/ScottPlot)
 - [Serilog](https://github.com/serilog/serilog)
+- [TablerIcons](https://github.com/tabler/tabler-icons)
 - [WinUIEx](https://github.com/dotMorten/WinUIEx)
 
 ## Contributing
