@@ -4,9 +4,9 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:fa="using:FontAwesome6.Fonts"
 	xmlns:helpers="using:Anemos.Helpers"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:tabler="using:Anemos.TablerIcon"
 	Loaded="OnLoaded">
 	<controls:DockPanel LastChildFill="True">
 		<StackPanel
@@ -44,7 +44,7 @@
 			PaneDisplayMode="LeftCompact"
 			SelectedItem="{x:Bind ViewModel.Selected, Mode=OneWay}">
 			<NavigationView.Resources>
-				<x:Double x:Key="NavigationViewItemOnLeftIconBoxHeight">24</x:Double>
+				<x:Double x:Key="NavigationViewItemOnLeftIconBoxHeight">30</x:Double>
 				<x:Double x:Key="NavigationViewSelectionIndicatorHeight">24</x:Double>
 				<StaticResource x:Key="NavigationViewSelectionIndicatorForeground" ResourceKey="SystemAccentColorLight2" />
 			</NavigationView.Resources>
@@ -55,7 +55,7 @@
 					Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"
 					helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.FansViewModel">
 					<NavigationViewItem.Icon>
-						<fa:FontAwesome Icon="Solid_Wind" />
+						<tabler:TablerIcon Symbol="Wind" />
 					</NavigationViewItem.Icon>
 				</NavigationViewItem>
 
@@ -64,7 +64,7 @@
 					Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"
 					helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.CurvesViewModel">
 					<NavigationViewItem.Icon>
-						<fa:FontAwesome Icon="Solid_ChartLine" />
+						<tabler:TablerIcon Symbol="ChartLine" />
 					</NavigationViewItem.Icon>
 				</NavigationViewItem>
 
@@ -73,7 +73,7 @@
 					Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"
 					helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.SensorsViewModel">
 					<NavigationViewItem.Icon>
-						<fa:FontAwesome Icon="Solid_TemperatureHalf" />
+						<tabler:TablerIcon Symbol="Temperature" />
 					</NavigationViewItem.Icon>
 				</NavigationViewItem>
 
@@ -82,7 +82,7 @@
 					Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"
 					helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.RulesViewModel">
 					<NavigationViewItem.Icon>
-						<fa:FontAwesome Icon="Solid_List" />
+						<tabler:TablerIcon Symbol="List" />
 					</NavigationViewItem.Icon>
 				</NavigationViewItem>
 
@@ -93,7 +93,7 @@
 					Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"
 					helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.SettingsViewModel">
 					<NavigationViewItem.Icon>
-						<fa:FontAwesome Icon="Solid_Gear" />
+						<tabler:TablerIcon Symbol="SettingsFilled" />
 					</NavigationViewItem.Icon>
 				</NavigationViewItem>
 			</NavigationView.MenuItems>
@@ -106,15 +106,15 @@
 					SelectsOnInvoked="False"
 					Tapped="ExitButton_Tapped">
 					<NavigationViewItem.Icon>
-						<fa:FontAwesome Icon="Solid_Xmark" />
+						<tabler:TablerIcon Symbol="X" />
 					</NavigationViewItem.Icon>
 
 					<NavigationViewItem.Resources>
 						<ResourceDictionary>
 							<SolidColorBrush x:Key="NavigationViewItemForegroundPointerOver" Color="White" />
-							<SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="Crimson" />
+							<SolidColorBrush x:Key="NavigationViewItemBackgroundPointerOver" Color="#cc3600" />
 							<SolidColorBrush x:Key="NavigationViewItemForegroundPressed" Color="White" />
-							<SolidColorBrush x:Key="NavigationViewItemBackgroundPressed" Color="DarkRed" />
+							<SolidColorBrush x:Key="NavigationViewItemBackgroundPressed" Color="#992900" />
 						</ResourceDictionary>
 					</NavigationViewItem.Resources>
 				</NavigationViewItem>

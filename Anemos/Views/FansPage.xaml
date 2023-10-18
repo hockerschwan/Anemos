@@ -5,14 +5,18 @@
 	xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
 	xmlns:cv="using:Anemos.Converters"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:fa="using:FontAwesome6.Fonts"
 	xmlns:local="using:Anemos.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:models="using:Anemos.Models"
+	xmlns:tabler="using:Anemos.TablerIcon"
 	NavigationCacheMode="Required"
 	mc:Ignorable="d">
 	<Page.Resources>
 		<cv:BoolToVisibilityConverter x:Key="VisibilityConverter" />
+
+		<Style TargetType="tabler:TablerIcon">
+			<Setter Property="FontSize" Value="{StaticResource PageToolbarIconFontSize_}" />
+		</Style>
 	</Page.Resources>
 
 	<controls:DockPanel LastChildFill="True">
@@ -24,7 +28,7 @@
 
 			<controls:DockPanel LastChildFill="True">
 				<Button VerticalAlignment="Stretch" controls:DockPanel.Dock="Right">
-					<fa:FontAwesome FontSize="{StaticResource PageToolbarIconFontSize_}" Icon="Solid_Ellipsis" />
+					<tabler:TablerIcon Symbol="Dots" />
 
 					<Button.Flyout>
 						<Flyout Placement="BottomEdgeAlignedRight" ShowMode="Standard">
@@ -63,7 +67,7 @@
 						VerticalAlignment="Stretch"
 						Click="ProfileRenameButton_Click"
 						IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}">
-						<fa:FontAwesome FontSize="{StaticResource PageToolbarIconFontSize_}" Icon="Solid_Pencil" />
+						<tabler:TablerIcon Symbol="Pencil" />
 
 						<ToolTipService.ToolTip>
 							<ToolTip x:Uid="Fans_ProfileEditName_ToolTip" />
@@ -74,7 +78,7 @@
 						VerticalAlignment="Stretch"
 						Command="{x:Bind ViewModel.AddProfileCommand}"
 						IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}">
-						<fa:FontAwesome FontSize="{StaticResource PageToolbarIconFontSize_}" Icon="Solid_Plus" />
+						<tabler:TablerIcon Symbol="Plus" />
 
 						<ToolTipService.ToolTip>
 							<ToolTip x:Uid="Fans_ProfileAdd_ToolTip" />
@@ -86,7 +90,7 @@
 						Command="{x:Bind ViewModel.AddProfileCommand}"
 						CommandParameter="1"
 						IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}">
-						<fa:FontAwesome FontSize="{StaticResource PageToolbarIconFontSize_}" Icon="Regular_Copy" />
+						<tabler:TablerIcon Symbol="Copy" />
 
 						<ToolTipService.ToolTip>
 							<ToolTip x:Uid="Fans_ProfileDuplicate_ToolTip" />
@@ -98,7 +102,7 @@
 						Click="ProfileDeleteButton_Click"
 						IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}"
 						Style="{StaticResource CloseButtonStyle_}">
-						<fa:FontAwesome FontSize="{StaticResource PageToolbarIconFontSize_}" Icon="Solid_Trash" />
+						<tabler:TablerIcon Symbol="TrashFilled" />
 
 						<ToolTipService.ToolTip>
 							<ToolTip x:Uid="Fans_ProfileDelete_ToolTip" />

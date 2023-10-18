@@ -7,9 +7,9 @@
 	xmlns:local="using:Microsoft.UI.Xaml.Controls">
 	<ResourceDictionary.ThemeDictionaries>
 		<ResourceDictionary x:Key="Default">
-			<SolidColorBrush x:Key="DangerButtonBackground_" Color="Firebrick" />
-			<SolidColorBrush x:Key="DangerButtonBackgroundPointerOver_" Color="Crimson" />
-			<SolidColorBrush x:Key="DangerButtonBackgroundPressed_" Color="DarkRed" />
+			<SolidColorBrush x:Key="DangerButtonBackground_" Color="#b33000" />
+			<SolidColorBrush x:Key="DangerButtonBackgroundPointerOver_" Color="#cc3600" />
+			<SolidColorBrush x:Key="DangerButtonBackgroundPressed_" Color="#992900" />
 
 			<SolidColorBrush x:Key="DangerButtonForeground_" Color="White" />
 			<SolidColorBrush x:Key="DangerButtonForegroundPointerOver_" Color="White" />
