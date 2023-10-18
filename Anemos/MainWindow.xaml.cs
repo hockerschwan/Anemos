@@ -75,7 +75,10 @@ public sealed partial class MainWindow : WindowEx
             DispatcherQueue.TryEnqueue(async () =>
             {
                 await Task.Delay(1000);
-                _messenger.Send(new WindowVisibilityChangedMessage(false));
+                if (!App.MainWindow.Visible)
+                {
+                    _messenger.Send(new WindowVisibilityChangedMessage(false));
+                }
             });
         }
 
