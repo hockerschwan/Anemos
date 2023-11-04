@@ -47,6 +47,7 @@ public sealed partial class RuleProcessEditorDialog : ContentDialog
             {
                 await Task.Delay(100);
             }
+            await Task.Delay(100);
 
             App.GetService<IMessenger>().Send<RuleProcessChangedMessage>(new(new(
                 _index,
