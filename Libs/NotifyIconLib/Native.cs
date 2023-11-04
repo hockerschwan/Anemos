@@ -35,11 +35,6 @@ internal partial class NativeFunctions
     internal delegate void CallbackGuid([MarshalAs(UnmanagedType.LPStr)] string guid);
     internal delegate void CallbackUint([MarshalAs(UnmanagedType.LPStr)] string guid, uint value);
 
-    internal static void Initialize()
-    {
-        Initialize_();
-    }
-
     internal static void CreateNotifyIcon(Guid guid, System.Drawing.Icon icon)
     {
         var hicon = icon.Handle;
@@ -49,11 +44,6 @@ internal partial class NativeFunctions
     internal static void DeleteNotifyIcon(Guid guid)
     {
         DeleteNotifyIcon_(guid.ToString().ToLower());
-    }
-
-    internal static void SetCallback_Close(CallbackVoid callback)
-    {
-        SetCallback_Close_(Marshal.GetFunctionPointerForDelegate(callback));
     }
 
     internal static void SetCallback_IconClick(CallbackGuid callback)
@@ -66,10 +56,9 @@ internal partial class NativeFunctions
         SetCallback_ItemClick_(Marshal.GetFunctionPointerForDelegate(callback));
     }
 
-    internal static void SetIcon(Guid guid, System.Drawing.Icon icon)
+    internal static void SetIcon(Guid guid, ref System.Drawing.Icon icon)
     {
-        var hicon = icon.Handle;
-        SetIcon_(guid.ToString().ToLower(), hicon);
+        SetIcon_(guid.ToString().ToLower(), icon.Handle);
     }
 
     internal static void SetMenuItems(Guid guid, IList<MenuItemStruct_> menuItems)
@@ -107,10 +96,6 @@ internal partial class NativeFunctions
 
     #region Native functions
 
-    [LibraryImport("NotifyIconLibCpp.dll", EntryPoint = "Initialize")]
-    private static partial void Initialize_();
-
-
     [LibraryImport("NotifyIconLibCpp.dll", EntryPoint = "CreateNotifyIcon")]
     private static partial void CreateNotifyIcon_(
         [MarshalAs(UnmanagedType.LPStr)] string guid,
@@ -118,9 +103,6 @@ internal partial class NativeFunctions
 
     [LibraryImport("NotifyIconLibCpp.dll", EntryPoint = "DeleteNotifyIcon")]
     private static partial void DeleteNotifyIcon_([MarshalAs(UnmanagedType.LPStr)] string guid);
-
-    [LibraryImport("NotifyIconLibCpp.dll", EntryPoint = "SetCallback_Close")]
-    private static partial void SetCallback_Close_(nint callback);
 
     [LibraryImport("NotifyIconLibCpp.dll", EntryPoint = "SetCallback_IconClick")]
     private static partial void SetCallback_IconClick_(nint callback);

@@ -1,11 +1,6 @@
 #include "pch.hpp"
 #include "NotifyIconLib.hpp"
 
-void Initialize()
-{
-	OnInit();
-}
-
 void CreateNotifyIcon(const char* guid, HICON hIcon)
 {
 	DeleteNotifyIcon(guid);
@@ -27,6 +22,7 @@ void DeleteNotifyIcon(const char* guid)
 	}
 	else
 	{
+		PostMessageW(ni->GetHwnd(), WMAPP_DESTROYICON, 0, 0);
 		delete ni;
 	}
 
@@ -82,11 +78,6 @@ void SetEnabled(const char* guid, UINT id, BOOL enabled)
 	item->IsEnabled = enabled;
 }
 
-void SetCallback_Close(callback_function_void callback)
-{
-	g_callback_close_ = callback;
-}
-
 void SetCallback_IconClick(callback_function_guid callback)
 {
 	g_callback_icon_click_ = callback;
@@ -99,7 +90,20 @@ void SetCallback_ItemClick(callback_function_uint callback)
 
 void OnInit()
 {
-	g_hInstance_ = GetModuleHandleW(NULL);
+	WNDCLASSEX wcex = { sizeof(WNDCLASSEX) };
+	wcex.cbSize = sizeof(WNDCLASSEX);
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc = WndProc;
+	wcex.hInstance = g_hInstance_;
+	wcex.hCursor = LoadCursorW(NULL, IDC_ARROW);
+	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.lpszMenuName = NULL;
+	wcex.lpszClassName = g_windowClass_.c_str();
+	if (RegisterClassExW(&wcex) == 0)
+	{
+		auto err = GetLastError();
+		Throw("RegisterClassExW", err);
+	}
 
 	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
 	if (Gdiplus::GdiplusStartup(&g_gdiplusToken_, &gdiplusStartupInput, NULL) != Gdiplus::Status::Ok) return;
@@ -111,6 +115,8 @@ void OnExit()
 	{
 		DeleteNotifyIcon(guid.c_str());
 	}
+
+	UnregisterClassW(g_windowClass_.c_str(), g_hInstance_);
 
 	Gdiplus::GdiplusShutdown(g_gdiplusToken_);
 }
@@ -236,11 +242,6 @@ LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 		s_uTaskbarRestart = RegisterWindowMessageW(L"TaskbarCreated");
 		break;
-	case WM_CLOSE:
-	{
-		if (g_callback_close_ != NULL) g_callback_close_();
-		break;
-	}
 	case WM_COMMAND:
 	{
 		if (g_callback_item_click_ != NULL)

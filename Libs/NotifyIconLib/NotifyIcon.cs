@@ -1,11 +1,12 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 using NotifyIconLib.Events;
 using NotifyIconLib.Native;
 
 namespace NotifyIconLib;
 
-public class NotifyIcon
+public partial class NotifyIcon
 {
     public event EventHandler<NotifyIconClickEventArgs>? Click;
     public event EventHandler<MenuItemClickEventArgs>? ItemClick;
@@ -17,7 +18,7 @@ public class NotifyIcon
 
     public List<MenuItem> MenuItems { get; } = new();
 
-    private readonly Icon _icon;
+    private Icon _icon;
 
     private readonly uint _nItemsPerDepth = 10000u;
 
@@ -33,6 +34,8 @@ public class NotifyIcon
         _icon = Icon.FromHandle(bmp.GetHicon());
 
         Create();
+
+        DestroyIcon(_icon.Handle);
     }
 
     public NotifyIcon(Guid guid, Icon icon)
@@ -132,7 +135,8 @@ public class NotifyIcon
 
     public void SetIcon(Icon icon)
     {
-        NativeFunctions.SetIcon(Guid, icon);
+        _icon = icon;
+        NativeFunctions.SetIcon(Guid, ref _icon);
     }
 
     public void SetTooltip(string toolip)
@@ -190,4 +194,8 @@ public class NotifyIcon
         }).ToList();
         NativeFunctions.SetMenuItems(Guid, menu);
     }
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool DestroyIcon(IntPtr handle);
 }

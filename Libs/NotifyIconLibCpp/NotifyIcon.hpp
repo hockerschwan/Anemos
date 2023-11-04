@@ -1,6 +1,8 @@
 #pragma once
 #include "MenuItem.hpp"
+#include <atomic>
 #include <string>
+#include <vector>
 
 class NotifyIcon
 {
@@ -19,12 +21,13 @@ public:
 
 private:
 	UINT CreateContextMenu(UINT idStart, HMENU& result);
+	void CreateWindowAndRun();
 
 	HWND hWnd_;
-	std::wstring windowClass_;
 	GUID guid_;
 	std::string guidString_;
 	HICON hIcon_;
 	std::vector<MenuItem*> menuItems_;
 	WCHAR* tooltip_;
+	std::atomic_bool windowCreated_ = false;
 };

@@ -22,11 +22,7 @@
 		</None>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\NotifyIconLibCpp\NotifyIconLibCpp.vcxproj" />
-	</ItemGroup>
-
-	<!--<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
 		<Exec Command="msbuild ../NotifyIconLibCpp/NotifyIconLibCpp.vcxproj /p:configuration=$(Configuration) /p:platform=$(Platform)" />
-	</Target>-->
+	</Target>
 </Project>

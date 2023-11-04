@@ -8,50 +8,12 @@ NotifyIcon::NotifyIcon(const char* guidStr, HICON hIcon)
 	guid_ = GetGuid(guidStr);
 	hIcon_ = hIcon;
 
-	std::string wcStr = guidString_;
-	wcStr.append("_WindowClass");
-	windowClass_ = std::wstring(wcStr.begin(), wcStr.end());
+	auto t = std::thread(&NotifyIcon::CreateWindowAndRun, this);
+	t.detach();
 
-	WNDCLASSEX wcex = { sizeof(wcex) };
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = WndProc;
-	wcex.hInstance = g_hInstance_;
-	wcex.hCursor = LoadCursorW(NULL, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = NULL;
-	wcex.lpszClassName = windowClass_.c_str();
-	if (RegisterClassExW(&wcex) == 0)
+	while (!windowCreated_)
 	{
-		auto err = GetLastError();
-		Throw("RegisterClassExW", err);
-	}
-
-	hWnd_ = CreateWindowW(windowClass_.c_str(), NULL, WS_OVERLAPPEDWINDOW, 0, 0, 200, 200, NULL, NULL, g_hInstance_, NULL);
-	if (hWnd_ == nullptr)
-	{
-		auto err = GetLastError();
-		Throw("CreateWindowW", err);
-	}
-
-	NOTIFYICONDATA nid = { sizeof(nid) };
-	nid.hWnd = hWnd_;
-	nid.uFlags = NIF_GUID | NIF_ICON | NIF_MESSAGE | NIF_SHOWTIP | NIF_STATE;
-	nid.dwState = NIS_HIDDEN;
-	nid.dwStateMask = NIS_HIDDEN;
-	nid.guidItem = guid_;
-	nid.hIcon = hIcon_;
-	nid.uCallbackMessage = WMAPP_NOTIFYCALLBACK;
-	if (!Shell_NotifyIconW(NIM_ADD, &nid))
-	{
-		auto err = GetLastError();
-		Throw("Shell_NotifyIcon(NIM_ADD)", err);
-	}
-
-	nid.uVersion = NOTIFYICON_VERSION_4;
-	if (!Shell_NotifyIconW(NIM_SETVERSION, &nid))
-	{
-		auto err = GetLastError();
-		Throw("Shell_NotifyIcon(NIM_SETVERSION)", err);
+		Sleep(10);
 	}
 }
 
@@ -63,7 +25,6 @@ NotifyIcon::~NotifyIcon()
 	Shell_NotifyIconW(NIM_DELETE, &nid);
 
 	DestroyWindow(hWnd_);
-	UnregisterClassW(windowClass_.c_str(), g_hInstance_);
 
 	g_map_hwnd_guid_.erase(hWnd_);
 	g_map_guid_icon_.erase(guidString_);
@@ -213,4 +174,52 @@ UINT NotifyIcon::CreateContextMenu(UINT idStart, HMENU& result)
 
 	result = hmenu;
 	return diff;
+}
+
+void NotifyIcon::CreateWindowAndRun()
+{
+	hWnd_ = CreateWindowW(g_windowClass_.c_str(), NULL, WS_OVERLAPPEDWINDOW, 0, 0, 200, 200, NULL, NULL, g_hInstance_, NULL);
+	if (hWnd_ == NULL)
+	{
+		auto err = GetLastError();
+		Throw("CreateWindowW", err);
+	}
+
+	NOTIFYICONDATA nid = { sizeof(nid) };
+	nid.hWnd = hWnd_;
+	nid.uFlags = NIF_GUID | NIF_ICON | NIF_MESSAGE | NIF_SHOWTIP | NIF_STATE;
+	nid.dwState = NIS_HIDDEN;
+	nid.dwStateMask = NIS_HIDDEN;
+	nid.guidItem = guid_;
+	nid.hIcon = hIcon_;
+	nid.uCallbackMessage = WMAPP_NOTIFYCALLBACK;
+	if (!Shell_NotifyIconW(NIM_ADD, &nid))
+	{
+		auto err = GetLastError();
+		Throw("Shell_NotifyIcon(NIM_ADD)", err);
+	}
+
+	nid.uVersion = NOTIFYICON_VERSION_4;
+	if (!Shell_NotifyIconW(NIM_SETVERSION, &nid))
+	{
+		auto err = GetLastError();
+		Throw("Shell_NotifyIcon(NIM_SETVERSION)", err);
+	}
+
+	windowCreated_ = true;
+
+	MSG msg;
+	while (true)
+	{
+		if (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessageW(&msg);
+			if (msg.message == WMAPP_DESTROYICON) { break; }
+		}
+		else
+		{
+			WaitMessage();
+		}
+	}
 }

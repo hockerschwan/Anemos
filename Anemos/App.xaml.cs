@@ -175,7 +175,10 @@ public partial class App : Application
         });
     }
 
-    public async void Shutdown(bool forceShutdown = false)
+    public void Shutdown(bool forceShutdown = false)
+    {
+        var dq = MainWindow.DispatcherQueue;
+        dq.TryEnqueue(async () =>
     {
         if (!forceShutdown && !await GetService<ShellPage>().OpenExitDialog()) { return; }
 
@@ -191,5 +194,6 @@ public partial class App : Application
         }
 
         Current.Exit();
+        });
     }
 }
