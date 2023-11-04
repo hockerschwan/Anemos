@@ -98,6 +98,9 @@
     <ClCompile Include="SDK\ADLXHelper\Windows\Cpp\ADLXHelper.cpp" />
     <ClCompile Include="SDK\Platform\Windows\WinAPIs.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ADLXWrapperCpp.rc" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

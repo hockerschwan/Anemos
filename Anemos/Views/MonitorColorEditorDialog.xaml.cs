@@ -33,7 +33,7 @@ public sealed partial class MonitorColorEditorDialog : ContentDialog
     private void MonitorColorEditorDialog_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
         Loaded -= MonitorColorEditorDialog_Loaded;
-        if (double.IsFinite(ViewModel.Threshold))
+        if (!double.IsFinite(ViewModel.Threshold))
         {
             NB_Threshold.IsEnabled = false;
             NB_Threshold.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
@@ -85,7 +85,7 @@ public sealed partial class MonitorColorEditorDialog : ContentDialog
 
     private void SetNumberFormatter()
     {
-        if (double.IsFinite(ViewModel.Threshold)) { return; }
+        if (!double.IsFinite(ViewModel.Threshold)) { return; }
 
         IncrementNumberRounder rounder = new()
         {
