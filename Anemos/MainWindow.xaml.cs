@@ -2,8 +2,10 @@
 using Anemos.Helpers;
 using Anemos.Models;
 using CommunityToolkit.Mvvm.Messaging;
+using Serilog;
 using Windows.System;
 using Windows.UI.ViewManagement;
+using WinUIEx.Messaging;
 
 namespace Anemos;
 
@@ -25,11 +27,17 @@ public sealed partial class MainWindow : WindowEx
 
     public bool IsMinimized => RuntimeHelper.IsMinimized(this);
 
+    private readonly WindowMessageMonitor _messageMonitor;
+    private bool _closeButtonClicked = false;
+
     public MainWindow()
     {
         InitializeComponent();
         Activated += MainWindow_Activated;
         Closed += MainWindow_Closed;
+
+        _messageMonitor = new(this);
+        _messageMonitor.WindowMessageReceived += MessageMonitor_WindowMessageReceived;
 
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets/WindowIcon.ico"));
         Content = null;
@@ -109,6 +117,29 @@ public sealed partial class MainWindow : WindowEx
 
         _timer.Stop();
         _timer.Start();
+    }
+
+    private void MessageMonitor_WindowMessageReceived(object? sender, WindowMessageEventArgs e)
+    {
+        switch (e.Message.MessageId)
+        {
+            case 0x10: // WM_CLOSE
+                if (_closeButtonClicked)
+                {
+                    _closeButtonClicked = false;
+                    break;
+                }
+
+                Log.Information("[MainWindow] WM_CLOSE received.");
+                App.Current.Shutdown(true);
+                return;
+            case 0x112: // WM_SYSCOMMAND
+                if (e.Message.WParam == 0xF060) // SC_CLOSE
+                {
+                    _closeButtonClicked = true;
+                }
+                break;
+        }
     }
 
     private void OnPositionAndSizeChanged()
