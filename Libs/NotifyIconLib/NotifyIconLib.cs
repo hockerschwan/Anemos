@@ -8,19 +8,11 @@ public sealed class NotifyIconLib
 {
     private readonly Dictionary<Guid, NotifyIcon> _dict = new();
 
-    public event EventHandler<EventArgs>? Close;
-
-    private readonly Native.NativeFunctions.CallbackVoid _closeDelegate;
     private readonly Native.NativeFunctions.CallbackGuid _iconClickDelegate;
     private readonly Native.NativeFunctions.CallbackUint _itemClickDelegate;
 
     private NotifyIconLib()
     {
-        Native.NativeFunctions.Initialize();
-
-        _closeDelegate = Callback_Close;
-        Native.NativeFunctions.SetCallback_Close(_closeDelegate);
-
         _iconClickDelegate = Callback_IconClick;
         Native.NativeFunctions.SetCallback_IconClick(_iconClickDelegate);
 
@@ -68,12 +60,6 @@ public sealed class NotifyIconLib
     public NotifyIcon? GetIcon(Guid guid)
     {
         return _dict.TryGetValue(guid, out var ni) ? ni : null;
-    }
-
-    private void Callback_Close()
-    {
-        DeleteAll();
-        Close?.Invoke(this, EventArgs.Empty);
     }
 
     private void Callback_IconClick(string guid)

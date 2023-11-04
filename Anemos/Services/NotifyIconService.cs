@@ -59,7 +59,6 @@ public class NotifyIconService : INotifyIconService
 
         _settingsService.Settings.FanSettings.PropertyChanged += FanSettings_PropertyChanged;
 
-        _notifyIconLib.Close += NotifyIconLib_Close;
 
         _guid = GenerateGuid(App.AppLocation);
         Log.Debug("[NotifyIcon] GUID: {guid}", _guid.ToString());
@@ -111,11 +110,6 @@ public class NotifyIconService : INotifyIconService
             _notifyIcon.MenuItems[0].IsChecked = _settingsService.Settings.FanSettings.UseRules;
             UpdateMenu();
         }
-    }
-
-    private void NotifyIconLib_Close(object? sender, EventArgs e)
-    {
-        App.Current.Shutdown(true);
     }
 
     private void NotifyIcon_Click(object? sender, NotifyIconLib.Events.NotifyIconClickEventArgs e)

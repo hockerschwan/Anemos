@@ -9,6 +9,10 @@ BOOL APIENTRY DllMain(
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
+		g_hInstance_ = GetModuleHandleW(NULL);
+		g_windowClass_.append(std::to_wstring(GetCurrentProcessId()));
+		OnInit();
+		break;
 	case DLL_THREAD_ATTACH:
 	case DLL_THREAD_DETACH:
 		break;
