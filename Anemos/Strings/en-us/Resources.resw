@@ -461,4 +461,40 @@
   <data name="FanOptions_Offset.Header" xml:space="preserve">
     <value>Offset</value>
   </data>
+  <data name="Monitors_AddCurve_ToolTip.Content" xml:space="preserve">
+    <value>Add Curve</value>
+  </data>
+  <data name="Monitors_AddFan_ToolTip.Content" xml:space="preserve">
+    <value>Add Fan</value>
+  </data>
+  <data name="Monitors_AddSensor_ToolTip.Content" xml:space="preserve">
+    <value>Add Sensor</value>
+  </data>
+  <data name="Shell_Monitors.Content" xml:space="preserve">
+    <value>Notify Icon Monitors</value>
+  </data>
+  <data name="Monitor_AddColor.Text" xml:space="preserve">
+    <value>Add Color</value>
+  </data>
+  <data name="Monitor_Delete_Tooltip.Content" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Monitor_TypeNames_Current" xml:space="preserve">
+    <value>Current Value</value>
+  </data>
+  <data name="Monitor_TypeNames_History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="Dialog_DeleteMonitor_Title" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Dialog_Delete2_Content" xml:space="preserve">
+    <value>Are you sure?</value>
+  </data>
+  <data name="MonitorColorEditor_Title" xml:space="preserve">
+    <value>Edit Color</value>
+  </data>
+  <data name="MonitorColorEditor_NB_Threshold.Header" xml:space="preserve">
+    <value>Threshold</value>
+  </data>
 </root>

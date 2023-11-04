@@ -239,6 +239,7 @@ internal class FanService : IFanService
         if (_isUpdating) { return; }
 
         Update();
+        _messenger.Send(new FansUpdateDoneMessage());
     }
 
     private string GenerateId()

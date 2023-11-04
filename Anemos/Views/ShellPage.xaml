@@ -86,6 +86,15 @@
 					</NavigationViewItem.Icon>
 				</NavigationViewItem>
 
+				<NavigationViewItem
+					x:Uid="Shell_Monitors"
+					Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"
+					helpers:NavigationHelper.NavigateTo="Anemos.ViewModels.MonitorsViewModel">
+					<NavigationViewItem.Icon>
+						<tabler:TablerIcon Symbol="HeartRateMonitor" />
+					</NavigationViewItem.Icon>
+				</NavigationViewItem>
+
 				<NavigationViewItemSeparator />
 
 				<NavigationViewItem

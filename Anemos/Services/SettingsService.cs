@@ -62,7 +62,12 @@ public class SettingsService : ISettingsService
     private void Load()
     {
         var jsonString = File.ReadAllText(_path);
-        Settings = JsonSerializer.Deserialize<SettingsModel>(jsonString) ?? throw new Exception("Could not deserialize json");
+        var options = new JsonSerializerOptions
+        {
+            NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
+        };
+
+        Settings = JsonSerializer.Deserialize<SettingsModel>(jsonString, options) ?? throw new Exception("Could not deserialize json");
         Settings.PropertyChanged += Settings_PropertyChanged;
 
         _timer.AutoReset = false;
@@ -91,6 +96,7 @@ public class SettingsService : ISettingsService
             var options = new JsonSerializerOptions
             {
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
                 WriteIndented = true
             };
             var jsonString = JsonSerializer.Serialize(Settings, options: options) ?? throw new Exception("Could not serialize json");

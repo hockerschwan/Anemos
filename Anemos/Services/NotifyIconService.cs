@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Text;
 using Anemos.Contracts.Services;
 using Anemos.Helpers;
 using Anemos.Views;
@@ -59,9 +58,7 @@ public class NotifyIconService : INotifyIconService
 
         _settingsService.Settings.FanSettings.PropertyChanged += FanSettings_PropertyChanged;
 
-
-        _guid = GenerateGuid(App.AppLocation);
-        Log.Debug("[NotifyIcon] GUID: {guid}", _guid.ToString());
+        _guid = Helper.GenerateGuid(App.AppLocation);
 
         var icon = System.Drawing.Icon.ExtractAssociatedIcon(App.AppLocation);
         _notifyIcon = _notifyIconLib.CreateIcon(_guid, icon);
@@ -72,7 +69,7 @@ public class NotifyIconService : INotifyIconService
         CreateCommonItems();
 
         _messenger.Send<ServiceStartupMessage>(new(GetType()));
-        Log.Debug("[NotifyIcon] Started");
+        Log.Information("[NotifyIcon] Started {guid}", _guid.ToString());
         _settingsService = settingsService;
     }
 
@@ -172,21 +169,6 @@ public class NotifyIconService : INotifyIconService
         _notifyIcon.MenuItems.Add(sub);
         _notifyIcon.MenuItems.Add(bar);
         _notifyIcon.MenuItems.Add(exit);
-    }
-
-    private static Guid GenerateGuid(string str)
-    {
-        var hash = System.Security.Cryptography.SHA1.HashData(Encoding.UTF8.GetBytes(str))[..16];
-        hash[6] = (byte)((hash[6] & 0x0f) | 0x50);
-        hash[8] = (byte)((hash[8] & 0x3f) | 0x80);
-
-        var s = new StringBuilder();
-        foreach (var b in hash)
-        {
-            s.Append(b.ToString("x2"));
-        }
-
-        return new Guid(s.ToString());
     }
 
     public void SetTooltip(string tooltip) => _notifyIcon.SetTooltip(tooltip);

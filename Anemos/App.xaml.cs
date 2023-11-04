@@ -73,6 +73,7 @@ public partial class App : Application
                 services.AddSingleton<ICurveService, CurveService>();
                 services.AddSingleton<IFanService, FanService>();
                 services.AddSingleton<IRuleService, RuleService>();
+                services.AddSingleton<INotifyIconMonitorService, NotifyIconMonitorService>();
 
                 // Views and ViewModels
                 services.AddSingleton<ShellPage>();
@@ -85,6 +86,8 @@ public partial class App : Application
                 services.AddSingleton<SensorsViewModel>();
                 services.AddSingleton<RulesPage>();
                 services.AddSingleton<RulesViewModel>();
+                services.AddSingleton<MonitorsPage>();
+                services.AddSingleton<MonitorsViewModel>();
                 services.AddSingleton<SettingsPage>();
                 services.AddSingleton<SettingsViewModel>();
             })
@@ -179,21 +182,21 @@ public partial class App : Application
     {
         var dq = MainWindow.DispatcherQueue;
         dq.TryEnqueue(async () =>
-    {
-        if (!forceShutdown && !await GetService<ShellPage>().OpenExitDialog()) { return; }
-
-        Log.Information("[App] Shutting down...");
-        HasShutdownStarted = true;
-        _messenger.Send(new AppExitMessage());
-        MainWindow.Hide();
-
-        while (true)
         {
-            if (!_servicesToShutDown.Any()) { break; }
-            await Task.Delay(100);
-        }
+            if (!forceShutdown && !await GetService<ShellPage>().OpenExitDialog()) { return; }
 
-        Current.Exit();
+            Log.Information("[App] Shutting down...");
+            HasShutdownStarted = true;
+            _messenger.Send(new AppExitMessage());
+            MainWindow.Hide();
+
+            while (true)
+            {
+                if (!_servicesToShutDown.Any()) { break; }
+                await Task.Delay(100);
+            }
+
+            Current.Exit();
         });
     }
 }

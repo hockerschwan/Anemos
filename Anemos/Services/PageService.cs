@@ -16,6 +16,7 @@ public class PageService : IPageService
         Configure<CurvesViewModel, CurvesPage>();
         Configure<SensorsViewModel, SensorsPage>();
         Configure<RulesViewModel, RulesPage>();
+        Configure<MonitorsViewModel, MonitorsPage>();
         Configure<SettingsViewModel, SettingsPage>();
     }
 

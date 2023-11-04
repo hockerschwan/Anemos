@@ -5,6 +5,8 @@ namespace Anemos.Helpers;
 
 public static partial class RuntimeHelper
 {
+    public static bool DestoyIcon(IntPtr hIcon) => DestroyIcon_(hIcon);
+
     public static System.Drawing.Icon? ExtractIcon(string file, int number, bool largeIcon = false)
     {
         ExtractIconEx_(file, number, out var large, out var small, 1);
@@ -71,6 +73,10 @@ public static partial class RuntimeHelper
     }
 
     ////////////////////
+
+    [LibraryImport("user32.dll", EntryPoint = "DestroyIcon")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool DestroyIcon_(IntPtr handle);
 
     [LibraryImport("Shell32.dll", EntryPoint = "ExtractIconExW", StringMarshalling = StringMarshalling.Utf16)]
     [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvStdcall) })]

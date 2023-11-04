@@ -70,6 +70,7 @@ public class ActivationService : IActivationService
         await App.GetService<ICurveService>().LoadAsync();
         await App.GetService<IFanService>().LoadAsync();
         await App.GetService<IRuleService>().LoadAsync();
+        await App.GetService<INotifyIconMonitorService>().LoadAsync();
 
         App.GetService<IMessenger>().Send<ServiceStartupMessage>(new(Type.Missing));
     }
@@ -80,6 +81,8 @@ public class ActivationService : IActivationService
         App.GetService<IRuleService>().Update();
         App.GetService<INotifyIconService>().Update();
         App.GetService<INotifyIconService>().SetVisibility(true);
+        App.GetService<INotifyIconMonitorService>().Update();
+        App.GetService<INotifyIconMonitorService>().SetVisibility(true);
 
         await Task.CompletedTask;
     }

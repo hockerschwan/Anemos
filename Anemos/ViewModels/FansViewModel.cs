@@ -127,7 +127,10 @@ public partial class FansViewModel : PageViewModelBase
     {
         if (e.PropertyName == nameof(_settingsService.Settings.FanSettings.UseRules))
         {
-            UseRules = _settingsService.Settings.FanSettings.UseRules;
+            App.MainWindow.DispatcherQueue.TryEnqueue(() =>
+            {
+                UseRules = _settingsService.Settings.FanSettings.UseRules;
+            });
         }
     }
 

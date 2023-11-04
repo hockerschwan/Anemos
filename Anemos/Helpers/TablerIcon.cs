@@ -46,6 +46,7 @@ public enum TablerIconGlyph
     Dots = '\uea95',
     Folder = '\ueaad',
     GitHub = '\uec1c',
+    HeartRateMonitor = '\uef61',
     Pencil = '\ueb04',
     Plus = '\ueb0b',
     List = '\ueb6b',
