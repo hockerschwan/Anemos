@@ -84,6 +84,11 @@ internal class LatchCurveChangedMessage : ValueChangedMessage<Tuple<double, doub
     public LatchCurveChangedMessage(Tuple<double, double, double, double> result) : base(result) { }
 }
 
+internal class FansUpdateDoneMessage : ValueChangedMessage<object?>
+{
+    public FansUpdateDoneMessage() : base(null) { }
+}
+
 internal class FanProfileSwitchedMessage : ValueChangedMessage<FanProfile>
 {
     public FanProfileSwitchedMessage(FanProfile profile) : base(profile) { }
@@ -152,4 +157,27 @@ internal class RuleSensorChangedMessage : ValueChangedMessage<Tuple<int, string,
 {
     ///  <inheritdoc cref="RuleSensorChangedMessage"/>
     public RuleSensorChangedMessage(Tuple<int, string, double?, bool, double?, bool> result) : base(result) { }
+}
+
+/// <summary>
+/// Monitors added/removed
+/// </summary>
+internal class MonitorsChangedMessage : PropertyChangedMessage<IEnumerable<MonitorModelBase>>
+{
+    /// <inheritdoc cref="CurvesUpdateDoneMessage"/>
+    public MonitorsChangedMessage(
+        object sender,
+        string? propertyName,
+        IEnumerable<MonitorModelBase> oldValue,
+        IEnumerable<MonitorModelBase> newValue)
+        : base(sender, propertyName, oldValue, newValue) { }
+}
+
+/// <summary>
+/// Old, New
+/// </summary>
+internal class MonitorColorChangedMessage : ValueChangedMessage<Tuple<MonitorColorThreshold, MonitorColorThreshold>>
+{
+    /// <inheritdoc cref="MonitorColorChangedMessage"/>
+    public MonitorColorChangedMessage(Tuple<MonitorColorThreshold, MonitorColorThreshold> result) : base(result) { }
 }

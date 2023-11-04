@@ -34,7 +34,7 @@
 	<ItemGroup>
 		<PackageReference Include="Chriffizient.PlainlyIpc" Version="0.8.0" />
 		<PackageReference Include="Collections.Pooled" Version="1.0.82" />
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
 		<PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
 		<PackageReference Include="LibreHardwareMonitorLib" Version="0.9.3-pre256" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />

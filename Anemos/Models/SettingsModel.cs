@@ -62,6 +62,8 @@ public partial class SettingsModel : ObservableObject
     public SensorSettings SensorSettings { get; set; } = new();
 
     public RuleSettings RuleSettings { get; set; } = new();
+
+    public MonitorSettings MonitorSettings { get; set; } = new();
 }
 
 public class WindowSettings
@@ -181,4 +183,18 @@ public class RuleSettings_Condition
     public double? LowerValue { get; set; } = null;
     public bool? IncludeUpper { get; set; } = null;
     public bool? IncludeLower { get; set; } = null;
+}
+
+public class MonitorSettings
+{
+    public IEnumerable<MonitorSettings_Monitor> Monitors { get; set; } = Enumerable.Empty<MonitorSettings_Monitor>();
+}
+
+public class MonitorSettings_Monitor
+{
+    public MonitorSourceType SourceType { get; set; } = MonitorSourceType.Fan;
+    public MonitorDisplayType DisplayType { get; set; } = MonitorDisplayType.Current;
+    public string Id { get; set; } = string.Empty;
+    public string SourceId { get; set; } = string.Empty;
+    public IEnumerable<Tuple<double, string>> Colors { get; set; } = Enumerable.Empty<Tuple<double, string>>();
 }
