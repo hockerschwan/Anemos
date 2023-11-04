@@ -45,6 +45,7 @@ public sealed partial class FanOptionsDialog : ContentDialog
             {
                 await Task.Delay(100);
             }
+            await Task.Delay(100);
 
             App.GetService<IMessenger>().Send<FanOptionsChangedMessage>(new(new()
             {

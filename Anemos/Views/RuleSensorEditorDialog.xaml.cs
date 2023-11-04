@@ -63,6 +63,7 @@ public sealed partial class RuleSensorEditorDialog : ContentDialog
             {
                 await Task.Delay(100);
             }
+            await Task.Delay(100);
 
             App.GetService<IMessenger>().Send<RuleSensorChangedMessage>(new(new(
                 _index,

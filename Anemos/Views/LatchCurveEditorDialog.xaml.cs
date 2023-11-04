@@ -128,6 +128,7 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
             {
                 await Task.Delay(100);
             }
+            await Task.Delay(100);
 
             _messenger.Send<LatchCurveChangedMessage>(new(new(
                 ViewModel.TemperatureThresholdLow,

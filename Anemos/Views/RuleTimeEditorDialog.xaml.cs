@@ -41,6 +41,7 @@ public sealed partial class RuleTimeEditorDialog : ContentDialog
             {
                 await Task.Delay(100);
             }
+            await Task.Delay(100);
 
             App.GetService<IMessenger>().Send<RuleTimeChangedMessage>(new(new(
                 _index,
