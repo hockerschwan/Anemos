@@ -55,7 +55,6 @@ Multi-GPU not tested.
 - [PlainlyIpc](https://github.com/chrbaeu/PlainlyIpc)
 - [ScottPlot](https://github.com/ScottPlot/ScottPlot)
 - [Serilog](https://github.com/serilog/serilog)
-- [TablerIcons](https://github.com/tabler/tabler-icons)
 - [WinUIEx](https://github.com/dotMorten/WinUIEx)
 
 ## Contributing
@@ -72,3 +71,4 @@ Use issues for issues (bug reports) only.
 
 - App icon: [Origami pack from Flaticon](https://www.flaticon.com/packs/origami-32)
 - [Azeret Mono](https://github.com/displaay/Azeret)
+- [TablerIcons](https://github.com/tabler/tabler-icons)

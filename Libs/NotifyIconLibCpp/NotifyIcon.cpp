@@ -24,6 +24,7 @@ NotifyIcon::~NotifyIcon()
 	nid.guidItem = guid_;
 	Shell_NotifyIconW(NIM_DELETE, &nid);
 
+	DestroyIcon(hIcon_);
 	DestroyWindow(hWnd_);
 
 	g_map_hwnd_guid_.erase(hWnd_);
@@ -45,8 +46,14 @@ std::vector<MenuItem*> NotifyIcon::GetMenuItems()
 	return menuItems_;
 }
 
+std::wstring NotifyIcon::GetTooltip()
+{
+	return tooltip_;
+}
+
 void NotifyIcon::SetIcon(HICON hIcon)
 {
+	DestroyIcon(hIcon_);
 	hIcon_ = hIcon;
 	NOTIFYICONDATA nid = { sizeof(nid) };
 	nid.uFlags = NIF_GUID | NIF_ICON | NIF_STATE;
@@ -62,6 +69,7 @@ void NotifyIcon::SetMenuItems(std::vector<MenuItem*>& menuItems)
 
 void NotifyIcon::SetTooltip(const WCHAR* tooltip)
 {
+	tooltip_ = tooltip;
 	NOTIFYICONDATA nid = { sizeof(nid) };
 	nid.uFlags = NIF_GUID | NIF_TIP | NIF_SHOWTIP;
 	nid.guidItem = guid_;

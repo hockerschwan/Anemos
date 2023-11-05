@@ -192,7 +192,7 @@ internal class RuleService : IRuleService
     public async Task LoadAsync()
     {
         await Task.Run(Load);
-        Log.Debug("[Rule] Loaded");
+        Log.Information("[Rule] Loaded");
     }
 
     public void RemoveRule(RuleModel rule)

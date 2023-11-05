@@ -13,6 +13,7 @@ public:
 	HICON GetHIcon();
 	HWND GetHwnd();
 	std::vector<MenuItem*> GetMenuItems();
+	std::wstring GetTooltip();
 	void SetIcon(HICON hIcon);
 	void SetMenuItems(std::vector<MenuItem*>& menuItems);
 	void SetTooltip(const WCHAR* tooltip);
@@ -28,6 +29,6 @@ private:
 	std::string guidString_;
 	HICON hIcon_;
 	std::vector<MenuItem*> menuItems_;
-	WCHAR* tooltip_;
+	std::wstring tooltip_;
 	std::atomic_bool windowCreated_ = false;
 };
