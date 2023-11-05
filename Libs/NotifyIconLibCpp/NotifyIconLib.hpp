@@ -2,6 +2,7 @@
 #include "MenuItem.hpp"
 #include "NotifyIcon.hpp"
 #include <map>
+#include <mutex>
 #include <string>
 
 #ifdef NOTIFYICONLIBCPP_EXPORTS
@@ -24,6 +25,7 @@ static std::wstring g_windowClass_ = L"WindowClass_";
 static callback_function_guid g_callback_icon_click_ = NULL;
 static callback_function_uint g_callback_item_click_ = NULL;
 
+static std::recursive_mutex g_mutex_{};
 static std::map<HWND, std::string> g_map_hwnd_guid_{};
 static std::map<std::string, NotifyIcon*> g_map_guid_icon_{};
 

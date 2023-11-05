@@ -3,16 +3,19 @@
 
 void CreateNotifyIcon(const char* guid, HICON hIcon)
 {
+	g_mutex_.lock();
 	DeleteNotifyIcon(guid);
 
 	auto icon = new NotifyIcon(guid, hIcon);
 	g_map_hwnd_guid_[icon->GetHwnd()] = guid;
 	g_map_guid_icon_[guid] = icon;
+	g_mutex_.unlock();
 }
 
 void DeleteNotifyIcon(const char* guid)
 {
 	auto ni = FindNotifyIcon(guid);
+	g_mutex_.lock();
 	if (ni == nullptr)
 	{
 		NOTIFYICONDATA nid = { sizeof(nid) };
@@ -22,11 +25,13 @@ void DeleteNotifyIcon(const char* guid)
 	}
 	else
 	{
+		g_map_hwnd_guid_.erase(ni->GetHwnd());
 		PostMessageW(ni->GetHwnd(), WMAPP_DESTROYICON, 0, 0);
 		delete ni;
 	}
 
 	g_map_guid_icon_.erase(guid);
+	g_mutex_.unlock();
 }
 
 void SetIcon(const char* guid, HICON hIcon)
@@ -34,7 +39,9 @@ void SetIcon(const char* guid, HICON hIcon)
 	auto ni = FindNotifyIcon(guid);
 	if (ni == nullptr) return;
 
+	g_mutex_.lock();
 	ni->SetIcon(hIcon);
+	g_mutex_.unlock();
 }
 
 void SetMenuItems(const char* guid, int count, MenuItem* items[])
@@ -42,8 +49,10 @@ void SetMenuItems(const char* guid, int count, MenuItem* items[])
 	auto ni = FindNotifyIcon(guid);
 	if (ni == nullptr) return;
 
+	g_mutex_.lock();
 	auto menu = std::vector<MenuItem*>(items, items + count);
 	ni->SetMenuItems(menu);
+	g_mutex_.unlock();
 }
 
 void SetTooltip(const char* guid, const wchar_t* tooltip)
@@ -51,7 +60,9 @@ void SetTooltip(const char* guid, const wchar_t* tooltip)
 	auto ni = FindNotifyIcon(guid);
 	if (ni == nullptr) return;
 
+	g_mutex_.lock();
 	ni->SetTooltip(tooltip);
+	g_mutex_.unlock();
 }
 
 void SetVisibility(const char* guid, BOOL visible)
@@ -59,7 +70,7 @@ void SetVisibility(const char* guid, BOOL visible)
 	auto ni = FindNotifyIcon(guid);
 	if (ni == nullptr) return;
 
-	return ni->SetVisibility(visible);
+	ni->SetVisibility(visible);
 }
 
 void SetChecked(const char* guid, UINT id, BOOL checked)
@@ -67,7 +78,9 @@ void SetChecked(const char* guid, UINT id, BOOL checked)
 	auto item = FindMenuItem(guid, id);
 	if (item == nullptr) return;
 
+	g_mutex_.lock();
 	item->IsChecked = checked;
+	g_mutex_.unlock();
 }
 
 void SetEnabled(const char* guid, UINT id, BOOL enabled)
@@ -75,17 +88,23 @@ void SetEnabled(const char* guid, UINT id, BOOL enabled)
 	auto item = FindMenuItem(guid, id);
 	if (item == nullptr) return;
 
+	g_mutex_.lock();
 	item->IsEnabled = enabled;
+	g_mutex_.unlock();
 }
 
 void SetCallback_IconClick(callback_function_guid callback)
 {
+	g_mutex_.lock();
 	g_callback_icon_click_ = callback;
+	g_mutex_.unlock();
 }
 
 void SetCallback_ItemClick(callback_function_uint callback)
 {
+	g_mutex_.lock();
 	g_callback_item_click_ = callback;
+	g_mutex_.unlock();
 }
 
 void OnInit()
@@ -293,11 +312,30 @@ LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			auto ni_old = FindNotifyIcon(guidStr);
 			if (ni_old == nullptr) break;
 
-			auto ni_new = new NotifyIcon(guidStr.c_str(), ni_old->GetHIcon());
+			g_mutex_.lock();
+
+			HICON hicon = CopyIcon(ni_old->GetHIcon());
+			std::vector<MenuItem*> menuitems = ni_old->GetMenuItems();
+			std::wstring tooltip = ni_old->GetTooltip();
+
+			DeleteNotifyIcon(guidStr.c_str());
+
+			auto ni_new = new NotifyIcon(guidStr.c_str(), hicon);
 			g_map_hwnd_guid_[ni_new->GetHwnd()] = guidStr;
 			g_map_guid_icon_[guidStr] = ni_new;
 
-			delete ni_old;
+			if (menuitems.size() > 0)
+			{
+				ni_new->SetMenuItems(menuitems);
+			}
+			if (!tooltip.empty())
+			{
+				ni_new->SetTooltip(tooltip.c_str());
+			}
+
+			g_mutex_.unlock();
+
+			ni_new->SetVisibility(true);
 		}
 		return DefWindowProc(hwnd, message, wParam, lParam);
 	}

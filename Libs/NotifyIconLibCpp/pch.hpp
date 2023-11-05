@@ -10,6 +10,7 @@
 #include <atomic>
 #include <iomanip>
 #include <map>
+#include <mutex>
 #include <set>
 #include <sstream>
 #include <stdexcept>

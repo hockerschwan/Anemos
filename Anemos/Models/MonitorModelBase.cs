@@ -207,7 +207,6 @@ public abstract class MonitorModelBase : ObservableObject
         // set icon
         var icon = System.Drawing.Icon.FromHandle(_bitmap.GetHicon());
         NotifyIcon.SetIcon(icon);
-        Helpers.RuntimeHelper.DestoyIcon(icon.Handle);
     }
 
     private void DrawHistory()
@@ -262,7 +261,6 @@ public abstract class MonitorModelBase : ObservableObject
         // set icon
         var icon = System.Drawing.Icon.FromHandle(_bitmap.GetHicon());
         NotifyIcon.SetIcon(icon);
-        Helpers.RuntimeHelper.DestoyIcon(icon.Handle);
     }
 
     public void EditColor(MonitorColorThreshold oldColor, MonitorColorThreshold newColor)
