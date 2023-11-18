@@ -90,11 +90,11 @@ public class LatchCurveEditorViewModel : ObservableObject
 
     public double XHighMax => _settingsService.Settings.CurveMaxTemp;
 
-    internal readonly double[] LineDataLowTempX = { 0, 0 };
-    internal readonly double[] LineDataLowTempY = { 0, 0 };
+    internal readonly double[] LineDataLowTempX = [0, 0];
+    internal readonly double[] LineDataLowTempY = [0, 0];
 
-    internal readonly double[] LineDataHighTempX = { 0, 0 };
-    internal readonly double[] LineDataHighTempY = { 0, 0 };
+    internal readonly double[] LineDataHighTempX = [0, 0];
+    internal readonly double[] LineDataHighTempY = [0, 0];
 
     internal readonly Coordinates[] ArrowLowCoordinates = Enumerable.Repeat(Coordinates.Origin, 2).ToArray();
     internal readonly Coordinates[] ArrowHighCoordinates = Enumerable.Repeat(Coordinates.Origin, 2).ToArray();

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Anemos.Contracts.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.UI.Dispatching;
 
 namespace Anemos.Models;
 
@@ -67,7 +68,7 @@ public class RuleModel : ObservableObject
         }
     }
 
-    public ObservableCollection<RuleConditionBase> Conditions { get; } = new();
+    public ObservableCollection<RuleConditionBase> Conditions { get; } = [];
 
     public bool ConditionsSatisfied => Type switch
     {
@@ -76,9 +77,15 @@ public class RuleModel : ObservableObject
         _ => false,
     };
 
+    private readonly MessageHandler<object, FanProfilesChangedMessage> _fanProfilesChangedMessageHandler;
+    private readonly DispatcherQueueHandler _updateHandler;
+
     public RuleModel(RuleArg arg)
     {
-        _messenger.Register<FanProfilesChangedMessage>(this, FanProfilesChangedMessageHandler);
+        _fanProfilesChangedMessageHandler = FanProfilesChangedMessageHandler;
+        _messenger.Register(this, _fanProfilesChangedMessageHandler);
+
+        _updateHandler = Update_;
 
         var save = false;
 
@@ -94,7 +101,7 @@ public class RuleModel : ObservableObject
         }
         _type = arg.Type;
 
-        foreach (var cond in arg.Conditions)
+        foreach (var cond in arg.Conditions.ToList())
         {
             if (cond.Type == RuleConditionType.Time && cond.TimeBeginning != null && cond.TimeEnding != null)
             {
@@ -123,13 +130,27 @@ public class RuleModel : ObservableObject
 
     private void FanProfilesChangedMessageHandler(object recipient, FanProfilesChangedMessage message)
     {
-        if (!message.NewValue.Any(p => p.Id == ProfileId))
+        if (!Any(this, message))
         {
             ProfileId = string.Empty;
+        }
+
+        static bool Any(RuleModel @this, FanProfilesChangedMessage message)
+        {
+            foreach (var profile in message.NewValue.ToList())
+            {
+                if (profile.Id == @this.ProfileId) { return true; }
+            }
+            return false;
         }
     }
 
     public void Update()
+    {
+        App.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.High, _updateHandler);
+    }
+
+    private void Update_()
     {
         foreach (var cond in Conditions)
         {

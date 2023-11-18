@@ -29,17 +29,14 @@ public sealed partial class FanProfileRenameDialog : ContentDialog
         PrimaryButtonClick -= FanProfileRenameDialog_PrimaryButtonClick;
     }
 
-    private void FanProfileRenameDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    private async void FanProfileRenameDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
+        while (IsLoaded || !FansPage.RenameDialogOpened)
         {
-            while (IsLoaded || !FansPage.RenameDialogOpened)
-            {
-                await Task.Delay(100);
-            }
             await Task.Delay(100);
+        }
+        await Task.Delay(100);
 
-            App.GetService<IMessenger>().Send<FanProfileRenamedMessage>(new(TB_Name.Text));
-        });
+        App.GetService<IMessenger>().Send<FanProfileRenamedMessage>(new(TB_Name.Text));
     }
 }

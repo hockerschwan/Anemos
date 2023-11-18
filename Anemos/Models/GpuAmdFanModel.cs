@@ -87,16 +87,10 @@ public class GpuAmdFanModel : FanModelBase
 
         IsSupported = true;
 
-        Log.Debug(
-            "[GpuAmdFan] GPU ID:{0}, Temp:{1}-{2}, Speed:{3}-{4}",
-            _adlxId,
-            _fanRange.minTemperature,
-            _fanRange.maxTemperature,
-            _fanRange.minSpeed,
-            _fanRange.maxSpeed);
+        Log.Debug($"[GpuAmdFan] GPU ID:{_adlxId}, Temp:{_fanRange.minTemperature}-{_fanRange.maxTemperature}, Speed:{_fanRange.minSpeed}-{_fanRange.maxSpeed}");
     }
 
-    public override void Update()
+    protected override void Update_()
     {
         if (IsSupported)
         {
@@ -124,7 +118,7 @@ public class GpuAmdFanModel : FanModelBase
                 var target = CalcTarget();
                 if (target == null) { break; }
 
-                target = Math.Max(_fanRange.minSpeed, Math.Min(_fanRange.maxSpeed, target.Value));
+                target = Math.Clamp(target.Value, _fanRange.minSpeed, _fanRange.maxSpeed);
                 if (TargetValue != target)
                 {
                     TargetValue = target;
@@ -138,8 +132,8 @@ public class GpuAmdFanModel : FanModelBase
     {
         if (!value.HasValue) { return; }
 
-        var spd = Math.Max(_fanRange.minSpeed, Math.Min(_fanRange.maxSpeed, (int)value));
-        spd = Math.Max(MinSpeed, Math.Min(MaxSpeed, spd));
+        var spd = Math.Clamp((int)value, _fanRange.minSpeed, _fanRange.maxSpeed);
+        spd = Math.Clamp(spd, MinSpeed, MaxSpeed);
         SetFanSpeed(spd);
     }
 

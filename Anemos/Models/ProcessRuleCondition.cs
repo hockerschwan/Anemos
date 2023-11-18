@@ -125,7 +125,7 @@ public class ProcessRuleCondition : RuleConditionBase
     public override void Update()
     {
         var pr = ProcessName == string.Empty ? Process.GetProcesses() : Process.GetProcessesByName(ProcessName);
-        if (!pr.Any() && MemoryLower == null && MemoryUpper == null)
+        if (pr.Length == 0 && MemoryLower == null && MemoryUpper == null)
         {
             IsSatisfied = false;
             return;

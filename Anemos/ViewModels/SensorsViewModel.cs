@@ -13,8 +13,8 @@ public partial class SensorsViewModel : PageViewModelBase
     private readonly IMessenger _messenger;
     private readonly ISensorService _sensorService;
 
-    public ObservableCollection<SensorViewModel> ViewModels { get; } = new();
-    public ObservableCollection<SensorView> Views { get; } = new();
+    public ObservableCollection<SensorViewModel> ViewModels { get; } = [];
+    public ObservableCollection<SensorView> Views { get; } = [];
 
     private bool _isVisible;
     public override bool IsVisible
@@ -23,12 +23,15 @@ public partial class SensorsViewModel : PageViewModelBase
         set => SetProperty(ref _isVisible, value);
     }
 
+    private readonly MessageHandler<object, CustomSensorsChangedMessage> _customSensorsChangedMessageHandler;
+
     public SensorsViewModel(IMessenger messenger, ISensorService sensorService)
     {
         _messenger = messenger;
         _sensorService = sensorService;
 
-        _messenger.Register<CustomSensorsChangedMessage>(this, CustomSensorsChangedMessageHandler);
+        _customSensorsChangedMessageHandler = CustomSensorsChangedMessageHandler;
+        _messenger.Register(this, _customSensorsChangedMessageHandler);
 
         foreach (var m in _sensorService.CustomSensors.ConvertAll(s => s as CustomSensorModel)!)
         {
@@ -40,23 +43,29 @@ public partial class SensorsViewModel : PageViewModelBase
 
     private void CustomSensorsChangedMessageHandler(object recipient, CustomSensorsChangedMessage message)
     {
-        var removed = message.OldValue.Except(message.NewValue).OfType<CustomSensorModel>();
+        var removed = message.OldValue.Except(message.NewValue).OfType<CustomSensorModel>().ToList();
         foreach (var model in removed)
         {
-            var vm = ViewModels.FirstOrDefault(vm => vm?.Model.Id == model.Id, null);
-            if (vm != null)
+            foreach (var vm in ViewModels)
             {
-                ViewModels.Remove(vm);
+                if (vm.Model.Id == model.Id)
+                {
+                    ViewModels.Remove(vm);
+                    break;
+                }
             }
 
-            var v = Views.FirstOrDefault(v => v?.ViewModel?.Model.Id == model.Id, null);
-            if (v != null)
+            foreach (var v in Views)
             {
-                Views.Remove(v);
+                if (v.ViewModel.Model.Id == model.Id)
+                {
+                    Views.Remove(v);
+                    break;
+                }
             }
         }
 
-        var added = message.NewValue.Except(message.OldValue).OfType<CustomSensorModel>();
+        var added = message.NewValue.Except(message.OldValue).OfType<CustomSensorModel>().ToList();
         foreach (var model in added)
         {
             var vm = new SensorViewModel(model);

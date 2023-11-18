@@ -7,19 +7,13 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace Anemos.Services;
 
-public class ActivationService : IActivationService
+public class ActivationService(
+    ActivationHandler<LaunchActivatedEventArgs> defaultHandler,
+    IEnumerable<IActivationHandler> activationHandlers) : IActivationService
 {
-    private readonly ActivationHandler<LaunchActivatedEventArgs> _defaultHandler;
-    private readonly IEnumerable<IActivationHandler> _activationHandlers;
+    private readonly ActivationHandler<LaunchActivatedEventArgs> _defaultHandler = defaultHandler;
+    private readonly IEnumerable<IActivationHandler> _activationHandlers = activationHandlers;
     private UIElement? _shell = null;
-
-    public ActivationService(
-        ActivationHandler<LaunchActivatedEventArgs> defaultHandler,
-        IEnumerable<IActivationHandler> activationHandlers)
-    {
-        _defaultHandler = defaultHandler;
-        _activationHandlers = activationHandlers;
-    }
 
     public async Task ActivateAsync(object activationArgs)
     {
@@ -61,7 +55,7 @@ public class ActivationService : IActivationService
         }
     }
 
-    private async Task InitializeAsync()
+    private static async Task InitializeAsync()
     {
         _ = App.GetService<IIpcService>();
         _ = App.GetService<ISettingsService>();
@@ -72,10 +66,10 @@ public class ActivationService : IActivationService
         await App.GetService<IRuleService>().LoadAsync();
         await App.GetService<INotifyIconMonitorService>().LoadAsync();
 
-        App.GetService<IMessenger>().Send<ServiceStartupMessage>(new(Type.Missing));
+        App.GetService<IMessenger>().Send<ServiceStartupMessage>(new(null));
     }
 
-    private async Task StartupAsync()
+    private static async Task StartupAsync()
     {
         App.GetService<ILhwmService>().Start();
         App.GetService<IRuleService>().Update();

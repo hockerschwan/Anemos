@@ -11,18 +11,28 @@ public partial class NotifyIcon
     public event EventHandler<NotifyIconClickEventArgs>? Click;
     public event EventHandler<MenuItemClickEventArgs>? ItemClick;
 
+    private Guid _guid;
     public Guid Guid
     {
-        get; init;
+        get => _guid;
+        init
+        {
+            _guid = value;
+            GuidString = value.ToString().ToLower();
+        }
     }
 
-    public List<MenuItem> MenuItems { get; } = new();
+    private string GuidString { get; init; } = string.Empty;
+
+    public List<MenuItem> MenuItems { get; } = [];
 
     private Icon _icon;
 
-    private readonly uint _nItemsPerDepth = 10000u;
+    private static readonly uint _nItemsPerDepth = 10000u;
 
     private readonly System.Timers.Timer _timer = new(100) { AutoReset = false };
+
+    private bool _closing;
 
     #region CTOR
 
@@ -63,43 +73,35 @@ public partial class NotifyIcon
 
     internal void InvokeItemClick(uint id)
     {
-        var item = FlattenMenuItems().SingleOrDefault(m => m?.ItemId_ == id, null);
+        var item = FirstOrDefault(this, id);
         if (item != null)
         {
-            OnItemClick(item);
+            OnItemClick(ref item);
             ItemClick?.Invoke(this, new(this, item));
+        }
+
+        static MenuItem? FirstOrDefault(NotifyIcon @this, uint id)
+        {
+            foreach (var m in @this.FlattenMenuItems().ToList())
+            {
+                if (m.ItemId_ == id) { return m; }
+            }
+            return null;
         }
     }
 
-    private void OnItemClick(MenuItem item)
+    private void OnItemClick(ref MenuItem item)
     {
         switch (item.Type)
         {
             case MenuItemType.Check:
                 item.IsChecked = !item.IsChecked;
-                NativeFunctions.SetChecked(Guid, item.ItemId_!.Value, item.IsChecked);
+                NativeFunctions.SetChecked(GuidString, item.ItemId_!.Value, item.IsChecked);
                 break;
             case MenuItemType.Radio:
                 if (item.IsChecked) { break; }
-                EnsureRadioCheckedOnlyMe(item);
+                EnsureRadioCheckedOnlyMe(ref item);
                 break;
-        }
-    }
-
-    private IEnumerable<MenuItem> FlattenMenuItems() => MenuItems.SelectMany(m => new[] { m }.Concat(m.Children));
-
-    private void EnsureRadioCheckedOnlyMe(MenuItem item)
-    {
-        item.IsChecked = true;
-        NativeFunctions.SetChecked(Guid, item.ItemId_!.Value, item.IsChecked);
-
-        var others = FlattenMenuItems()
-            .Where(m => m.Type == MenuItemType.Radio && m.RadioGroup == item.RadioGroup)
-            .Where(m => m.IsChecked && m.ItemId_ != item.ItemId_);
-        foreach (var m in others)
-        {
-            m.IsChecked = false;
-            NativeFunctions.SetChecked(Guid, m.ItemId_!.Value, m.IsChecked);
         }
     }
 
@@ -110,7 +112,7 @@ public partial class NotifyIcon
             item.ItemId_ = null;
         }
 
-        var flat = FlattenMenuItems();
+        var flat = FlattenMenuItems().ToList();
         foreach (var item in MenuItems)
         {
             SetItemId(flat, item);
@@ -123,48 +125,89 @@ public partial class NotifyIcon
     {
         _timer.Elapsed += Timer_Elapsed;
 
-        NativeFunctions.CreateNotifyIcon(Guid, _icon);
+        NativeFunctions.CreateNotifyIcon(GuidString, _icon);
     }
 
     public void Destroy()
     {
+        _closing = true;
         _timer.Stop();
         MenuItems.Clear();
-        NativeFunctions.DeleteNotifyIcon(Guid);
+        NativeFunctions.DeleteNotifyIcon(GuidString);
     }
 
-    public void SetIcon(Icon icon)
+    private void EnsureRadioCheckedOnlyMe(ref MenuItem item)
     {
+        item.IsChecked = true;
+        NativeFunctions.SetChecked(GuidString, item.ItemId_!.Value, item.IsChecked);
+
+        var parent = FindParent(item);
+        if (parent == null) { return; }
+
+        foreach (var child in parent.Children)
+        {
+            if (child.IsChecked && child.ItemId_ != null && child != item)
+            {
+                child.IsChecked = false;
+                NativeFunctions.SetChecked(GuidString, child.ItemId_.Value, false);
+            }
+        }
+    }
+
+    private MenuItem? FindParent(in MenuItem item)
+    {
+        if (item.ItemId_ == null) { return null; }
+
+        var d = item.ItemId_ / _nItemsPerDepth;
+        var idHigh = d * _nItemsPerDepth;
+        var idLow = idHigh - _nItemsPerDepth;
+
+        foreach (var m in FlattenMenuItems().ToList())
+        {
+            if (m.ItemId_ >= idLow && m.ItemId_ < idHigh && m.Children.Contains(item)) { return m; }
+        }
+        return null;
+    }
+
+    private IEnumerable<MenuItem> FlattenMenuItems() => Traverse(MenuItems);
+
+    private IEnumerable<MenuItem> GetItemsInDepth(List<MenuItem> flatten, uint depth)
+    {
+        foreach (var m in flatten)
+        {
+            if (m.ItemId_ != null && m.ItemId_ / _nItemsPerDepth == depth)
+            {
+                yield return m;
+            }
+        }
+    }
+
+    public void SetIcon(in Icon icon)
+    {
+        if (_closing) { return; }
+
         _icon = icon;
-        NativeFunctions.SetIcon(Guid, ref _icon);
+        NativeFunctions.SetIcon(GuidString, _icon);
     }
 
-    public void SetTooltip(string toolip)
+    private void SetItemId(in List<MenuItem> flat, MenuItem item, uint depth = 0)
     {
-        NativeFunctions.SetTooltip(Guid, toolip);
-    }
-
-    public void SetVisibility(bool visible)
-    {
-        NativeFunctions.SetVisibility(Guid, visible);
-    }
-
-    public void Update()
-    {
-        _timer.Start();
-    }
-
-    private void SetItemId(IEnumerable<MenuItem> flat, MenuItem item, uint depth = 0)
-    {
-        var itemsInDepth = flat.Where(m =>
-            m.ItemId_ != null &&
-            m.ItemId_ >= _nItemsPerDepth * depth &&
-            m.ItemId_ < _nItemsPerDepth * (depth + 1u));
+        var itemsInDepth = GetItemsInDepth(flat, depth).ToList();
 
         uint num;
-        if (itemsInDepth.Any())
+        if (itemsInDepth.Count > 0)
         {
-            num = itemsInDepth.Select(m => m.ItemId_!.Value).Max() + 1u;
+            num = GetNewId(itemsInDepth);
+
+            static uint GetNewId(in List<MenuItem> itemsInDepth)
+            {
+                uint max = 0;
+                foreach (var m in itemsInDepth)
+                {
+                    if (m.ItemId_ > max) { max = m.ItemId_.Value; }
+                }
+                return ++max;
+            }
         }
         else
         {
@@ -180,19 +223,53 @@ public partial class NotifyIcon
 
     private void SetMenu()
     {
-        if (!MenuItems.Any()) { return; }
+        if (MenuItems.Count == 0) { return; }
 
-        var menu = FlattenMenuItems().Select(m =>
-        new NativeFunctions.MenuItemStruct_
+        var menu = FlattenMenuItems()
+            .Select(m =>
+                new NativeFunctions.MenuItemStruct_
+                {
+                    Id = m.ItemId_!.Value,
+                    Type = m.Type,
+                    Text = m.Text,
+                    IsChecked = m.IsChecked,
+                    IsEnabled = m.IsEnabled,
+                    hIcon = m.Icon != null ? m.Icon.Handle : IntPtr.Zero,
+                })
+            .ToList();
+        NativeFunctions.SetMenuItems(GuidString, menu);
+    }
+
+    public void SetTooltip(string toolip)
+    {
+        if (_closing) { return; }
+
+        NativeFunctions.SetTooltip(GuidString, toolip);
+    }
+
+    public void SetVisibility(bool visible)
+    {
+        if (_closing) { return; }
+
+        NativeFunctions.SetVisibility(GuidString, visible);
+    }
+
+    private IEnumerable<MenuItem> Traverse(IEnumerable<MenuItem> list)
+    {
+        var stack = new Stack<MenuItem>(list.Reverse());
+        while (stack.Count > 0)
         {
-            Id = m.ItemId_!.Value,
-            Type = m.Type,
-            Text = m.Text,
-            IsChecked = m.IsChecked,
-            IsEnabled = m.IsEnabled,
-            hIcon = m.Icon != null ? m.Icon.Handle : IntPtr.Zero,
-        }).ToList();
-        NativeFunctions.SetMenuItems(Guid, menu);
+            var current = stack.Pop();
+            yield return current;
+            for (var i = current.Children.Count - 1; i >= 0; --i)
+            {
+                stack.Push(current.Children[i]);
+            }
+        }
+    }
+    public void Update()
+    {
+        _timer.Start();
     }
 
     [LibraryImport("user32.dll")]

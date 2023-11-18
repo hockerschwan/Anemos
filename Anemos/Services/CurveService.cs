@@ -11,9 +11,13 @@ internal class CurveService : ICurveService
 
     private readonly ISettingsService _settingsService;
 
-    public List<CurveModelBase> Curves { get; } = new();
+    public List<CurveModelBase> Curves { get; } = [];
 
     private bool _isUpdating;
+
+    private readonly MessageHandler<object, AppExitMessage> _appExitMessageHandler;
+    private readonly MessageHandler<object, CustomSensorsUpdateDoneMessage> _customSensorsUpdatedMessageHandler;
+    private readonly Action<CurveModelBase> _updateAction;
 
     public CurveService(
         IMessenger messenger,
@@ -22,8 +26,12 @@ internal class CurveService : ICurveService
         _messenger = messenger;
         _settingsService = settingsService;
 
-        _messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
-        _messenger.Register<CustomSensorsUpdateDoneMessage>(this, CustomSensorsUpdateDoneMessageHandler);
+        _appExitMessageHandler = AppExitMessageHandler;
+        _customSensorsUpdatedMessageHandler = CustomSensorsUpdateDoneMessageHandler;
+        _messenger.Register(this, _appExitMessageHandler);
+        _messenger.Register(this, _customSensorsUpdatedMessageHandler);
+
+        _updateAction = Update_;
 
         _messenger.Send<ServiceStartupMessage>(new(GetType()));
         Log.Information("[Curve] Started");
@@ -31,14 +39,14 @@ internal class CurveService : ICurveService
 
     public void AddCurve(CurveArg arg)
     {
-        AddCurves(new List<CurveArg> { arg });
+        AddCurves([arg]);
     }
 
     private void AddCurves(IEnumerable<CurveArg> args, bool save = true)
     {
         var old = Curves.ToList();
         var models = new List<CurveModelBase>();
-        foreach (var arg in args)
+        foreach (var arg in args.ToList())
         {
             switch (arg.Type)
             {
@@ -76,7 +84,19 @@ internal class CurveService : ICurveService
         _messenger.Send(new CurvesUpdateDoneMessage());
     }
 
-    public CurveModelBase? GetCurve(string id) => Curves.SingleOrDefault(cm => cm?.Id == id, null);
+    public CurveModelBase? GetCurve(string id)
+    {
+        return FirstOrDefault(this, id);
+
+        static CurveModelBase? FirstOrDefault(CurveService @this, string id)
+        {
+            foreach (var curve in @this.Curves)
+            {
+                if (curve.Id == id) { return curve; }
+            }
+            return null;
+        }
+    }
 
     private void Load()
     {
@@ -88,7 +108,7 @@ internal class CurveService : ICurveService
                     Id = s.Id,
                     Name = s.Name,
                     SourceId = s.SourceId,
-                    Points = s.Points,
+                    Points = s.Points?.ToList(),
                     OutputLowTemperature = s.OutputLowTemperature,
                     OutputHighTemperature = s.OutputHighTemperature,
                     TemperatureThresholdLow = s.TemperatureThresholdLow,
@@ -157,12 +177,12 @@ internal class CurveService : ICurveService
     private void Update()
     {
         _isUpdating = true;
-        Parallel.ForEach(Curves, c =>
-        {
-            App.MainWindow.DispatcherQueue.TryEnqueue(
-                Microsoft.UI.Dispatching.DispatcherQueuePriority.High,
-                () => c.Update());
-        });
+        Parallel.ForEach(Curves, _updateAction);
         _isUpdating = false;
+    }
+
+    private void Update_(CurveModelBase curve)
+    {
+        curve.Update();
     }
 }

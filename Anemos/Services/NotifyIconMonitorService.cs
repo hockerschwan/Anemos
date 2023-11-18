@@ -11,17 +11,25 @@ internal class NotifyIconMonitorService : INotifyIconMonitorService
 
     private readonly ISettingsService _settingsService;
 
-    public List<MonitorModelBase> Monitors { get; } = new();
+    public List<MonitorModelBase> Monitors { get; } = [];
 
     private bool _isUpdating;
+
+    private readonly MessageHandler<object, AppExitMessage> _appExitMessageHandler;
+    private readonly MessageHandler<object, FansUpdateDoneMessage> _fansUpdatedMessageHandler;
+    private readonly Action<MonitorModelBase> _updateAction;
 
     public NotifyIconMonitorService(IMessenger messenger, ISettingsService settingsService)
     {
         _messenger = messenger;
         _settingsService = settingsService;
 
-        _messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
-        _messenger.Register<FansUpdateDoneMessage>(this, FansUpdateDoneMessageHandler);
+        _appExitMessageHandler = AppExitMessageHandler;
+        _fansUpdatedMessageHandler = FansUpdateDoneMessageHandler;
+        _messenger.Register(this, _appExitMessageHandler);
+        _messenger.Register(this, _fansUpdatedMessageHandler);
+
+        _updateAction = Update_;
 
         _messenger.Send<ServiceStartupMessage>(new(GetType()));
         Log.Information("[Monitor] Started");
@@ -36,7 +44,7 @@ internal class NotifyIconMonitorService : INotifyIconMonitorService
     {
         var old = Monitors.ToList();
         var models = new List<MonitorModelBase>();
-        foreach (var arg in args)
+        foreach (var arg in args.ToList())
         {
             switch (arg.SourceType)
             {
@@ -77,7 +85,19 @@ internal class NotifyIconMonitorService : INotifyIconMonitorService
         Update();
     }
 
-    public MonitorModelBase? GetMonitor(string id) => Monitors.SingleOrDefault(m => m?.Id == id, null);
+    public MonitorModelBase? GetMonitor(string id)
+    {
+        return FirstOrDefault(this, id);
+
+        static MonitorModelBase? FirstOrDefault(NotifyIconMonitorService @this, string id)
+        {
+            foreach (var m in @this.Monitors)
+            {
+                if (m.Id == id) { return m; }
+            }
+            return null;
+        }
+    }
 
     private void Load()
     {
@@ -107,7 +127,7 @@ internal class NotifyIconMonitorService : INotifyIconMonitorService
 
         var old = Monitors.ToList();
         Monitors.Remove(model);
-        model.Destory();
+        model.Destroy();
         _messenger.Send<MonitorsChangedMessage>(new(this, nameof(Monitors), old, Monitors));
 
         Save();
@@ -133,19 +153,25 @@ internal class NotifyIconMonitorService : INotifyIconMonitorService
         _settingsService.Save();
     }
 
-    public void SetVisibility(bool visible) => Monitors.ForEach(m => m.NotifyIcon.SetVisibility(visible));
+    public void SetVisibility(bool visible)
+    {
+        foreach (var m in Monitors)
+        {
+            m.NotifyIcon.SetVisibility(visible);
+        }
+    }
 
     public void Update()
     {
         if (_isUpdating) { return; }
 
         _isUpdating = true;
-        Parallel.ForEach(Monitors, m =>
-        {
-            App.MainWindow.DispatcherQueue.TryEnqueue(
-                Microsoft.UI.Dispatching.DispatcherQueuePriority.High,
-                () => m.Update());
-        });
+        Parallel.ForEach(Monitors, _updateAction);
         _isUpdating = false;
+    }
+
+    private void Update_(MonitorModelBase monitor)
+    {
+        monitor.Update();
     }
 }

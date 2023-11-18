@@ -21,11 +21,18 @@ public sealed partial class RuleView : UserControl
     private bool _processEditorOpened;
     private bool _sensorEditorOpened;
 
+    private readonly MessageHandler<object, RuleProcessChangedMessage> _ruleProcessChangedMessageHandler;
+    private readonly MessageHandler<object, RuleSensorChangedMessage> _ruleSensorChangedMessageHandler;
+    private readonly MessageHandler<object, RuleTimeChangedMessage> _ruleTimeChangedMessageHandler;
+
     public RuleView(RuleViewModel viewModel)
     {
-        _messenger.Register<RuleTimeChangedMessage>(this, RuleTimeChangedMessageHandler);
-        _messenger.Register<RuleProcessChangedMessage>(this, RuleProcessChangedMessageHandler);
-        _messenger.Register<RuleSensorChangedMessage>(this, RuleSensorChangedMessageHandler);
+        _ruleProcessChangedMessageHandler = RuleProcessChangedMessageHandler;
+        _ruleSensorChangedMessageHandler = RuleSensorChangedMessageHandler;
+        _ruleTimeChangedMessageHandler = RuleTimeChangedMessageHandler;
+        _messenger.Register(this, _ruleProcessChangedMessageHandler);
+        _messenger.Register(this, _ruleSensorChangedMessageHandler);
+        _messenger.Register(this, _ruleTimeChangedMessageHandler);
 
         ViewModel = viewModel;
         InitializeComponent();

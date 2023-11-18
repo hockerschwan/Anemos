@@ -40,6 +40,11 @@ public class NotifyIconService : INotifyIconService
     private readonly NotifyIcon _notifyIcon;
     private string _tooltip = string.Empty;
 
+    private readonly MessageHandler<object, AppExitMessage> _appExitMessageHandler;
+    private readonly MessageHandler<object, FanProfilesChangedMessage> _fanProfilesChangedMessageHandler;
+    private readonly MessageHandler<object, FanProfileRenamedMessage> _fanProfileRenamedMessageHandler;
+    private readonly MessageHandler<object, FanProfileSwitchedMessage> _fanProfilesSwitchedMessageHandler;
+
     public NotifyIconService(
         IMessenger messenger,
         ISettingsService settingsService,
@@ -51,10 +56,14 @@ public class NotifyIconService : INotifyIconService
         _fanService = fanService;
         _ruleService = ruleService;
 
-        _messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
-        _messenger.Register<FanProfilesChangedMessage>(this, FanProfilesChangedMessageHandler);
-        _messenger.Register<FanProfileRenamedMessage>(this, FanProfileRenamedMessageHandler);
-        _messenger.Register<FanProfileSwitchedMessage>(this, FanProfileSwitchedMessageHandler);
+        _appExitMessageHandler = AppExitMessageHandler;
+        _fanProfilesChangedMessageHandler = FanProfilesChangedMessageHandler;
+        _fanProfileRenamedMessageHandler = FanProfileRenamedMessageHandler;
+        _fanProfilesSwitchedMessageHandler = FanProfileSwitchedMessageHandler;
+        _messenger.Register(this, _appExitMessageHandler);
+        _messenger.Register(this, _fanProfilesChangedMessageHandler);
+        _messenger.Register(this, _fanProfileRenamedMessageHandler);
+        _messenger.Register(this, _fanProfilesSwitchedMessageHandler);
 
         _settingsService.Settings.FanSettings.PropertyChanged += FanSettings_PropertyChanged;
 
@@ -185,7 +194,7 @@ public class NotifyIconService : INotifyIconService
             .Select(x => x.ProfileId)
             .SequenceEqual(_fanService.Profiles.Select(x => x.Id)))
         {
-            foreach (var item in sub.Children.Cast<MyMenuItem>())
+            foreach (var item in sub.Children.Cast<MyMenuItem>().ToList())
             {
                 item.Text = _fanService.GetProfile(item.ProfileId!)!.Name;
                 item.IsChecked = pr?.Id == item.ProfileId;

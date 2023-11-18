@@ -7,23 +7,17 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace Anemos.Services;
 
-public class NavigationViewService : INavigationViewService
+public class NavigationViewService(INavigationService navigationService, IPageService pageService) : INavigationViewService
 {
-    private readonly INavigationService _navigationService;
+    private readonly INavigationService _navigationService = navigationService;
 
-    private readonly IPageService _pageService;
+    private readonly IPageService _pageService = pageService;
 
     private NavigationView? _navigationView;
 
     public IList<object>? MenuItems => _navigationView?.MenuItems;
 
     public object? SettingsItem => _navigationView?.SettingsItem;
-
-    public NavigationViewService(INavigationService navigationService, IPageService pageService)
-    {
-        _navigationService = navigationService;
-        _pageService = pageService;
-    }
 
     [MemberNotNull(nameof(_navigationView))]
     public void Initialize(NavigationView navigationView)
@@ -73,7 +67,7 @@ public class NavigationViewService : INavigationViewService
 
     private NavigationViewItem? GetSelectedItem(IEnumerable<object> menuItems, Type pageType)
     {
-        foreach (var item in menuItems.OfType<NavigationViewItem>())
+        foreach (var item in menuItems.OfType<NavigationViewItem>().ToList())
         {
             if (IsMenuItemForPageType(item, pageType))
             {

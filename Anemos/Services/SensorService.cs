@@ -12,13 +12,17 @@ internal class SensorService : ISensorService
     private readonly ISettingsService _settingsService;
     private readonly ILhwmService _lhwmService;
 
-    public List<SensorModelBase> PhysicalSensors { get; } = new();
+    public List<SensorModelBase> PhysicalSensors { get; } = [];
 
-    public List<SensorModelBase> CustomSensors { get; } = new();
+    public List<SensorModelBase> CustomSensors { get; } = [];
 
-    public List<SensorModelBase> Sensors { get; private set; } = new();
+    public List<SensorModelBase> Sensors { get; private set; } = [];
 
     private bool _isUpdating;
+
+    private readonly MessageHandler<object, AppExitMessage> _appExitMessageHandler;
+    private readonly MessageHandler<object, LhwmUpdateDoneMessage> _lhwmUpdatedMessageHandler;
+    private readonly Action<SensorModelBase> _updateAction;
 
     public SensorService(
         IMessenger messenger,
@@ -29,8 +33,12 @@ internal class SensorService : ISensorService
         _settingsService = settingsService;
         _lhwmService = lhwmService;
 
-        _messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
-        _messenger.Register<LhwmUpdateDoneMessage>(this, LhwmUpdateDoneMessageHandler);
+        _appExitMessageHandler = AppExitMessageHandler;
+        _lhwmUpdatedMessageHandler = LhwmUpdateDoneMessageHandler;
+        _messenger.Register(this, _appExitMessageHandler);
+        _messenger.Register(this, _lhwmUpdatedMessageHandler);
+
+        _updateAction = Update_;
 
         Scan();
 
@@ -70,12 +78,35 @@ internal class SensorService : ISensorService
 
     public SensorModelBase? GetSensor(string id)
     {
-        return Sensors.SingleOrDefault(m => m?.Id == id, null);
+        return GetSensorImpl(this, id);
+
+        static SensorModelBase? GetSensorImpl(SensorService @this, string id)
+        {
+            foreach (var sensor in @this.Sensors)
+            {
+                if (sensor.Id == id)
+                {
+                    return sensor;
+                }
+            }
+            return null;
+        }
     }
 
     public IEnumerable<SensorModelBase> GetSensors(IEnumerable<string> idList)
     {
-        return Sensors.Where(tm => idList.Contains(tm.Id));
+        return GetSensorsImpl(this, idList);
+
+        static IEnumerable<SensorModelBase> GetSensorsImpl(SensorService @this, IEnumerable<string> idList)
+        {
+            foreach (var sensor in @this.Sensors)
+            {
+                if (idList.Contains(sensor.Id))
+                {
+                    yield return sensor;
+                }
+            }
+        }
     }
 
     private void LhwmUpdateDoneMessageHandler(object recipient, LhwmUpdateDoneMessage message)
@@ -121,19 +152,38 @@ internal class SensorService : ISensorService
 
     public void Save()
     {
-        _settingsService.Settings.SensorSettings.Sensors = CustomSensors.Select(
-            sensor =>
+        var array = new SensorSettings_Sensor[CustomSensors.Count];
+        var sensors = new Span<SensorSettings_Sensor>(array);
+
+        for (var i = 0; i < array.Length; ++i)
+        {
+            if (CustomSensors[i] is CustomSensorModel s)
             {
-                var s = (CustomSensorModel)sensor!;
-                return new SensorSettings_Sensor()
+                sensors[i] = new SensorSettings_Sensor()
                 {
                     Id = s.Id,
                     Name = s.Name,
                     CalcMethod = s.CalcMethod,
                     SampleSize = s.SampleSize,
-                    SourceIds = s.SourceIds.Where(id => GetSensor(id) != null)
+                    SourceIds = Where(this, s)
                 };
-            });
+
+                static IEnumerable<string> Where(SensorService @this, CustomSensorModel s)
+                {
+                    if (s == null) { yield break; }
+
+                    foreach (var id in s.SourceIds)
+                    {
+                        if (@this.GetSensor(id) != null)
+                        {
+                            yield return id;
+                        }
+                    }
+                }
+            }
+        }
+
+        _settingsService.Settings.SensorSettings.Sensors = sensors.ToArray();
 
         _settingsService.Save();
     }
@@ -148,17 +198,17 @@ internal class SensorService : ISensorService
     private void Update()
     {
         _isUpdating = true;
-        Parallel.ForEach(Sensors, s =>
-        {
-            App.MainWindow.DispatcherQueue.TryEnqueue(
-                Microsoft.UI.Dispatching.DispatcherQueuePriority.High,
-                () => s.Update());
-        });
+        Parallel.ForEach(Sensors, _updateAction);
         _isUpdating = false;
+    }
+
+    private void Update_(SensorModelBase sensor)
+    {
+        sensor.Update();
     }
 
     private void UpdateSensors()
     {
-        Sensors = PhysicalSensors.Concat(CustomSensors).ToList();
+        Sensors = [.. PhysicalSensors, .. CustomSensors];
     }
 }

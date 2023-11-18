@@ -8,7 +8,7 @@ namespace Anemos.Services;
 
 public class PageService : IPageService
 {
-    private readonly Dictionary<string, Type> _pages = new();
+    private readonly Dictionary<string, Type> _pages = [];
 
     public PageService()
     {
@@ -49,7 +49,17 @@ public class PageService : IPageService
             var type = typeof(V);
             if (_pages.ContainsValue(type))
             {
-                throw new ArgumentException($"This type is already configured with key {_pages.First(p => p.Value == type).Key}");
+                var k = First(this, type);
+                throw new ArgumentException($"This type is already configured with key {k}");
+
+                static string First(PageService @this, Type? type)
+                {
+                    foreach (var p in @this._pages)
+                    {
+                        if (p.Value == type) { return p.Key; }
+                    }
+                    return string.Empty;
+                }
             }
 
             _pages.Add(key, type);

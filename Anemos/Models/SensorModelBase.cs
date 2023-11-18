@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.UI.Dispatching;
 
 namespace Anemos.Models;
 
@@ -25,7 +26,17 @@ public abstract class SensorModelBase : ObservableObject
         private protected set => SetProperty(ref _value, value);
     }
 
-    public virtual void Update()
+    private readonly DispatcherQueueHandler _updateHandler;
+
+    public SensorModelBase()
     {
+        _updateHandler = Update_;
     }
+
+    public void Update()
+    {
+        App.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.High, _updateHandler);
+    }
+
+    protected abstract void Update_();
 }

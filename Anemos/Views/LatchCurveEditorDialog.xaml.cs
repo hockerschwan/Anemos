@@ -120,22 +120,19 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
         Bindings.StopTracking();
     }
 
-    private void LatchCurveEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    private async void LatchCurveEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
+        while (IsLoaded)
         {
-            while (IsLoaded)
-            {
-                await Task.Delay(100);
-            }
             await Task.Delay(100);
+        }
+        await Task.Delay(100);
 
-            _messenger.Send<LatchCurveChangedMessage>(new(new(
-                ViewModel.TemperatureThresholdLow,
-                ViewModel.OutputLowTemperature,
-                ViewModel.TemperatureThresholdHigh,
-                ViewModel.OutputHighTemperature)));
-        });
+        _messenger.Send<LatchCurveChangedMessage>(new(new(
+            ViewModel.TemperatureThresholdLow,
+            ViewModel.OutputLowTemperature,
+            ViewModel.TemperatureThresholdHigh,
+            ViewModel.OutputHighTemperature)));
     }
 
     private void MainWindow_PositionChanged(object? sender, Windows.Graphics.PointInt32 e)

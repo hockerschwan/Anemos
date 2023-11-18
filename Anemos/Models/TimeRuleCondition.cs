@@ -1,24 +1,12 @@
 ﻿namespace Anemos.Models;
 
-public class TimeRuleCondition : RuleConditionBase
+public class TimeRuleCondition(RuleModel parent, TimeOnly timeBegin, TimeOnly timeEnd) : RuleConditionBase(parent)
 {
-    public TimeOnly TimeBeginning
-    {
-        get; private set;
-    }
+    public TimeOnly TimeBeginning { get; private set; } = timeBegin;
 
-    public TimeOnly TimeEnding
-    {
-        get; private set;
-    }
+    public TimeOnly TimeEnding { get; private set; } = timeEnd;
 
     public override string Text => $"{TimeBeginning:HH:mm} - {TimeEnding:HH:mm}";
-
-    public TimeRuleCondition(RuleModel parent, TimeOnly timeBegin, TimeOnly timeEnd) : base(parent)
-    {
-        TimeBeginning = timeBegin;
-        TimeEnding = timeEnd;
-    }
 
     public void SetBeginningTime(TimeOnly time)
     {

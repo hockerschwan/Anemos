@@ -29,12 +29,9 @@ public class RuleConditionArg
 }
 
 [DebuggerDisplay("{Text}")]
-public abstract class RuleConditionBase : ObservableObject
+public abstract class RuleConditionBase(RuleModel parent) : ObservableObject
 {
-    public RuleModel Parent
-    {
-        get;
-    }
+    public RuleModel Parent { get; } = parent;
 
     public RuleConditionType Type
     {
@@ -49,11 +46,6 @@ public abstract class RuleConditionBase : ObservableObject
     }
 
     public virtual string Text { get; } = string.Empty;
-
-    public RuleConditionBase(RuleModel parent)
-    {
-        Parent = parent;
-    }
 
     public virtual void Update()
     {

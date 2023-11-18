@@ -17,18 +17,18 @@ public sealed partial class MainWindow : WindowEx
 
     private WindowSettings WindowSettings => _settingsService.Settings.Window;
 
-    private readonly System.Timers.Timer _timer = new(250) { AutoReset = false };
-
-    private readonly Microsoft.UI.Dispatching.DispatcherQueue dispatcherQueue;
-
-    private readonly UISettings settings;
-
     public bool IsMaximized => RuntimeHelper.IsMaximized(this);
 
     public bool IsMinimized => RuntimeHelper.IsMinimized(this);
 
+    private readonly UISettings settings;
+
+    private readonly System.Timers.Timer _timer = new(250) { AutoReset = false };
+
     private readonly WindowMessageMonitor _messageMonitor;
     private bool _closeButtonClicked = false;
+
+    private readonly Microsoft.UI.Dispatching.DispatcherQueueHandler _posAndSizeHandler;
 
     public MainWindow()
     {
@@ -44,7 +44,6 @@ public sealed partial class MainWindow : WindowEx
         Title = "AppDisplayName".GetLocalized();
 
         // Theme change code picked from https://github.com/microsoft/WinUI-Gallery/pull/1239
-        dispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
         settings = new UISettings();
         settings.ColorValuesChanged += Settings_ColorValuesChanged; // cannot use FrameworkElement.ActualThemeChanged event
 
@@ -58,6 +57,8 @@ public sealed partial class MainWindow : WindowEx
                 this.Hide();
             }
         }
+
+        _posAndSizeHandler = OnPositionAndSizeChanged;
     }
 
     public double DisplayScale
@@ -74,20 +75,17 @@ public sealed partial class MainWindow : WindowEx
                Height == WindowSettings.Height;
     }
 
-    private void MainWindow_Activated(object sender, Microsoft.UI.Xaml.WindowActivatedEventArgs args)
+    private async void MainWindow_Activated(object sender, Microsoft.UI.Xaml.WindowActivatedEventArgs args)
     {
         Activated -= MainWindow_Activated;
 
         if (_settingsService.Settings.StartMinimized)
         {
-            DispatcherQueue.TryEnqueue(async () =>
+            await Task.Delay(1000);
+            if (!App.MainWindow.Visible)
             {
-                await Task.Delay(1000);
-                if (!App.MainWindow.Visible)
-                {
-                    _messenger.Send(new WindowVisibilityChangedMessage(false));
-                }
-            });
+                _messenger.Send(new WindowVisibilityChangedMessage(false));
+            }
         }
 
         PositionChanged += MainWindow_PositionChanged;
@@ -179,11 +177,11 @@ public sealed partial class MainWindow : WindowEx
     private void Settings_ColorValuesChanged(UISettings sender, object args)
     {
         // This calls comes off-thread, hence we will need to dispatch it to current app's thread
-        dispatcherQueue.TryEnqueue(TitleBarHelper.ApplySystemThemeToCaptionButtons);
+        DispatcherQueue.TryEnqueue(TitleBarHelper.ApplySystemThemeToCaptionButtons);
     }
 
     private void Timer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
     {
-        DispatcherQueue.TryEnqueue(OnPositionAndSizeChanged);
+        DispatcherQueue.TryEnqueue(_posAndSizeHandler);
     }
 }

@@ -12,8 +12,8 @@ public partial class MonitorsViewModel : PageViewModelBase
     private readonly IMessenger _messenger;
     private readonly INotifyIconMonitorService _monitorService;
 
-    public ObservableCollection<MonitorViewModelBase> ViewModels { get; } = new();
-    public ObservableCollection<MonitorViewBase> Views { get; } = new();
+    public ObservableCollection<MonitorViewModelBase> ViewModels { get; } = [];
+    public ObservableCollection<MonitorViewBase> Views { get; } = [];
 
     private bool _isVisible;
     public override bool IsVisible
@@ -22,12 +22,15 @@ public partial class MonitorsViewModel : PageViewModelBase
         set => SetProperty(ref _isVisible, value);
     }
 
+    private readonly MessageHandler<object, MonitorsChangedMessage> _monitorsChangedMessageHandler;
+
     public MonitorsViewModel(IMessenger messenger, INotifyIconMonitorService monitorService)
     {
         _messenger = messenger;
         _monitorService = monitorService;
 
-        _messenger.Register<MonitorsChangedMessage>(this, MonitorsChangedMessageHandler);
+        _monitorsChangedMessageHandler = MonitorsChangedMessageHandler;
+        _messenger.Register(this, _monitorsChangedMessageHandler);
 
         foreach (var model in _monitorService.Monitors)
         {
@@ -60,23 +63,29 @@ public partial class MonitorsViewModel : PageViewModelBase
 
     private void MonitorsChangedMessageHandler(object recipient, MonitorsChangedMessage message)
     {
-        var removed = message.OldValue.Except(message.NewValue);
+        var removed = message.OldValue.Except(message.NewValue).ToList();
         foreach (var model in removed)
         {
-            var vm = ViewModels.FirstOrDefault(vm => vm?.Model.Id == model.Id, null);
-            if (vm != null)
+            foreach (var vm in ViewModels)
             {
-                ViewModels.Remove(vm);
+                if (vm.Model.Id == model.Id)
+                {
+                    ViewModels.Remove(vm);
+                    break;
+                }
             }
 
-            var v = Views.FirstOrDefault(v => (v?.ViewModel)?.Model.Id == model.Id, null);
-            if (v != null)
+            foreach (var v in Views)
             {
-                Views.Remove(v);
+                if (v.ViewModel.Model.Id == model.Id)
+                {
+                    Views.Remove(v);
+                    break;
+                }
             }
         }
 
-        var added = message.NewValue.Except(message.OldValue);
+        var added = message.NewValue.Except(message.OldValue).ToList();
         foreach (var model in added)
         {
             if (model is FanMonitorModel fan)

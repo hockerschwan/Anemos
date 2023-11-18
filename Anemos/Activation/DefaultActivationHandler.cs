@@ -5,14 +5,9 @@ using Microsoft.UI.Xaml;
 
 namespace Anemos.Activation;
 
-public class DefaultActivationHandler : ActivationHandler<LaunchActivatedEventArgs>
+public class DefaultActivationHandler(INavigationService navigationService) : ActivationHandler<LaunchActivatedEventArgs>
 {
-    private readonly INavigationService _navigationService;
-
-    public DefaultActivationHandler(INavigationService navigationService)
-    {
-        _navigationService = navigationService;
-    }
+    private readonly INavigationService _navigationService = navigationService;
 
     protected override bool CanHandleInternal(LaunchActivatedEventArgs args)
     {

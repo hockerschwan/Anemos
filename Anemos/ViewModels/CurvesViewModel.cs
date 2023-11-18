@@ -13,8 +13,8 @@ public partial class CurvesViewModel : PageViewModelBase
     private readonly IMessenger _messenger;
     private readonly ICurveService _curveService;
 
-    public ObservableCollection<CurveViewModelBase> ViewModels { get; } = new();
-    public ObservableCollection<CurveView> Views { get; } = new();
+    public ObservableCollection<CurveViewModelBase> ViewModels { get; } = [];
+    public ObservableCollection<CurveView> Views { get; } = [];
 
     private bool _isVisible;
     public override bool IsVisible
@@ -32,12 +32,15 @@ public partial class CurvesViewModel : PageViewModelBase
         }
     }
 
+    private readonly MessageHandler<object, CurvesChangedMessage> _curvesChangedMessageHandler;
+
     public CurvesViewModel(IMessenger messenger, ICurveService curveService)
     {
         _messenger = messenger;
         _curveService = curveService;
 
-        _messenger.Register<CurvesChangedMessage>(this, CurvesChangedMessageHandler);
+        _curvesChangedMessageHandler = CurvesChangedMessageHandler;
+        _messenger.Register(this, _curvesChangedMessageHandler);
 
         foreach (var model in _curveService.Curves)
         {
@@ -58,23 +61,29 @@ public partial class CurvesViewModel : PageViewModelBase
 
     private void CurvesChangedMessageHandler(object recipient, CurvesChangedMessage message)
     {
-        var removed = message.OldValue.Except(message.NewValue);
+        var removed = message.OldValue.Except(message.NewValue).ToList();
         foreach (var model in removed)
         {
-            var vm = ViewModels.FirstOrDefault(vm => vm?.Model.Id == model.Id, null);
-            if (vm != null)
+            foreach (var vm in ViewModels)
             {
-                ViewModels.Remove(vm);
+                if (vm.Model.Id == model.Id)
+                {
+                    ViewModels.Remove(vm);
+                    break;
+                }
             }
 
-            var v = Views.FirstOrDefault(v => (v?.ViewModel)?.Model.Id == model.Id, null);
-            if (v != null)
+            foreach (var v in Views)
             {
-                Views.Remove(v);
+                if (v.ViewModel.Model.Id == model.Id)
+                {
+                    Views.Remove(v);
+                    break;
+                }
             }
         }
 
-        var added = message.NewValue.Except(message.OldValue);
+        var added = message.NewValue.Except(message.OldValue).ToList();
         foreach (var model in added)
         {
             if (model is ChartCurveModel chart)
@@ -100,7 +109,7 @@ public partial class CurvesViewModel : PageViewModelBase
         {
             Type = CurveType.Chart,
             Name = "Curves_NewCurveName".GetLocalized(),
-            Points = new Point2d[] { new(30, 30), new(70, 70) }
+            Points = [new(30, 30), new(70, 70)]
         });
     }
 

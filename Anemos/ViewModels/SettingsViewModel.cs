@@ -8,23 +8,15 @@ using Windows.ApplicationModel;
 
 namespace Anemos.ViewModels;
 
-public partial class SettingsViewModel : PageViewModelBase
+public partial class SettingsViewModel(ISettingsService _settingsService) : PageViewModelBase
 {
-    private readonly ISettingsService _settingsService;
-
     public SettingsModel Settings => _settingsService.Settings;
 
-    private string _versionDescription;
+    private string _versionDescription = GetVersionDescription();
     public string VersionDescription
     {
         get => _versionDescription;
         set => SetProperty(ref _versionDescription, value);
-    }
-
-    public SettingsViewModel(ISettingsService settingsService)
-    {
-        _settingsService = settingsService;
-        _versionDescription = GetVersionDescription();
     }
 
     private static string GetVersionDescription()

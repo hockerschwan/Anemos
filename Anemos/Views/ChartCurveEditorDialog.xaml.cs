@@ -26,7 +26,7 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
     private Plot Plot1 => WinUIPlot1.Plot;
     private readonly Scatter Chart;
     private readonly Scatter Marker;
-    private readonly Coordinates[] MarkerCoordinates = new[] { Coordinates.NaN };
+    private readonly Coordinates[] MarkerCoordinates = [Coordinates.NaN];
 
     private readonly Color LineColor = Color.FromARGB((uint)System.Drawing.Color.CornflowerBlue.ToArgb());
     private readonly Color MarkerColor = Color.FromARGB((uint)System.Drawing.Color.Orange.ToArgb());
@@ -80,6 +80,33 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
         WinUIPlot1.Refresh();
     }
 
+    private int FindIndex(double value)
+    {
+        for (var i = 0; i < ViewModel.LineDataX.Count; ++i)
+        {
+            if (ViewModel.LineDataX[i] > value) { return i; }
+        }
+        return -1;
+    }
+
+    private double FindNextX(double value)
+    {
+        foreach (var x in ViewModel.LineDataX)
+        {
+            if (x > value) { return x; };
+        }
+        return double.PositiveInfinity;
+    }
+
+    private double FindPreviousX(double value)
+    {
+        for (var i = ViewModel.LineDataX.Count - 1; i >= 0; --i)
+        {
+            if (ViewModel.LineDataX[i] < value) { return ViewModel.LineDataX[i]; };
+        }
+        return double.NegativeInfinity;
+    }
+
     private Coordinates GetNearestCoordinatesInRange(double x, double y)
     {
         var px = new Pixel(x, y);
@@ -108,7 +135,18 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
             near = points.Skip(i - 1).Take(2);
         }
 
-        var nearest = near.OrderBy(c => c.Distance(mc)).First();
+        var nearest = near.First();
+        var distMin = double.PositiveInfinity;
+        foreach (var point in near.ToList())
+        {
+            var dist = point.Distance(mc);
+            if (dist < distMin)
+            {
+                distMin = dist;
+                nearest = point;
+            }
+        }
+
         var nearest_scaled = new Coordinates(nearest.X / Plot1.ScaleFactor, nearest.Y / Plot1.ScaleFactor);
         var px_d = Plot1.GetPixel(nearest_scaled) - px;
 
@@ -155,8 +193,8 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
         {
             var mp = e.GetCurrentPoint((Microsoft.UI.Xaml.UIElement)sender).Position;
 
-            var prev = ViewModel.LineDataX.LastOrDefault(x => x < ViewModel.SelectedX, double.NegativeInfinity);
-            var next = ViewModel.LineDataX.FirstOrDefault(x => x > ViewModel.SelectedX, double.PositiveInfinity);
+            var prev = FindPreviousX(ViewModel.SelectedX);
+            var next = FindNextX(ViewModel.SelectedX);
 
             var axisLimits = Plot1.GetAxisLimits();
             var low = double.Max(axisLimits.XRange.Min, prev + 0.1);
@@ -164,8 +202,8 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
 
             var mc = WinUIPlot1.GetCoordinates(new Pixel(mp.X * Plot1.ScaleFactor, mp.Y * Plot1.ScaleFactor));
 
-            var mc_x = double.Round(double.Max(low, double.Min(high, mc.X)), 1);
-            var mc_y = double.Round(double.Max(0d, double.Min(100d, mc.Y)), 1);
+            var mc_x = double.Round(double.Clamp(mc.X, low, high), 1);
+            var mc_y = double.Round(double.Clamp(mc.Y, 0, 100), 1);
 
             ViewModel.LineDataX[ViewModel.SelectedIndex] = ViewModel.SelectedX = MarkerCoordinates[0].X = mc_x;
             ViewModel.LineDataY[ViewModel.SelectedIndex] = ViewModel.SelectedY = MarkerCoordinates[0].Y = mc_y;
@@ -206,7 +244,7 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
             var mc_x = double.Round(mc.X, 1);
             var mc_y = double.Round(mc.Y, 1);
 
-            var index = ViewModel.LineDataX.FindIndex(x => x > mc_x);
+            var index = FindIndex(mc_x);
             ViewModel.LineDataX.Insert(index, mc_x);
             ViewModel.LineDataY.Insert(index, mc_y);
 
@@ -267,19 +305,16 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
         Bindings.StopTracking();
     }
 
-    private void ChartCurveEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    private async void ChartCurveEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
+        while (IsLoaded)
         {
-            while (IsLoaded)
-            {
-                await Task.Delay(100);
-            }
             await Task.Delay(100);
+        }
+        await Task.Delay(100);
 
-            var points = Chart.Data.GetScatterPoints().Skip(1).SkipLast(1).Select(c => new Point2d(c.X, c.Y));
-            _messenger.Send<ChartCurveChangedMessage>(new(points));
-        });
+        var points = Chart.Data.GetScatterPoints().Skip(1).SkipLast(1).Select(c => new Point2d(c.X, c.Y)).ToList();
+        _messenger.Send<ChartCurveChangedMessage>(new(points));
     }
 
     private void MainWindow_PositionChanged(object? sender, Windows.Graphics.PointInt32 e)

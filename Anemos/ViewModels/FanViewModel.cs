@@ -5,6 +5,7 @@ using Anemos.Helpers;
 using Anemos.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.UI.Dispatching;
 
 namespace Anemos.ViewModels;
 
@@ -23,12 +24,12 @@ public partial class FanViewModel : ObservableObject
     public string[] ControlModeNames
     {
         get;
-    } = new[]
-    {
+    } =
+    [
         "Fan_ControlModeNames_Device".GetLocalized(),
         "Fan_ControlModeNames_Constant".GetLocalized(),
         "Fan_ControlModeNames_Curve".GetLocalized()
-    };
+    ];
 
     private int _controlModeIndex = -1;
     public int ControlModeIndex
@@ -92,15 +93,25 @@ public partial class FanViewModel : ObservableObject
         set => SetProperty(ref _isFlyoutOpened, value);
     }
 
+    private readonly MessageHandler<object, CurvesChangedMessage> _curvesChangedMessageHandler;
+    private readonly MessageHandler<object, FanProfileSwitchedMessage> _fanProfileSwitchedMessageHandler;
+    private readonly DispatcherQueueHandler _updateControlsHandler;
+    private readonly DispatcherQueueHandler _updateLockHandler;
+
     public FanViewModel(FanModelBase model)
     {
-        _messenger.Register<CurvesChangedMessage>(this, CurvesChangedMessageHandler);
-        _messenger.Register<FanProfileSwitchedMessage>(this, FanProfileSwitchedMessageHandler);
+        _curvesChangedMessageHandler = CurvesChangedMessageHandler;
+        _fanProfileSwitchedMessageHandler = FanProfileSwitchedMessageHandler;
+        _messenger.Register(this, _curvesChangedMessageHandler);
+        _messenger.Register(this, _fanProfileSwitchedMessageHandler);
 
         Model = model;
         Model.PropertyChanged += Model_PropertyChanged;
 
         _settingsService.Settings.FanSettings.PropertyChanged += FanSettings_PropertyChanged;
+
+        _updateControlsHandler = UpdateControls;
+        _updateLockHandler = UpdateLock;
 
         Curves = new(_curveService.Curves);
 
@@ -113,13 +124,13 @@ public partial class FanViewModel : ObservableObject
 
     private void CurvesChangedMessageHandler(object recipient, CurvesChangedMessage message)
     {
-        var removed = message.OldValue.Except(message.NewValue);
+        var removed = message.OldValue.Except(message.NewValue).ToList();
         foreach (var cm in removed)
         {
             Curves.Remove(cm);
         }
 
-        var added = message.NewValue.Except(message.OldValue);
+        var added = message.NewValue.Except(message.OldValue).ToList();
         foreach (var cm in added)
         {
             Curves.Add(cm);
@@ -131,14 +142,7 @@ public partial class FanViewModel : ObservableObject
         _controlModeIndex = (int)Model.ControlMode;
         _selectedCurve = Model.CurveModel;
 
-        App.MainWindow.DispatcherQueue.TryEnqueue(() =>
-        {
-            OnPropertyChanged(nameof(ControlModeIndex));
-            OnPropertyChanged(nameof(SelectedCurve));
-            OnPropertyChanged(nameof(ShowConstantControls));
-            OnPropertyChanged(nameof(ShowCurveControls));
-            OnPropertyChanged(nameof(UnlockCurveOption));
-        });
+        App.DispatcherQueue.TryEnqueue(_updateControlsHandler);
     }
 
     private void Model_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -158,10 +162,21 @@ public partial class FanViewModel : ObservableObject
 
     private void FanSettings_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        App.MainWindow.DispatcherQueue.TryEnqueue(() =>
-        {
-            OnPropertyChanged(nameof(UnlockControls));
-            OnPropertyChanged(nameof(UnlockCurveOption));
-        });
+        App.DispatcherQueue.TryEnqueue(_updateLockHandler);
+    }
+
+    private void UpdateControls()
+    {
+        OnPropertyChanged(nameof(ControlModeIndex));
+        OnPropertyChanged(nameof(SelectedCurve));
+        OnPropertyChanged(nameof(ShowConstantControls));
+        OnPropertyChanged(nameof(ShowCurveControls));
+        OnPropertyChanged(nameof(UnlockCurveOption));
+    }
+
+    private void UpdateLock()
+    {
+        OnPropertyChanged(nameof(UnlockControls));
+        OnPropertyChanged(nameof(UnlockCurveOption));
     }
 }

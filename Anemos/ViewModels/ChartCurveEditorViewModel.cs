@@ -18,8 +18,8 @@ public class ChartCurveEditorViewModel : ObservableObject
         {
             if (SetProperty(ref _selectedIndex, value) && _selectedIndex > 0)
             {
-                var prev = LineDataX.LastOrDefault(x => x < LineDataX[value], double.NegativeInfinity);
-                var next = LineDataX.FirstOrDefault(x => x > LineDataX[value], double.PositiveInfinity);
+                var prev = FindPreviousX(LineDataX[value]);
+                var next = FindNextX(LineDataX[value]);
 
                 SelectedXMin = double.Max(_settingsService.Settings.CurveMinTemp, prev + 0.1);
                 SelectedXMax = double.Min(_settingsService.Settings.CurveMaxTemp, next - 0.1);
@@ -43,13 +43,13 @@ public class ChartCurveEditorViewModel : ObservableObject
                 return;
             }
 
-            var prev = LineDataX.LastOrDefault(x => x < value, double.NegativeInfinity);
-            var next = LineDataX.FirstOrDefault(x => x > value, double.PositiveInfinity);
+            var prev = FindPreviousX(value);
+            var next = FindNextX(value);
 
             var min = double.Max(_settingsService.Settings.CurveMinTemp, prev + 0.1);
             var max = double.Min(_settingsService.Settings.CurveMaxTemp, next - 0.1);
 
-            value = double.Round(double.Max(min, double.Min(max, value)), 1);
+            value = double.Round(double.Clamp(value, min, max), 1);
             if (SetProperty(ref _selectedX, value))
             {
                 LineDataX[SelectedIndex] = value;
@@ -71,7 +71,7 @@ public class ChartCurveEditorViewModel : ObservableObject
                 return;
             }
 
-            value = double.Round(double.Max(0d, double.Min(100d, value)), 1);
+            value = double.Round(double.Clamp(value, 0, 100), 1);
             if (SetProperty(ref _selectedY, value))
             {
                 LineDataY[SelectedIndex] = value;
@@ -98,7 +98,7 @@ public class ChartCurveEditorViewModel : ObservableObject
         LineDataX.Clear();
         LineDataY.Clear();
 
-        foreach (var point in points)
+        foreach (var point in points.ToList())
         {
             LineDataX.Add(point.X);
             LineDataY.Add(point.Y);
@@ -115,5 +115,23 @@ public class ChartCurveEditorViewModel : ObservableObject
     {
         _selectedXMin = _settingsService.Settings.CurveMinTemp;
         _selectedXMax = _settingsService.Settings.CurveMaxTemp;
+    }
+
+    private double FindNextX(double value)
+    {
+        foreach (var x in LineDataX)
+        {
+            if (x > value) { return x; };
+        }
+        return double.PositiveInfinity;
+    }
+
+    private double FindPreviousX(double value)
+    {
+        for (var i = LineDataX.Count - 1; i >= 0; --i)
+        {
+            if (LineDataX[i] < value) { return LineDataX[i]; };
+        }
+        return double.NegativeInfinity;
     }
 }

@@ -13,8 +13,8 @@ internal class FanService : IFanService
     private readonly ISettingsService _settingsService;
     private readonly ILhwmService _lhwmService;
 
-    public List<FanProfile> Profiles { get; } = new();
-    public List<FanModelBase> Fans { get; } = new();
+    public List<FanProfile> Profiles { get; } = [];
+    public List<FanModelBase> Fans { get; } = [];
 
     public FanProfile? CurrentProfile { get; private set; } = null;
 
@@ -93,6 +93,10 @@ internal class FanService : IFanService
 
     private bool _isUpdating;
 
+    private readonly MessageHandler<object, AppExitMessage> _appExitMessageHandler;
+    private readonly MessageHandler<object, CurvesUpdateDoneMessage> _curvesUpdatedMessageHandler;
+    private readonly Action<FanModelBase> _updateAction;
+
     public FanService(
         IMessenger messenger,
         ISettingsService settingsService,
@@ -102,8 +106,12 @@ internal class FanService : IFanService
         _settingsService = settingsService;
         _lhwmService = lhwmService;
 
-        _messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
-        _messenger.Register<CurvesUpdateDoneMessage>(this, CurvesUpdateDoneMessageHandler);
+        _appExitMessageHandler = AppExitMessageHandler;
+        _curvesUpdatedMessageHandler = CurvesUpdateDoneMessageHandler;
+        _messenger.Register(this, _appExitMessageHandler);
+        _messenger.Register(this, _curvesUpdatedMessageHandler);
+
+        _updateAction = Update_;
 
         _messenger.Send<ServiceStartupMessage>(new(GetType()));
         Log.Information("[Fan] Started");
@@ -149,7 +157,7 @@ internal class FanService : IFanService
             await Task.Delay(100);
         }
 
-        foreach (var fm in Fans.Where(fm => fm.GetType() == typeof(GpuAmdFanModel)).Cast<GpuAmdFanModel>())
+        foreach (var fm in Fans.Where(fm => fm.GetType() == typeof(GpuAmdFanModel)).Cast<GpuAmdFanModel>().ToList())
         {
             if (fm.ControlMode != FanControlModes.Device)
             {
@@ -180,7 +188,7 @@ internal class FanService : IFanService
     {
         foreach (var fm in Fans)
         {
-            var item = profile.Fans.SingleOrDefault(pi => pi?.Id == fm.Id, null);
+            var item = FirstOrDefault(profile, fm);
             if (item == null)
             {
                 fm.LoadProfile(new FanSettings_ProfileItem()
@@ -199,6 +207,17 @@ internal class FanService : IFanService
         if (save && _isLoaded)
         {
             Save();
+        }
+
+        static FanSettings_ProfileItem? FirstOrDefault(FanProfile profile, FanModelBase? fm)
+        {
+            if (fm == null) { return null; }
+
+            foreach (var pi in profile.Fans.ToList())
+            {
+                if (pi.Id == fm.Id) { return pi; }
+            }
+            return null;
         }
     }
 
@@ -254,9 +273,33 @@ internal class FanService : IFanService
         }
     }
 
-    public FanModelBase? GetFanModel(string id) => Fans.SingleOrDefault(f => f?.Id == id, null);
+    public FanModelBase? GetFanModel(string id)
+    {
+        return FirstOrDefault(this, id);
 
-    public FanProfile? GetProfile(string id) => Profiles.SingleOrDefault(p => p?.Id == id, null);
+        static FanModelBase? FirstOrDefault(FanService @this, string id)
+        {
+            foreach (var f in @this.Fans)
+            {
+                if (f.Id == id) { return f; }
+            }
+            return null;
+        }
+    }
+
+    public FanProfile? GetProfile(string id)
+    {
+        return FirstOrDefault(this, id);
+
+        static FanProfile? FirstOrDefault(FanService @this, string id)
+        {
+            foreach (var p in @this.Profiles)
+            {
+                if (p.Id == id) { return p; }
+            }
+            return null;
+        }
+    }
 
     private void Load()
     {
@@ -273,8 +316,10 @@ internal class FanService : IFanService
             p.PropertyChanged += Profile_PropertyChanged;
         }
 
-        var sensors = _lhwmService.GetSensors(SensorType.Fan)
-            .Where(s => s.Hardware.HardwareType != HardwareType.GpuNvidia || s.Identifier.ToString().Split("/").Last() == "1");
+        var sensors = _lhwmService
+            .GetSensors(SensorType.Fan)
+            .Where(s => s.Hardware.HardwareType != HardwareType.GpuNvidia || s.Identifier.ToString().Split("/").Last() == "1")
+            .ToList();
         foreach (var sensor in sensors)
         {
             var settings = fanSettings.Fans.SingleOrDefault(f => f?.Id == sensor.Identifier.ToString(), null);
@@ -305,7 +350,7 @@ internal class FanService : IFanService
                     if (!int.TryParse(idTerms.Last(), out var n) || n != 1) { break; }
 
                     var numFans = 0;
-                    foreach (var fan in _lhwmService.GetSensors(SensorType.Fan).Where(f => f.Hardware.Identifier == sensor.Hardware.Identifier))
+                    foreach (var fan in _lhwmService.GetSensors(SensorType.Fan).Where(f => f.Hardware.Identifier == sensor.Hardware.Identifier).ToList())
                     {
                         if (!int.TryParse(fan.Identifier.ToString().Split("/").Last(), out var k) || k <= numFans) { continue; }
                         numFans = k;
@@ -374,9 +419,21 @@ internal class FanService : IFanService
         }
         else
         {
-            var np = Profiles.First(p => p.Id != id);
-            ManualProfileId = np.Id;
-            Profiles.Remove(profile);
+            var np = First(this, id);
+            if (np != null)
+            {
+                ManualProfileId = np.Id;
+                Profiles.Remove(profile);
+            }
+
+            static FanProfile? First(FanService @this, string id)
+            {
+                foreach (var p in @this.Profiles)
+                {
+                    if (p.Id != id) { return p; }
+                }
+                return null;
+            }
         }
         profile.PropertyChanged -= Profile_PropertyChanged;
         _messenger.Send<FanProfilesChangedMessage>(new(this, nameof(Profiles), old, Profiles));
@@ -414,13 +471,13 @@ internal class FanService : IFanService
     private void Update()
     {
         _isUpdating = true;
-        Parallel.ForEach(Fans, f =>
-        {
-            App.MainWindow.DispatcherQueue.TryEnqueue(
-                Microsoft.UI.Dispatching.DispatcherQueuePriority.High,
-                () => f.Update());
-        });
+        Parallel.ForEach(Fans, _updateAction);
         _isUpdating = false;
+    }
+
+    private void Update_(FanModelBase fan)
+    {
+        fan.Update();
     }
 
     public void UpdateCurrentProfile()
@@ -428,21 +485,31 @@ internal class FanService : IFanService
         if (CurrentProfile == null) { return; }
 
         var fans = CurrentProfile.Fans.ToList();
-        fans.ForEach(f =>
+        foreach (var fan in fans)
         {
-            var model = Fans.SingleOrDefault(fm => fm?.Id == f.Id, null);
+            var model = FirstOrDefault(this, fan);
             if (model != null)
             {
-                f.Mode = model.ControlMode;
-                f.CurveId = model.CurveId;
-                f.ConstantSpeed = model.ConstantSpeed;
-                f.MaxSpeed = model.MaxSpeed;
-                f.MinSpeed = model.MinSpeed;
-                f.DeltaLimitUp = model.DeltaLimitUp;
-                f.DeltaLimitDown = model.DeltaLimitDown;
-                f.RefractoryPeriodCyclesDown = model.RefractoryPeriodCyclesDown;
+                fan.Mode = model.ControlMode;
+                fan.CurveId = model.CurveId;
+                fan.ConstantSpeed = model.ConstantSpeed;
+                fan.MaxSpeed = model.MaxSpeed;
+                fan.MinSpeed = model.MinSpeed;
+                fan.DeltaLimitUp = model.DeltaLimitUp;
+                fan.DeltaLimitDown = model.DeltaLimitDown;
+                fan.RefractoryPeriodCyclesDown = model.RefractoryPeriodCyclesDown;
             }
-        });
+
+            static FanModelBase? FirstOrDefault(FanService @this, FanSettings_ProfileItem? fan)
+            {
+                foreach (var f in @this.Fans)
+                {
+                    if (f.Id == fan?.Id) { return f; }
+                }
+                return null;
+            }
+        }
+
         CurrentProfile.Fans = fans;
 
         if (_isLoaded)

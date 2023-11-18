@@ -7,43 +7,34 @@ internal partial class NativeFunctions
     #region Internal
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct MenuItemStruct_
+    internal struct MenuItemStruct_(
+        uint id,
+        MenuItemType type = 0,
+        string text = "",
+        bool isChecked = false,
+        bool isEnabled = true)
     {
-        public uint Id;
-        public MenuItemType Type;
-        [MarshalAs(UnmanagedType.LPWStr)] public string Text = string.Empty;
-        [MarshalAs(UnmanagedType.Bool)] public bool IsChecked;
-        [MarshalAs(UnmanagedType.Bool)] public bool IsEnabled = true;
+        public uint Id = id;
+        public MenuItemType Type = type;
+        [MarshalAs(UnmanagedType.LPWStr)] public string Text = text;
+        [MarshalAs(UnmanagedType.Bool)] public bool IsChecked = isChecked;
+        [MarshalAs(UnmanagedType.Bool)] public bool IsEnabled = isEnabled;
         public IntPtr hIcon;
-
-        public MenuItemStruct_(
-            uint id,
-            MenuItemType type = 0,
-            string text = "",
-            bool isChecked = false,
-            bool isEnabled = true)
-        {
-            Id = id;
-            Type = type;
-            Text = text;
-            IsChecked = isChecked;
-            IsEnabled = isEnabled;
-        }
     }
 
     internal delegate void CallbackVoid();
     internal delegate void CallbackGuid([MarshalAs(UnmanagedType.LPStr)] string guid);
     internal delegate void CallbackUint([MarshalAs(UnmanagedType.LPStr)] string guid, uint value);
 
-    internal static void CreateNotifyIcon(Guid guid, System.Drawing.Icon icon)
+    internal static void CreateNotifyIcon(string guid, in System.Drawing.Icon icon)
     {
         var hicon = icon.Handle;
         CreateNotifyIcon_(guid.ToString().ToLower(), hicon);
     }
 
-    internal static void DeleteNotifyIcon(Guid guid)
+    internal static void DeleteNotifyIcon(string guid)
     {
-        DeleteNotifyIcon_(guid.ToString().ToLower());
+        DeleteNotifyIcon_(guid);
     }
 
     internal static void SetCallback_IconClick(CallbackGuid callback)
@@ -56,12 +47,12 @@ internal partial class NativeFunctions
         SetCallback_ItemClick_(Marshal.GetFunctionPointerForDelegate(callback));
     }
 
-    internal static void SetIcon(Guid guid, ref System.Drawing.Icon icon)
+    internal static void SetIcon(string guid, in System.Drawing.Icon icon)
     {
-        SetIcon_(guid.ToString().ToLower(), icon.Handle);
+        SetIcon_(guid, icon.Handle);
     }
 
-    internal static void SetMenuItems(Guid guid, IList<MenuItemStruct_> menuItems)
+    internal static void SetMenuItems(string guid, in IList<MenuItemStruct_> menuItems)
     {
         var ptrArr = new IntPtr[menuItems.Count];
         for (var i = 0; i < menuItems.Count; ++i)
@@ -69,27 +60,27 @@ internal partial class NativeFunctions
             ptrArr[i] = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(MenuItemStruct_)));
             Marshal.StructureToPtr(menuItems[i], ptrArr[i], false);
         }
-        SetMenuItems_(guid.ToString().ToLower(), ptrArr.Length, ptrArr);
+        SetMenuItems_(guid, ptrArr.Length, ptrArr);
     }
 
-    internal static void SetTooltip(Guid guid, string tooltip)
+    internal static void SetTooltip(string guid, string tooltip)
     {
-        SetTooltip_(guid.ToString().ToLower(), tooltip);
+        SetTooltip_(guid, tooltip);
     }
 
-    internal static void SetVisibility(Guid guid, bool visible)
+    internal static void SetVisibility(string guid, bool visible)
     {
-        SetVisibility_(guid.ToString().ToLower(), visible);
+        SetVisibility_(guid, visible);
     }
 
-    internal static void SetChecked(Guid guid, uint itemId, bool checked_)
+    internal static void SetChecked(string guid, uint itemId, bool checked_)
     {
-        SetChecked_(guid.ToString().ToLower(), (nint)itemId, checked_);
+        SetChecked_(guid, (nint)itemId, checked_);
     }
 
-    internal static void SetEnabled(Guid guid, uint itemId, bool enabled)
+    internal static void SetEnabled(string guid, uint itemId, bool enabled)
     {
-        SetEnabled_(guid.ToString().ToLower(), (nint)itemId, enabled);
+        SetEnabled_(guid, (nint)itemId, enabled);
     }
 
     #endregion
@@ -118,7 +109,7 @@ internal partial class NativeFunctions
     [LibraryImport("NotifyIconLibCpp.dll", EntryPoint = "SetMenuItems")]
     private static partial void SetMenuItems_(
         [MarshalAs(UnmanagedType.LPStr)] string guid,
-        int count, IntPtr[] items);
+        int count, [In] IntPtr[] items);
 
     [LibraryImport("NotifyIconLibCpp.dll", EntryPoint = "SetTooltip")]
     private static partial void SetTooltip_(

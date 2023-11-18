@@ -4,9 +4,9 @@ namespace Anemos.Models;
 
 public class GpuNvidiaFanModel : FanModelBase
 {
-    private List<string> FanIds { get; } = new();
+    private List<string> FanIds { get; } = [];
 
-    private List<ISensor> Controls { get; } = new();
+    private List<ISensor> Controls { get; } = [];
 
     public override FanControlModes ControlMode
     {
@@ -70,7 +70,7 @@ public class GpuNvidiaFanModel : FanModelBase
                 var target = CalcTarget();
                 if (target == null || Control == null) { break; }
 
-                target = Math.Max((int)Control.Control.MinSoftwareValue, Math.Min((int)Control.Control.MaxSoftwareValue, target.Value));
+                target = Math.Clamp(target.Value, (int)Control.Control.MinSoftwareValue, (int)Control.Control.MaxSoftwareValue);
                 if (TargetValue != target)
                 {
                     TargetValue = target;

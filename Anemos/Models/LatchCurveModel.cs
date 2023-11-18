@@ -1,29 +1,29 @@
 ﻿namespace Anemos.Models;
 
-public class LatchCurveModel : CurveModelBase
+public class LatchCurveModel(CurveArg args) : CurveModelBase(args)
 {
-    private double _outputLowTemperature;
+    private double _outputLowTemperature = args.OutputLowTemperature!.Value;
     public double OutputLowTemperature
     {
         get => _outputLowTemperature;
         set => SetProperty(ref _outputLowTemperature, value);
     }
 
-    private double _outputHighTemperature;
+    private double _outputHighTemperature = args.OutputHighTemperature!.Value;
     public double OutputHighTemperature
     {
         get => _outputHighTemperature;
         set => SetProperty(ref _outputHighTemperature, value);
     }
 
-    private double _temperatureThresholdLow;
+    private double _temperatureThresholdLow = args.TemperatureThresholdLow!.Value;
     public double TemperatureThresholdLow
     {
         get => _temperatureThresholdLow;
         set => SetProperty(ref _temperatureThresholdLow, value);
     }
 
-    private double _temperatureThresholdHigh;
+    private double _temperatureThresholdHigh = args.TemperatureThresholdHigh!.Value;
     public double TemperatureThresholdHigh
     {
         get => _temperatureThresholdHigh;
@@ -32,15 +32,7 @@ public class LatchCurveModel : CurveModelBase
 
     private bool _useHigh = false;
 
-    public LatchCurveModel(CurveArg args) : base(args)
-    {
-        _outputLowTemperature = args.OutputLowTemperature!.Value;
-        _outputHighTemperature = args.OutputHighTemperature!.Value;
-        _temperatureThresholdLow = args.TemperatureThresholdLow!.Value;
-        _temperatureThresholdHigh = args.TemperatureThresholdHigh!.Value;
-    }
-
-    public override void Update()
+    protected override void Update_()
     {
         Input = SourceModel?.Value;
         Output = CalcValue();

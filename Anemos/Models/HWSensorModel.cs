@@ -27,7 +27,7 @@ public class HWSensorModel : SensorModelBase
         Update();
     }
 
-    public override void Update()
+    protected override void Update_()
     {
         Value = _iSensor.Value == null ? null : double.Round((double)_iSensor.Value, 1);
     }

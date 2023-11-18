@@ -2,15 +2,15 @@
 
 public class ChartCurveModel : CurveModelBase
 {
-    private IEnumerable<Point2d> _points;
-    public IEnumerable<Point2d> Points
+    private List<Point2d> _points;
+    public List<Point2d> Points
     {
         get => _points;
         set
         {
             if (!Helpers.Point2dHelper.IsSorted(value))
             {
-                value = Helpers.Point2dHelper.Sort(value);
+                Helpers.Point2dHelper.Sort(ref value);
             }
 
             if (SetProperty(ref _points, value))
@@ -23,10 +23,11 @@ public class ChartCurveModel : CurveModelBase
 
     public ChartCurveModel(CurveArg args) : base(args)
     {
-        _points = Helpers.Point2dHelper.Sort(args.Points!);
+        _points = [.. args.Points!];
+        Helpers.Point2dHelper.Sort(ref _points);
     }
 
-    public override void Update()
+    protected override void Update_()
     {
         Input = SourceModel?.Value;
         Output = CalcValue();
@@ -34,36 +35,47 @@ public class ChartCurveModel : CurveModelBase
 
     private double? CalcValue()
     {
-        if (SourceModel == null || SourceModel.Value == null || !Points.Any())
+        if (SourceModel == null || SourceModel.Value == null || Points.Count == 0)
         {
             return null;
         }
 
         double? value;
         var temperature = SourceModel.Value;
-        var i = Points.ToList().FindIndex(p => p.X > temperature);
+        var i = FindIndex(this, temperature);
         switch (i)
         {
             case 0:
                 // t < lowest
-                value = Points.First().Y;
+                value = Points[0].Y;
                 break;
             case -1:
                 // highest <= t
-                value = Points.Last().Y;
+                value = Points[^1].Y;
                 break;
             default:
                 // else
-                var lower = Points.ElementAt(i - 1);
-                var higher = Points.ElementAt(i);
+                var lower = Points[i - 1];
+                var higher = Points[i];
                 value = lower.Y + (temperature - lower.X) * (higher.Y - lower.Y) / (higher.X - lower.X);
                 break;
         }
 
         if (value != null)
         {
-            value = double.Round(Math.Max(0, Math.Min(100, value.Value)), 1);
+            value = double.Round(double.Clamp(value.Value, 0, 100), 1);
         }
         return value;
+
+        static int FindIndex(ChartCurveModel @this, double? temperature)
+        {
+            var index = 0;
+            foreach (var point in @this.Points)
+            {
+                if (point.X > temperature) { return index; }
+                ++index;
+            }
+            return -1;
+        }
     }
 }
