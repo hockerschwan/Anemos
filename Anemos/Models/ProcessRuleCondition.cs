@@ -92,7 +92,7 @@ public class ProcessRuleCondition : RuleConditionBase
 
             if (MemoryLower != null)
             {
-                _stringBuilder.Append("RuleProcess_MemoryLowerText".GetLocalized());
+                _stringBuilder.Append("RuleProcess_MemoryLowerText".GetLocalized().Replace("$", MemoryLower.ToString()));
             }
 
             switch (MemoryType)
@@ -107,7 +107,7 @@ public class ProcessRuleCondition : RuleConditionBase
 
             if (MemoryUpper != null)
             {
-                _stringBuilder.Append("RuleProcess_MemoryLowerText".GetLocalized());
+                _stringBuilder.Append("RuleProcess_MemoryUpperText".GetLocalized().Replace("$", MemoryUpper.ToString()));
             }
 
             return _stringBuilder.ToString();
