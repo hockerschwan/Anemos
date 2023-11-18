@@ -17,7 +17,7 @@ Control chassis, CPU & GPU fans on Windows 10 or later.
 
 ## Usage
 
-To run this app, you need to install [.NET7](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
+To run this app, you need to install [.NET8](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 and [Windows App SDK runtime](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads).
 
 (You don't need to if you use "Self-Contained" version.)
