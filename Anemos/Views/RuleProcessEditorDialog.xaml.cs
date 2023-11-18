@@ -65,7 +65,7 @@ public sealed partial class RuleProcessEditorDialog : ContentDialog
 
     private void NB_MemorySizeHigh_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
     {
-        if (NB_MemorySizeLow.Value <= NB_MemorySizeHigh.Value)
+        if (NB_MemorySizeLow.Value >= NB_MemorySizeHigh.Value)
         {
             NB_MemorySizeHigh.Value = NB_MemorySizeLow.Value + 1;
         }
