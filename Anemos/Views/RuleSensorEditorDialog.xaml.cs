@@ -55,24 +55,21 @@ public sealed partial class RuleSensorEditorDialog : ContentDialog
         Bindings.StopTracking();
     }
 
-    private void RuleSensorEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    private async void RuleSensorEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
+        while (IsLoaded)
         {
-            while (IsLoaded)
-            {
-                await Task.Delay(100);
-            }
             await Task.Delay(100);
+        }
+        await Task.Delay(100);
 
-            App.GetService<IMessenger>().Send<RuleSensorChangedMessage>(new(new(
-                _index,
-                ViewModel.SensorId,
-                double.IsNaN(ViewModel.LowerValue) ? null : ViewModel.LowerValue,
-                ViewModel.IncludeLower,
-                double.IsNaN(ViewModel.UpperValue) ? null : ViewModel.UpperValue,
-                ViewModel.IncludeUpper)));
-        });
+        App.GetService<IMessenger>().Send<RuleSensorChangedMessage>(new(new(
+            _index,
+            ViewModel.SensorId,
+            double.IsNaN(ViewModel.LowerValue) ? null : ViewModel.LowerValue,
+            ViewModel.IncludeLower,
+            double.IsNaN(ViewModel.UpperValue) ? null : ViewModel.UpperValue,
+            ViewModel.IncludeUpper)));
     }
 
     private void SetNumberFormatter()

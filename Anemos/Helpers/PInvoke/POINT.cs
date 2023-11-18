@@ -4,16 +4,10 @@ using System.Runtime.InteropServices;
 namespace Anemos.Helpers.PInvoke;
 
 [StructLayout(LayoutKind.Sequential)]
-public struct POINT
+public struct POINT(int x, int y)
 {
-    public int X;
-    public int Y;
-
-    public POINT(int x, int y)
-    {
-        X = x;
-        Y = y;
-    }
+    public int X = x;
+    public int Y = y;
 
     public static implicit operator System.Drawing.Point(POINT p) => new(p.X, p.Y);
 

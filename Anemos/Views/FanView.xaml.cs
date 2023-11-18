@@ -32,9 +32,12 @@ public sealed partial class FanView : UserControl
 
     private bool _optionsDialogOpened;
 
+    private readonly MessageHandler<object, FanOptionsChangedMessage> _fanOptionsChangedMessageHandler;
+
     public FanView(FanViewModel viewModel)
     {
-        _messenger.Register<FanOptionsChangedMessage>(this, FanOptionsChangedMessageHandler);
+        _fanOptionsChangedMessageHandler = FanOptionsChangedMessageHandler;
+        _messenger.Register(this, _fanOptionsChangedMessageHandler);
 
         ViewModel = viewModel;
         InitializeComponent();
@@ -44,7 +47,7 @@ public sealed partial class FanView : UserControl
 
         Plot1.SetAxisLimits(bottom: -25d, top: 525d);
         Plot1.Grids.Clear();
-        Plot1.XAxis.TickGenerator = new ScottPlot.TickGenerators.NumericManual(Array.Empty<Tick>());
+        Plot1.XAxis.TickGenerator = new ScottPlot.TickGenerators.NumericManual([]);
         Plot1.XAxes.ForEach(x => x.IsVisible = false);
         Plot1.YAxes[1].IsVisible = false;
         Plot1.Style.ColorAxes(AxisColor);

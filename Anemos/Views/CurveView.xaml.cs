@@ -23,7 +23,7 @@ public sealed partial class CurveView : UserControl
 
     private Plot Plot1 => WinUIPlot1.Plot;
     private readonly Scatter Marker;
-    private readonly Coordinates[] MarkerCoordinates = new[] { Coordinates.NaN };
+    private readonly Coordinates[] MarkerCoordinates = [Coordinates.NaN];
 
     private readonly Color LineColor = Color.FromARGB((uint)System.Drawing.Color.CornflowerBlue.ToArgb());
     private readonly Color MarkerColor = Color.FromARGB((uint)System.Drawing.Color.Orange.ToArgb());
@@ -41,13 +41,18 @@ public sealed partial class CurveView : UserControl
     private bool _chartEditorOpened;
     private bool _latchEditorOpened;
 
+    private readonly MessageHandler<object, ChartCurveChangedMessage> _chartCurveChangedMessageHandler;
+    private readonly MessageHandler<object, LatchCurveChangedMessage> _latchCurveChangedMessageHandler;
+
     public CurveView(CurveViewModelBase viewModel)
     {
         ViewModel = viewModel;
         InitializeComponent();
 
-        _messenger.Register<ChartCurveChangedMessage>(this, ChartCurveChangedMessageHandler);
-        _messenger.Register<LatchCurveChangedMessage>(this, LatchCurveChangedMessageHandler);
+        _chartCurveChangedMessageHandler = ChartCurveChangedMessageHandler;
+        _latchCurveChangedMessageHandler = LatchCurveChangedMessageHandler;
+        _messenger.Register(this, _chartCurveChangedMessageHandler);
+        _messenger.Register(this, _latchCurveChangedMessageHandler);
 
         App.MainWindow.PositionChanged += MainWindow_PositionChanged;
         _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;

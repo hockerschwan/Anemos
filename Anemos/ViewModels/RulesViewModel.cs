@@ -13,8 +13,8 @@ public partial class RulesViewModel : PageViewModelBase
     private readonly IFanService _fanService;
     private readonly IRuleService _ruleService;
 
-    public ObservableCollection<RuleViewModel> ViewModels { get; } = new();
-    public ObservableCollection<RuleView> Views { get; } = new();
+    public ObservableCollection<RuleViewModel> ViewModels { get; } = [];
+    public ObservableCollection<RuleView> Views { get; } = [];
 
     public ObservableCollection<FanProfile> Profiles
     {
@@ -41,14 +41,19 @@ public partial class RulesViewModel : PageViewModelBase
         set => SetProperty(ref _isVisible, value);
     }
 
+    private readonly MessageHandler<object, FanProfilesChangedMessage> _fanProfilesChangedMessageHandler;
+    private readonly MessageHandler<object, RulesChangedMessage> _rulesChangedMessageHandler;
+
     public RulesViewModel(IMessenger messenger, IFanService fanService, IRuleService ruleService)
     {
         _messenger = messenger;
         _fanService = fanService;
         _ruleService = ruleService;
 
-        _messenger.Register<FanProfilesChangedMessage>(this, FanProfilesChangedMessageHandler);
-        _messenger.Register<RulesChangedMessage>(this, RulesChangedMessageHandler);
+        _fanProfilesChangedMessageHandler = FanProfilesChangedMessageHandler;
+        _rulesChangedMessageHandler = RulesChangedMessageHandler;
+        _messenger.Register(this, _fanProfilesChangedMessageHandler);
+        _messenger.Register(this, _rulesChangedMessageHandler);
 
         Profiles = new(_fanService.Profiles);
 
@@ -64,13 +69,13 @@ public partial class RulesViewModel : PageViewModelBase
 
     private void FanProfilesChangedMessageHandler(object recipient, FanProfilesChangedMessage message)
     {
-        var removed = message.OldValue.Except(message.NewValue);
+        var removed = message.OldValue.Except(message.NewValue).ToList();
         foreach (var p in removed)
         {
             Profiles.Remove(p);
         }
 
-        var added = message.NewValue.Except(message.OldValue);
+        var added = message.NewValue.Except(message.OldValue).ToList();
         foreach (var p in added)
         {
             Profiles.Add(p);
@@ -85,23 +90,29 @@ public partial class RulesViewModel : PageViewModelBase
 
     private void RulesChangedMessageHandler(object recipient, RulesChangedMessage message)
     {
-        var removed = message.OldValue.Except(message.NewValue);
-        foreach (var model in removed.ToList())
+        var removed = message.OldValue.Except(message.NewValue).ToList();
+        foreach (var model in removed)
         {
-            var vm = ViewModels.FirstOrDefault(vm => vm?.Model == model, null);
-            if (vm != null)
+            foreach (var vm in ViewModels)
             {
-                ViewModels.Remove(vm);
+                if (vm.Model == model)
+                {
+                    ViewModels.Remove(vm);
+                    break;
+                }
             }
 
-            var v = Views.FirstOrDefault(v => (v?.ViewModel)?.Model == model, null);
-            if (v != null)
+            foreach (var v in Views)
             {
-                Views.Remove(v);
+                if (v.ViewModel.Model == model)
+                {
+                    Views.Remove(v);
+                    break;
+                }
             }
         }
 
-        var added = message.NewValue.Except(message.OldValue);
+        var added = message.NewValue.Except(message.OldValue).ToList();
         foreach (var model in added)
         {
             var vm = new RuleViewModel(model);
@@ -109,7 +120,7 @@ public partial class RulesViewModel : PageViewModelBase
             Views.Add(new RuleView(vm));
         }
 
-        if (!removed.Any() && !added.Any()) // priority changed
+        if (removed.Count == 0 && added.Count == 0) // priority changed
         {
             var models = ViewModels.Select(vm => vm.Model).ToList();
             for (var i = 0; i < message.NewValue.Count(); ++i)

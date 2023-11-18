@@ -32,7 +32,7 @@ public static partial class ADLXWrapper
     public static List<int> GetGPUs()
     {
         GetGPUs_(out var items, out var _);
-        return items.ToList();
+        return [.. items];
     }
 
     public static bool IsSupported(int id) => IsSupported_(id);

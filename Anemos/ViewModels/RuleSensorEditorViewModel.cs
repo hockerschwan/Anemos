@@ -9,8 +9,8 @@ public class RuleSensorEditorViewModel : ObservableObject
 {
     private readonly ISensorService _sensorService = App.GetService<ISensorService>();
 
-    internal double MinTemperature => ICurveService.AbsoluteMinTemperature;
-    internal double MaxTemperature => ICurveService.AbsoluteMaxTemperature;
+    internal static double MinTemperature => ICurveService.AbsoluteMinTemperature;
+    internal static double MaxTemperature => ICurveService.AbsoluteMaxTemperature;
 
     private string _sensorId = string.Empty;
     public string SensorId
@@ -74,8 +74,8 @@ public class RuleSensorEditorViewModel : ObservableObject
     }
 
     public string[] signs =
-    {
+    [
         "RuleSensorEditor_Signs_LT".GetLocalized(),
         "RuleSensorEditor_Signs_LEQ".GetLocalized()
-    };
+    ];
 }

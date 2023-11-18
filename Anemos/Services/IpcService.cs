@@ -12,10 +12,13 @@ internal class IpcService : IIpcService
 
     private readonly IIpcReceiver _receiver;
 
+    private readonly MessageHandler<object, AppExitMessage> _appExitMessageHandler;
+
     public IpcService(IMessenger messenger)
     {
         _messenger = messenger;
-        _messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
+        _appExitMessageHandler = AppExitMessageHandler;
+        _messenger.Register(this, _appExitMessageHandler);
 
         var ipcFactory = new IpcFactory();
         _receiver = ipcFactory.CreateNamedPipeIpcReceiver(App.Current.AppId).Result;

@@ -11,9 +11,9 @@ namespace Anemos.Services;
 
 // For more information on navigation between pages see
 // https://github.com/microsoft/TemplateStudio/blob/main/docs/WinUI/navigation.md
-public class NavigationService : INavigationService
+public class NavigationService(IPageService pageService) : INavigationService
 {
-    private readonly IPageService _pageService;
+    private readonly IPageService _pageService = pageService;
     private object? _lastParameterUsed;
     private Frame? _frame;
     private readonly NavigationTransitionInfo _transitionInfo = new SlideNavigationTransitionInfo()
@@ -46,11 +46,6 @@ public class NavigationService : INavigationService
 
     [MemberNotNullWhen(true, nameof(Frame), nameof(_frame))]
     public bool CanGoBack => Frame != null && Frame.CanGoBack;
-
-    public NavigationService(IPageService pageService)
-    {
-        _pageService = pageService;
-    }
 
     private void RegisterFrameEvents()
     {

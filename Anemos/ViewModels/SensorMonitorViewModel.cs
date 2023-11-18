@@ -32,9 +32,12 @@ public class SensorMonitorViewModel : MonitorViewModelBase
         }
     }
 
+    private readonly MessageHandler<object, CustomSensorsChangedMessage> _customSensorsChangedMessageHandler;
+
     public SensorMonitorViewModel(SensorMonitorModel model) : base(model)
     {
-        _messenger.Register<CustomSensorsChangedMessage>(this, CustomSensorsChangedMessageHandler);
+        _customSensorsChangedMessageHandler = CustomSensorsChangedMessageHandler;
+        _messenger.Register(this, _customSensorsChangedMessageHandler);
 
         Model = model;
         Sensors = new(_sensorService.Sensors);
@@ -43,13 +46,13 @@ public class SensorMonitorViewModel : MonitorViewModelBase
 
     private void CustomSensorsChangedMessageHandler(object recipient, CustomSensorsChangedMessage message)
     {
-        var removed = message.OldValue.Except(message.NewValue);
+        var removed = message.OldValue.Except(message.NewValue).ToList();
         foreach (var sensor in removed)
         {
             Sensors.Remove(sensor);
         }
 
-        var added = message.NewValue.Except(message.OldValue);
+        var added = message.NewValue.Except(message.OldValue).ToList();
         foreach (var sensor in added)
         {
             Sensors.Add(sensor);

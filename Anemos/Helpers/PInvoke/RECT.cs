@@ -4,17 +4,9 @@ using System.Runtime.InteropServices;
 namespace Anemos.Helpers.PInvoke;
 
 [StructLayout(LayoutKind.Sequential)]
-public struct RECT
+public struct RECT(int left, int top, int right, int bottom)
 {
-    public int Left, Top, Right, Bottom;
-
-    public RECT(int left, int top, int right, int bottom)
-    {
-        Left = left;
-        Top = top;
-        Right = right;
-        Bottom = bottom;
-    }
+    public int Left = left, Top = top, Right = right, Bottom = bottom;
 
     public RECT(System.Drawing.Rectangle r) : this(r.Left, r.Top, r.Right, r.Bottom) { }
 
@@ -102,7 +94,5 @@ public struct RECT
     public readonly override int GetHashCode() => ((System.Drawing.Rectangle)this).GetHashCode();
 
     public readonly override string ToString()
-        => string.Format(
-            System.Globalization.CultureInfo.CurrentCulture,
-            "{{Left={0},Top={1},Right={2},Bottom={3}}}", Left, Top, Right, Bottom);
+        => $"{{Left={Left},Top={Top},Right={Right},Bottom={Bottom}}}";
 }

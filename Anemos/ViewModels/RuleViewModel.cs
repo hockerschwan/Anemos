@@ -27,21 +27,21 @@ public partial class RuleViewModel : ObservableObject
     public List<string> ConditionTypeNames
     {
         get;
-    } = new()
-    {
+    } =
+    [
         "Rule_ConditionTypeNames_Time".GetLocalized(),
         "Rule_ConditionTypeNames_Process".GetLocalized(),
         "Rule_ConditionTypeNames_Sensor".GetLocalized()
-    };
+    ];
 
     public List<string> RuleTypeNames
     {
         get;
-    } = new()
-    {
+    } =
+    [
         "Rule_TypeNames_All".GetLocalized(),
         "Rule_TypeNames_Any".GetLocalized()
-    };
+    ];
 
     private int _selectedRuleTypeIndex = -1;
     public int SelectedRuleTypeIndex
@@ -90,11 +90,14 @@ public partial class RuleViewModel : ObservableObject
         set => SetProperty(ref _editingName, value);
     }
 
+    private readonly MessageHandler<object, FanProfilesChangedMessage> _fanProfilesChangedMessageHandler;
+
     public RuleViewModel(RuleModel model)
     {
         Model = model;
 
-        _messenger.Register<FanProfilesChangedMessage>(this, FanProfilesChangedMessageHandler);
+        _fanProfilesChangedMessageHandler = FanProfilesChangedMessageHandler;
+        _messenger.Register(this, _fanProfilesChangedMessageHandler);
 
         Profiles = new(_fanService.Profiles);
 
@@ -109,7 +112,7 @@ public partial class RuleViewModel : ObservableObject
 
     private void FanProfilesChangedMessageHandler(object recipient, FanProfilesChangedMessage message)
     {
-        var removed = message.OldValue.Except(message.NewValue);
+        var removed = message.OldValue.Except(message.NewValue).ToList();
         foreach (var p in removed)
         {
             Profiles.Remove(p);
@@ -119,7 +122,7 @@ public partial class RuleViewModel : ObservableObject
             SelectedProfileIndex = -1;
         }
 
-        var added = message.NewValue.Except(message.OldValue);
+        var added = message.NewValue.Except(message.OldValue).ToList();
         foreach (var p in added)
         {
             Profiles.Add(p);

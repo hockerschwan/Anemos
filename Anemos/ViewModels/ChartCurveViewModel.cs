@@ -38,7 +38,7 @@ internal class ChartCurveViewModel : CurveViewModelBase
         LineDataX.Add(ICurveService.AbsoluteMinTemperature);
         LineDataX.Add(ICurveService.AbsoluteMaxTemperature);
 
-        if (CurveModel.Points.Any())
+        if (CurveModel.Points.Count != 0)
         {
             LineDataY.Add(CurveModel.Points.First().Y);
             LineDataY.Add(CurveModel.Points.Last().Y);

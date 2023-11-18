@@ -20,12 +20,22 @@ public class SettingsService : ISettingsService
 
     public SettingsModel Settings { get; private set; } = new();
 
+    private readonly JsonSerializerOptions _options = new()
+    {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
+        WriteIndented = true
+    };
+
     private readonly System.Timers.Timer _timer = new(1000);
+
+    private readonly MessageHandler<object, AppExitMessage> _appExitMessageHandler;
 
     public SettingsService(IMessenger messenger)
     {
         _messenger = messenger;
-        _messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
+        _appExitMessageHandler = AppExitMessageHandler;
+        _messenger.Register(this, _appExitMessageHandler);
 
         var fileNotFound = false;
         if (!Directory.Exists(SettingsFolder))
@@ -62,12 +72,8 @@ public class SettingsService : ISettingsService
     private void Load()
     {
         var jsonString = File.ReadAllText(_path);
-        var options = new JsonSerializerOptions
-        {
-            NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
-        };
 
-        Settings = JsonSerializer.Deserialize<SettingsModel>(jsonString, options) ?? throw new Exception("Could not deserialize json");
+        Settings = JsonSerializer.Deserialize<SettingsModel>(jsonString, _options) ?? throw new Exception("Could not deserialize json");
         Settings.PropertyChanged += Settings_PropertyChanged;
 
         _timer.AutoReset = false;
@@ -93,13 +99,7 @@ public class SettingsService : ISettingsService
         _timer.Stop();
         try
         {
-            var options = new JsonSerializerOptions
-            {
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
-                WriteIndented = true
-            };
-            var jsonString = JsonSerializer.Serialize(Settings, options: options) ?? throw new Exception("Could not serialize json");
+            var jsonString = JsonSerializer.Serialize(Settings, _options) ?? throw new Exception("Could not serialize json");
             await File.WriteAllTextAsync(_path, jsonString).ConfigureAwait(false);
             Log.Debug("[Settings] Saved {path}", _path[(_path.LastIndexOf('\\') + 1)..]);
         }

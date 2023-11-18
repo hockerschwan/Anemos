@@ -32,9 +32,12 @@ public class CurveMonitorViewModel : MonitorViewModelBase
         }
     }
 
+    private readonly MessageHandler<object, CurvesChangedMessage> _curvesChangedMessageHandler;
+
     public CurveMonitorViewModel(CurveMonitorModel model) : base(model)
     {
-        _messenger.Register<CurvesChangedMessage>(this, CurvesChangedMessageHandler);
+        _curvesChangedMessageHandler = CurvesChangedMessageHandler;
+        _messenger.Register(this, _curvesChangedMessageHandler);
 
         Model = model;
         Curves = new(_curveService.Curves);
@@ -43,13 +46,13 @@ public class CurveMonitorViewModel : MonitorViewModelBase
 
     private void CurvesChangedMessageHandler(object recipient, CurvesChangedMessage message)
     {
-        var removed = message.OldValue.Except(message.NewValue);
+        var removed = message.OldValue.Except(message.NewValue).ToList();
         foreach (var cm in removed)
         {
             Curves.Remove(cm);
         }
 
-        var added = message.NewValue.Except(message.OldValue);
+        var added = message.NewValue.Except(message.OldValue).ToList();
         foreach (var cm in added)
         {
             Curves.Add(cm);

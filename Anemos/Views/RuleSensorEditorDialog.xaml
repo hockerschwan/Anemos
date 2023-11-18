@@ -8,6 +8,7 @@
 	xmlns:local="using:Anemos.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:models="using:Anemos.Models"
+	xmlns:vm="using:Anemos.ViewModels"
 	mc:Ignorable="d">
 	<ContentDialog.Resources>
 		<cv:TemperatureConverter x:Key="TemperatureConverter" />
@@ -41,8 +42,8 @@
 			<NumberBox
 				x:Name="NB_Lower"
 				MinWidth="100"
-				Maximum="{x:Bind ViewModel.MaxTemperature}"
-				Minimum="{x:Bind ViewModel.MinTemperature}"
+				Maximum="{x:Bind vm:RuleSensorEditorViewModel.MaxTemperature}"
+				Minimum="{x:Bind vm:RuleSensorEditorViewModel.MinTemperature}"
 				Value="{x:Bind ViewModel.LowerValue, Mode=TwoWay}" />
 			<ComboBox ItemsSource="{x:Bind ViewModel.signs}" SelectedIndex="{x:Bind ViewModel.IndexIncludeLower, Mode=TwoWay}" />
 			<TextBlock x:Uid="RuleSensorEditor_TemperatureText" VerticalAlignment="Center" />
@@ -50,8 +51,8 @@
 			<NumberBox
 				x:Name="NB_Upper"
 				MinWidth="100"
-				Maximum="{x:Bind ViewModel.MaxTemperature}"
-				Minimum="{x:Bind ViewModel.MinTemperature}"
+				Maximum="{x:Bind vm:RuleSensorEditorViewModel.MaxTemperature}"
+				Minimum="{x:Bind vm:RuleSensorEditorViewModel.MinTemperature}"
 				Value="{x:Bind ViewModel.UpperValue, Mode=TwoWay}" />
 		</StackPanel>
 	</StackPanel>

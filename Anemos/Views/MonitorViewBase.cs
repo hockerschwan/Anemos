@@ -17,9 +17,12 @@ public class MonitorViewBase : UserControl
 
     private bool _editorOpened;
 
+    private readonly MessageHandler<object, MonitorColorChangedMessage> _monitorColorChangedMessageHandler;
+
     public MonitorViewBase(MonitorViewModelBase viewModel)
     {
-        _messenger.Register<MonitorColorChangedMessage>(this, MonitorColorChangedMessageHandler);
+        _monitorColorChangedMessageHandler = MonitorColorChangedMessageHandler;
+        _messenger.Register(this, _monitorColorChangedMessageHandler);
 
         ViewModel = viewModel;
     }

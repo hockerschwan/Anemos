@@ -12,7 +12,7 @@ internal class RuleService : IRuleService
     private readonly ISettingsService _settingsService;
     private readonly IFanService _fanService;
 
-    public List<RuleModel> Rules { get; } = new();
+    public List<RuleModel> Rules { get; } = [];
 
     public RuleModel? CurrentRule { get; private set; } = null;
 
@@ -50,6 +50,10 @@ internal class RuleService : IRuleService
 
     private bool _isLoaded;
 
+    private readonly MessageHandler<object, AppExitMessage> _appExitMessageHandler;
+    private readonly MessageHandler<object, LhwmUpdateDoneMessage> _lhwmUpdatedMessageHandler;
+    private readonly Action<RuleModel> _updateAction;
+
     public RuleService(
         IMessenger messenger,
         ISettingsService settingsService,
@@ -59,10 +63,14 @@ internal class RuleService : IRuleService
         _settingsService = settingsService;
         _fanService = fanService;
 
-        _messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
-        _messenger.Register<LhwmUpdateDoneMessage>(this, LhwmUpdateDoneMessageHandler);
+        _appExitMessageHandler = AppExitMessageHandler;
+        _lhwmUpdatedMessageHandler = LhwmUpdateDoneMessageHandler;
+        _messenger.Register(this, _appExitMessageHandler);
+        _messenger.Register(this, _lhwmUpdatedMessageHandler);
 
         _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
+
+        _updateAction = Update_;
 
         UpdateIntervalCycles = _settingsService.Settings.RulesUpdateIntervalCycles;
 
@@ -273,12 +281,7 @@ internal class RuleService : IRuleService
         _updateCounter = 0;
         _isUpdating = true;
 
-        Parallel.ForEach(Rules, rule =>
-        {
-            App.MainWindow.DispatcherQueue.TryEnqueue(
-                Microsoft.UI.Dispatching.DispatcherQueuePriority.High,
-                () => rule.Update());
-        });
+        Parallel.ForEach(Rules, _updateAction);
 
         Task.Delay(10).Wait();
 
@@ -294,5 +297,10 @@ internal class RuleService : IRuleService
         }
 
         _isUpdating = false;
+    }
+
+    private void Update_(RuleModel rule)
+    {
+        rule.Update();
     }
 }

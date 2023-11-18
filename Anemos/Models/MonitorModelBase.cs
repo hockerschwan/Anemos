@@ -1,8 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Text;
 using Anemos.Contracts.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.UI.Dispatching;
 
 namespace Anemos.Models;
 
@@ -93,7 +95,7 @@ public abstract class MonitorModelBase : ObservableObject
 
     public LimitedPooledQueue<double?> History { get; } = new(14);
 
-    public ObservableCollection<MonitorColorThreshold> Colors { get; } = new();
+    public ObservableCollection<MonitorColorThreshold> Colors { get; } = [];
 
     private readonly Guid _guid;
 
@@ -112,6 +114,9 @@ public abstract class MonitorModelBase : ObservableObject
 
     private protected readonly StringBuilder _stringBuilder = new();
 
+    private readonly DispatcherQueueHandler _updateHandler;
+    private readonly DispatcherQueueHandler _forcedUpdateHandler;
+
     public MonitorModelBase(MonitorArg arg)
     {
         _id = arg.Id;
@@ -126,12 +131,14 @@ public abstract class MonitorModelBase : ObservableObject
 
         _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
 
+        _updateHandler = Update_;
+        _forcedUpdateHandler = UpdateForced_;
+
         History.EnqueueRange(Enumerable.Repeat<double?>(0.0, History.Capacity));
 
-        var provider = System.Globalization.CultureInfo.InvariantCulture;
-        Colors = new(arg.Colors.Select(p => int.TryParse(p.Item2, System.Globalization.NumberStyles.HexNumber, provider, out var n)
-                ? new MonitorColorThreshold { Threshold = p.Item1, Color = Color.FromArgb((n & 0xFFFFFF) - 16777216) }
-                : new MonitorColorThreshold { Threshold = p.Item1, Color = Color.Black }).OrderBy(x => x.Threshold));
+        var colors = CreateColors(arg).ToList();
+        Sort(ref colors);
+        Colors = new(colors);
 
         _graphics = Graphics.FromImage(_bitmap);
         _graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
@@ -139,6 +146,33 @@ public abstract class MonitorModelBase : ObservableObject
 
         NotifyIcon = _notifyIconLib.CreateIcon(_guid);
         Update(true);
+
+        static IEnumerable<MonitorColorThreshold> CreateColors(MonitorArg arg)
+        {
+            foreach (var color in arg.Colors.ToList())
+            {
+                if (int.TryParse(
+                    color.Item2,
+                    System.Globalization.NumberStyles.HexNumber,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out var n))
+                {
+                    yield return new MonitorColorThreshold
+                    {
+                        Threshold = color.Item1,
+                        Color = Color.FromArgb((n & 0xFFFFFF) - 16777216)
+                    };
+                }
+                else
+                {
+                    yield return new MonitorColorThreshold
+                    {
+                        Threshold = color.Item1,
+                        Color = Color.Black
+                    };
+                }
+            }
+        }
     }
 
     public void AddColor()
@@ -178,7 +212,7 @@ public abstract class MonitorModelBase : ObservableObject
         return 0.2126 * lR + 0.7152 * lG + 0.0722 * lB;
     }
 
-    public void Destory()
+    public void Destroy()
     {
         _settingsService.Settings.PropertyChanged -= Settings_PropertyChanged;
         NotifyIcon.Destroy();
@@ -189,7 +223,7 @@ public abstract class MonitorModelBase : ObservableObject
         if (Colors.Count == 0) { return; }
 
         // background
-        var brush = Colors.LastOrDefault((x) => x.Threshold <= Value, Colors.First()).Brush;
+        var brush = LastOrDefault(this).Brush;
         _graphics.Clear(brush.Color);
 
         // text
@@ -207,6 +241,18 @@ public abstract class MonitorModelBase : ObservableObject
         // set icon
         var icon = System.Drawing.Icon.FromHandle(_bitmap.GetHicon());
         NotifyIcon.SetIcon(icon);
+
+        static MonitorColorThreshold LastOrDefault(MonitorModelBase @this)
+        {
+            for (var i = @this.Colors.Count - 1; i > 0; --i)
+            {
+                if (@this.Colors[i].Threshold <= @this.Value)
+                {
+                    return @this.Colors[i];
+                }
+            }
+            return @this.Colors[0];
+        }
     }
 
     private void DrawHistory()
@@ -220,7 +266,7 @@ public abstract class MonitorModelBase : ObservableObject
         _graphics.DrawRectangle(_historyFramePen, 0, 0, 15, 15);
 
         // chart
-        var brush = Colors.LastOrDefault((x) => x.Threshold <= Value, Colors.First()).Brush;
+        var brush = LastOrDefault(this).Brush;
         switch (SourceType)
         {
             case MonitorSourceType.Fan:
@@ -248,7 +294,7 @@ public abstract class MonitorModelBase : ObservableObject
                         var n = History[i];
                         if (n == null) { continue; }
 
-                        var h = int.Min(14, int.Max(0, (int)double.Ceiling((n.Value - min) * 15.0 / (max - min)) - 1));
+                        var h = Math.Clamp((int)double.Ceiling((n.Value - min) * 15.0 / (max - min)) - 1, 0, 14);
                         if (h < 1) { continue; }
 
                         _graphics.FillRectangle(brush, i + 1, 15 - h, 1, h);
@@ -261,6 +307,18 @@ public abstract class MonitorModelBase : ObservableObject
         // set icon
         var icon = System.Drawing.Icon.FromHandle(_bitmap.GetHicon());
         NotifyIcon.SetIcon(icon);
+
+        static MonitorColorThreshold LastOrDefault(MonitorModelBase @this)
+        {
+            for (var i = @this.Colors.Count - 1; i > 0; --i)
+            {
+                if (@this.Colors[i].Threshold <= @this.Value)
+                {
+                    return @this.Colors[i];
+                }
+            }
+            return @this.Colors[0];
+        }
     }
 
     public void EditColor(MonitorColorThreshold oldColor, MonitorColorThreshold newColor)
@@ -289,6 +347,22 @@ public abstract class MonitorModelBase : ObservableObject
         }
     }
 
+    private static void Sort(ref List<MonitorColorThreshold> collection)
+    {
+        CollectionsMarshal.AsSpan(collection).Sort((a, b) =>
+        {
+            if (a.Threshold < b.Threshold)
+            {
+                return -1;
+            }
+            else if (a.Threshold > b.Threshold)
+            {
+                return 1;
+            }
+            return 0;
+        });
+    }
+
     private void SortColors()
     {
         var sorted = Colors.ToList().OrderBy(x => x.Threshold);
@@ -300,23 +374,44 @@ public abstract class MonitorModelBase : ObservableObject
 
     public void Update(bool forceRedraw = false)
     {
-        if (!forceRedraw)
-        {
-            UpdateValue();
-        }
+        App.DispatcherQueue.TryEnqueue(
+            DispatcherQueuePriority.High,
+            forceRedraw ? _forcedUpdateHandler : _updateHandler);
+    }
+
+    private void Update_()
+    {
+        UpdateValue();
 
         switch (DisplayType)
         {
             case MonitorDisplayType.Current:
                 {
                     var text = Value.HasValue ? double.Round(Value.Value, 0).ToString() : "--";
-                    if (forceRedraw || DisplayedValue != text)
+                    if (DisplayedValue != text)
                     {
                         DisplayedValue = text;
                         DrawCurrent();
                     }
                     break;
                 }
+            case MonitorDisplayType.History:
+                DrawHistory();
+                break;
+        }
+
+        UpdateTooltip();
+        NotifyIcon.SetTooltip(_stringBuilder.ToString());
+    }
+
+    private void UpdateForced_()
+    {
+        switch (DisplayType)
+        {
+            case MonitorDisplayType.Current:
+                DisplayedValue = Value.HasValue ? double.Round(Value.Value, 0).ToString() : "--";
+                DrawCurrent();
+                break;
             case MonitorDisplayType.History:
                 DrawHistory();
                 break;

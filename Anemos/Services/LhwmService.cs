@@ -41,18 +41,24 @@ internal class LhwmService : ILhwmService
 
     private readonly UpdateVisitor _updateVisitor = new();
 
-    public List<IHardware> Hardware { get; } = new();
+    public List<IHardware> Hardware { get; } = [];
 
-    public List<ISensor> Sensors { get; } = new();
+    public List<ISensor> Sensors { get; } = [];
 
     private readonly System.Timers.Timer _timer = new();
 
     private bool _isUpdating;
 
+    private readonly MessageHandler<object, AppExitMessage> _appExitMessageHandler;
+    private readonly Action<IHardware> _updateAction;
+
     public LhwmService(IMessenger messenger, ISettingsService settingsService)
     {
         _messenger = messenger;
-        _messenger.Register<AppExitMessage>(this, AppExitMessageHandler);
+        _appExitMessageHandler = AppExitMessageHandler;
+        _messenger.Register(this, _appExitMessageHandler);
+
+        _updateAction = _updateVisitor.VisitHardware;
 
         _settingsService = settingsService;
         _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
@@ -106,17 +112,40 @@ internal class LhwmService : ILhwmService
 
     public ISensor? GetSensor(string id)
     {
-        return Sensors.SingleOrDefault(s => s?.Identifier.ToString() == id, null);
+        return GetSensorImpl(this, id);
+
+        static ISensor? GetSensorImpl(LhwmService @this, string id)
+        {
+            foreach (var sensor in @this.Sensors)
+            {
+                if (sensor.Identifier.ToString() == id)
+                {
+                    return sensor;
+                }
+            }
+            return null;
+        }
     }
 
     public IEnumerable<ISensor> GetSensors(SensorType sensorType)
     {
-        return Sensors.Where(s => s.SensorType == sensorType);
+        return GetSensorsImpl(this, sensorType);
+
+        static IEnumerable<ISensor> GetSensorsImpl(LhwmService @this, SensorType sensorType)
+        {
+            foreach (var sensor in @this.Sensors)
+            {
+                if (sensor.SensorType == sensorType)
+                {
+                    yield return sensor;
+                }
+            }
+        }
     }
 
     private void Scan()
     {
-        foreach (var hardware in _computer.Hardware)
+        foreach (var hardware in _computer.Hardware.ToList())
         {
             Hardware.Add(hardware);
 
@@ -159,7 +188,7 @@ internal class LhwmService : ILhwmService
     private void Update()
     {
         _isUpdating = true;
-        Parallel.ForEach(Hardware, _updateVisitor.VisitHardware);
+        Parallel.ForEach(Hardware, _updateAction);
         _isUpdating = false;
     }
 }

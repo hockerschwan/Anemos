@@ -51,7 +51,7 @@ internal class ArrowCoordinated : IPlottable
         var length = Length(px_tip - px_base);
         if (length < 1f) { return; }
 
-        var head_length = float.Max(0, float.Min(ArrowheadLength, length - 2));
+        var head_length = float.Clamp(length - 2, 0, ArrowheadLength);
         var angle = Math.Atan2(px_tip.Y - px_base.Y, px_tip.X - px_base.X);
 
         using SKPaint paint = new();

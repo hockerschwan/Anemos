@@ -2,6 +2,7 @@
 using Anemos.Contracts.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LibreHardwareMonitor.Hardware;
+using Microsoft.UI.Dispatching;
 
 namespace Anemos.Models;
 
@@ -257,6 +258,8 @@ public abstract class FanModelBase : ObservableObject
 
     private bool _updateProfile = true;
 
+    private readonly DispatcherQueueHandler _updateHandler;
+
     public FanModelBase(string id, string name, bool isHidden)
     {
         if (id == string.Empty)
@@ -276,6 +279,8 @@ public abstract class FanModelBase : ObservableObject
 
         Control = FindControl(Sensor);
         Control?.Control.SetDefault();
+
+        _updateHandler = Update_;
     }
 
     private protected ISensor? FindControl(ISensor fan)
@@ -284,7 +289,12 @@ public abstract class FanModelBase : ObservableObject
         return _lhwmService.GetSensor(id);
     }
 
-    public virtual void Update()
+    public void Update()
+    {
+        App.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.High, _updateHandler);
+    }
+
+    protected virtual void Update_()
     {
         UpdateValue();
 
@@ -305,17 +315,17 @@ public abstract class FanModelBase : ObservableObject
 
         if (TargetValue == null)
         {
-            return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(CurveModel.Output.Value)));
+            return Math.Clamp((int)double.Round(CurveModel.Output.Value), MinSpeed, MaxSpeed);
         }
 
-        var output = double.Max(0, double.Min(100, CurveModel.Output.Value + Offset));
+        var output = double.Clamp(CurveModel.Output.Value + Offset, 0, 100);
 
         if (RefractoryPeriodCyclesDown > 0)
         {
             ++_refractoryPeriodCounter;
             if (_refractoryPeriodCounter <= RefractoryPeriodCyclesDown && output < TargetValue)
             {
-                return Math.Min(MaxSpeed, Math.Max(MinSpeed, TargetValue.Value));
+                return Math.Clamp(TargetValue.Value, MinSpeed, MaxSpeed);
             }
 
             _refractoryPeriodCounter = 0;
@@ -326,18 +336,18 @@ public abstract class FanModelBase : ObservableObject
             var diff = output - TargetValue.Value;
             if (DeltaLimitUp == 0 || diff <= DeltaLimitUp)
             {
-                return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(output)));
+                return Math.Clamp((int)double.Round(output), MinSpeed, MaxSpeed);
             }
-            return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(TargetValue.Value) + DeltaLimitUp));
+            return Math.Clamp((int)double.Round(TargetValue.Value) + DeltaLimitUp, MinSpeed, MaxSpeed);
         }
         else
         {
             var diff = TargetValue.Value - output;
             if (DeltaLimitDown == 0 || diff <= DeltaLimitDown)
             {
-                return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(output)));
+                return Math.Clamp((int)double.Round(output), MinSpeed, MaxSpeed);
             }
-            return Math.Min(MaxSpeed, Math.Max(MinSpeed, (int)double.Round(TargetValue.Value) - DeltaLimitDown));
+            return Math.Clamp((int)double.Round(TargetValue.Value) - DeltaLimitDown, MinSpeed, MaxSpeed);
         }
     }
 

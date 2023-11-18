@@ -35,7 +35,7 @@ public class CustomSensorModel : SensorModelBase
 
     public override string LongName => Name;
 
-    private List<string> _sourceIds = new();
+    private List<string> _sourceIds = [];
     public List<string> SourceIds
     {
         get => _sourceIds;
@@ -102,7 +102,7 @@ public class CustomSensorModel : SensorModelBase
         Update();
     }
 
-    public override void Update()
+    protected override void Update_()
     {
         Value = CalcValue();
     }
@@ -142,7 +142,7 @@ public class CustomSensorModel : SensorModelBase
                 {
                     _data.Enqueue(average.Value);
                 }
-                if (_data.Any())
+                if (_data.Count != 0)
                 {
                     value = _data.Average();
                 }
@@ -156,14 +156,20 @@ public class CustomSensorModel : SensorModelBase
         return double.Round(value.Value, 1);
     }
 
-    private static double? Average(IEnumerable<SensorModelBase> sensors)
+    private static double? Average(in IEnumerable<SensorModelBase> sensors)
     {
-        var validSensors = sensors.Where(s => s.Value != null).ToList();
-        if (validSensors.Any())
+        var sum = 0d;
+        var count = 0;
+        foreach (var s in sensors.ToList())
         {
-            return validSensors.Sum(s => s.Value)! / validSensors.Count;
+            if (s.Value != null)
+            {
+                sum += s.Value.Value;
+                ++count;
+            }
         }
-        return null;
+
+        return count == 0 ? null : sum / count;
     }
 
     public void AddSource(string id)

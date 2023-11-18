@@ -1,11 +1,7 @@
 ﻿namespace Anemos.Models;
 
-public class NormalFanModel : FanModelBase
+public class NormalFanModel(string id, string name, bool isHidden) : FanModelBase(id, name, isHidden)
 {
-    public NormalFanModel(string id, string name, bool isHidden) : base(id, name, isHidden)
-    {
-    }
-
     private protected override void UpdateValue()
     {
         switch (ControlMode)

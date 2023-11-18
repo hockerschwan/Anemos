@@ -39,23 +39,20 @@ public sealed partial class RuleProcessEditorDialog : ContentDialog
         PrimaryButtonClick -= RuleProcessEditorDialog_PrimaryButtonClick;
     }
 
-    private void RuleProcessEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    private async void RuleProcessEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
+        while (IsLoaded)
         {
-            while (IsLoaded)
-            {
-                await Task.Delay(100);
-            }
             await Task.Delay(100);
+        }
+        await Task.Delay(100);
 
-            App.GetService<IMessenger>().Send<RuleProcessChangedMessage>(new(new(
-                _index,
-                TB_ProcessName.Text,
-                double.IsNaN(NB_MemorySizeLow.Value) ? null : (int?)NB_MemorySizeLow.Value,
-                double.IsNaN(NB_MemorySizeHigh.Value) ? null : (int?)NB_MemorySizeHigh.Value,
-                RB_MemoryType.SelectedIndex)));
-        });
+        App.GetService<IMessenger>().Send<RuleProcessChangedMessage>(new(new(
+            _index,
+            TB_ProcessName.Text,
+            double.IsNaN(NB_MemorySizeLow.Value) ? null : (int?)NB_MemorySizeLow.Value,
+            double.IsNaN(NB_MemorySizeHigh.Value) ? null : (int?)NB_MemorySizeHigh.Value,
+            RB_MemoryType.SelectedIndex)));
     }
 
     private void NB_MemorySizeLow_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)

@@ -21,9 +21,12 @@ public sealed partial class FansPage : Page
         get; private set;
     }
 
+    private readonly MessageHandler<object, FanProfileRenamedMessage> _fanProfileRenamedMessageHandler;
+
     public FansPage()
     {
-        _messenger.Register<FanProfileRenamedMessage>(this, FanProfileRenamedMessageHandler);
+        _fanProfileRenamedMessageHandler = FanProfileRenamedMessageHandler;
+        _messenger.Register(this, _fanProfileRenamedMessageHandler);
 
         ViewModel = App.GetService<FansViewModel>();
         InitializeComponent();

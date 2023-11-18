@@ -109,6 +109,8 @@ public class SensorRuleCondition : RuleConditionBase
         }
     }
 
+    private readonly MessageHandler<object, CustomSensorsChangedMessage> _customSensorsChangedMessageHandler;
+
     public SensorRuleCondition(RuleModel parent, RuleConditionArg arg) : base(parent)
     {
         _messenger = App.GetService<IMessenger>();
@@ -120,7 +122,8 @@ public class SensorRuleCondition : RuleConditionBase
         IncludeLower = arg.IncludeLower ?? false;
         IncludeUpper = arg.IncludeUpper ?? false;
 
-        _messenger.Register<CustomSensorsChangedMessage>(this, CustomSensorsChangedMessageHandler);
+        _customSensorsChangedMessageHandler = CustomSensorsChangedMessageHandler;
+        _messenger.Register(this, _customSensorsChangedMessageHandler);
     }
 
     private void CustomSensorsChangedMessageHandler(object recipient, CustomSensorsChangedMessage message)

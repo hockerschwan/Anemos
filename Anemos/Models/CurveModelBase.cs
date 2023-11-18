@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Anemos.Contracts.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.UI.Dispatching;
 
 namespace Anemos.Models;
 
@@ -18,7 +19,7 @@ public class CurveArg
     public string SourceId = string.Empty;
 
     // Chart
-    public IEnumerable<Point2d>? Points;
+    public List<Point2d>? Points;
 
     // Latch
     public double? OutputLowTemperature;
@@ -87,6 +88,8 @@ public abstract class CurveModelBase : ObservableObject
         set => SetProperty(ref _output, value);
     }
 
+    private readonly DispatcherQueueHandler _updateHandler;
+
     public CurveModelBase(CurveArg args)
     {
         Type = args.Type;
@@ -99,7 +102,14 @@ public abstract class CurveModelBase : ObservableObject
         {
             _sourceId = args.SourceId;
         }
+
+        _updateHandler = Update_;
     }
 
-    public abstract void Update();
+    public void Update()
+    {
+        App.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.High, _updateHandler);
+    }
+
+    protected abstract void Update_();
 }

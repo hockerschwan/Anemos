@@ -45,9 +45,12 @@ public abstract partial class CurveViewModelBase : ObservableObject
         set => SetProperty(ref _editingName, value);
     }
 
+    private readonly MessageHandler<object, CustomSensorsChangedMessage> _customSensorsChangedMessageHandler;
+
     public CurveViewModelBase(CurveModelBase model)
     {
-        _messenger.Register<CustomSensorsChangedMessage>(this, CustomSensorsChangedMessageHandler);
+        _customSensorsChangedMessageHandler = CustomSensorsChangedMessageHandler;
+        _messenger.Register(this, _customSensorsChangedMessageHandler);
 
         Model = model;
         Model.PropertyChanged += Model_PropertyChanged;
@@ -57,13 +60,13 @@ public abstract partial class CurveViewModelBase : ObservableObject
 
     private void CustomSensorsChangedMessageHandler(object recipient, CustomSensorsChangedMessage message)
     {
-        var removed = message.OldValue.Except(message.NewValue);
+        var removed = message.OldValue.Except(message.NewValue).ToList();
         foreach (var sensor in removed)
         {
             Sensors.Remove(sensor);
         }
 
-        var added = message.NewValue.Except(message.OldValue);
+        var added = message.NewValue.Except(message.OldValue).ToList();
         foreach (var sensor in added)
         {
             Sensors.Add(sensor);

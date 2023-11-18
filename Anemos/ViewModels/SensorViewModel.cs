@@ -18,18 +18,34 @@ public partial class SensorViewModel : ObservableObject
     }
 
     public IEnumerable<SensorModelBase> SensorsNotInSources
-        => _sensorService.Sensors.Where(m => !Model.SourceIds.Contains(m.Id) && m.Id != Model.Id);
+    {
+        get
+        {
+            return Find(this);
+
+            static IEnumerable<SensorModelBase> Find(SensorViewModel @this)
+            {
+                foreach (var s in @this._sensorService.Sensors)
+                {
+                    if (!@this.Model.SourceIds.Contains(s.Id) && s.Id != @this.Model.Id)
+                    {
+                        yield return s;
+                    }
+                }
+            }
+        }
+    }
 
     public string[] CalcMethodNames
     {
         get;
-    } = new[]
-    {
+    } =
+    [
         "Sensor_CalcMethodNames_Max".GetLocalized(),
         "Sensor_CalcMethodNames_Min".GetLocalized(),
         "Sensor_CalcMethodNames_Average".GetLocalized(),
         "Sensor_CalcMethodNames_MovingAverage".GetLocalized()
-    };
+    ];
 
 
     private int _selectedMethodIndex = -1;
@@ -60,13 +76,15 @@ public partial class SensorViewModel : ObservableObject
         set => SetProperty(ref _showSampleSize, value);
     }
 
+    private readonly MessageHandler<object, CustomSensorsChangedMessage> _customSensorsChangedMessageHandler;
+
     public SensorViewModel(CustomSensorModel model)
     {
-        _messenger.Register<CustomSensorsChangedMessage>(this, CustomSensorsChangedMessageHandler);
+        _customSensorsChangedMessageHandler = CustomSensorsChangedMessageHandler;
+        _messenger.Register(this, _customSensorsChangedMessageHandler);
 
         Model = model;
         SelectedMethodIndex = (int)Model.CalcMethod;
-
     }
 
     private void CustomSensorsChangedMessageHandler(object recipient, CustomSensorsChangedMessage message)

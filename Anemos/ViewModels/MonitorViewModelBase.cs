@@ -20,11 +20,11 @@ public partial class MonitorViewModelBase : ObservableObject
     public string[] TypeNames
     {
         get;
-    } = new[]
-    {
+    } =
+    [
         "Monitor_TypeNames_Current".GetLocalized(),
         "Monitor_TypeNames_History".GetLocalized()
-    };
+    ];
 
     private protected int _displayTypeIndex = -1;
     public int DisplayTypeIndex

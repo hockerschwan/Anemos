@@ -4,6 +4,7 @@ using Anemos.Models;
 using Anemos.Views;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.UI.Dispatching;
 
 namespace Anemos.ViewModels;
 
@@ -100,6 +101,10 @@ public partial class FansViewModel : PageViewModelBase
         set => SetProperty(ref _isFlyoutOpened, value);
     }
 
+    private readonly MessageHandler<object, FanProfilesChangedMessage> _fanProfilesChangedMessageHandler;
+    private readonly MessageHandler<object, FanProfileSwitchedMessage> _fanProfileSwitchedMessageHandler;
+    private readonly DispatcherQueueHandler _updateUseRulesHandler;
+
     public FansViewModel(
         IMessenger messenger,
         ISettingsService settingsService,
@@ -109,12 +114,15 @@ public partial class FansViewModel : PageViewModelBase
         _settingsService = settingsService;
         _fanService = fanService;
 
-        _messenger.Register<FanProfilesChangedMessage>(this, FanProfileChangedMessageHandler);
-        _messenger.Register<FanProfileSwitchedMessage>(this, FanProfileSwitchedMessageHandler);
+        _fanProfilesChangedMessageHandler = FanProfileChangedMessageHandler;
+        _fanProfileSwitchedMessageHandler = FanProfileSwitchedMessageHandler;
+        _messenger.Register(this, _fanProfilesChangedMessageHandler);
+        _messenger.Register(this, _fanProfileSwitchedMessageHandler);
 
+        _updateUseRulesHandler = UpdateUseRules;
         _settingsService.Settings.FanSettings.PropertyChanged += FanSettings_PropertyChanged;
 
-        Models = _fanService.Fans.ToList();
+        Models = [.. _fanService.Fans];
         ViewModels = new(Models.Select(m => new FanViewModel(m)));
         Views = new(ViewModels.Select(vm => new FanView(vm)));
         VisibleViews = new(Views.Where(v => !v.ViewModel.Model.IsHidden));
@@ -127,25 +135,25 @@ public partial class FansViewModel : PageViewModelBase
     {
         if (e.PropertyName == nameof(_settingsService.Settings.FanSettings.UseRules))
         {
-            App.MainWindow.DispatcherQueue.TryEnqueue(() =>
-            {
-                UseRules = _settingsService.Settings.FanSettings.UseRules;
-            });
+            App.DispatcherQueue.TryEnqueue(_updateUseRulesHandler);
         }
     }
 
     private void FanProfileChangedMessageHandler(object recipient, FanProfilesChangedMessage message)
     {
-        var removed = message.OldValue.Except(message.NewValue);
+        var removed = message.OldValue.Except(message.NewValue).ToList();
         foreach (var p in removed)
         {
             FanProfiles.Remove(p);
         }
 
-        var added = message.NewValue.Except(message.OldValue);
-        if (added.Any())
+        var added = message.NewValue.Except(message.OldValue).ToList();
+        if (added.Count != 0)
         {
-            added.ToList().ForEach(FanProfiles.Add);
+            foreach (var p in added)
+            {
+                FanProfiles.Add(p);
+            }
         }
 
         OnPropertyChanged(nameof(FanProfiles));
@@ -154,7 +162,7 @@ public partial class FansViewModel : PageViewModelBase
 
     private void FanProfileSwitchedMessageHandler(object recipient, FanProfileSwitchedMessage message)
     {
-        App.MainWindow.DispatcherQueue.TryEnqueue(() =>
+        App.DispatcherQueue.TryEnqueue(() =>
         {
             SelectedProfile = message.Value;
         });
@@ -165,21 +173,30 @@ public partial class FansViewModel : PageViewModelBase
         _fanService.RemoveProfile(id);
     }
 
+    private void UpdateUseRules()
+    {
+        UseRules = _settingsService.Settings.FanSettings.UseRules;
+    }
+
     public void UpdateView()
     {
-        var views = Views.Where(v => !v.ViewModel.Model.IsHidden || ShowHiddenFans).ToList();
+        var views = GetViews(this).ToList();
         var viewsChanged = views.Union(VisibleViews).Except(views.Intersect(VisibleViews)).ToList();
-        if (!viewsChanged.Any()) { return; }
+        if (viewsChanged.Count == 0) { return; }
 
         foreach (var v in viewsChanged)
         {
-            if (VisibleViews.Contains(v))
-            {
-                VisibleViews.Remove(v);
-            }
-            else
+            if (!VisibleViews.Remove(v))
             {
                 VisibleViews.Insert(views.IndexOf(v), v);
+            }
+        }
+
+        static IEnumerable<FanView> GetViews(FansViewModel @this)
+        {
+            foreach (var v in @this.Views)
+            {
+                if (@this.ShowHiddenFans || !v.ViewModel.Model.IsHidden) { yield return v; }
             }
         }
     }

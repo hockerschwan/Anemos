@@ -1,33 +1,13 @@
 ﻿namespace NotifyIconLib.Events;
 
-public class NotifyIconClickEventArgs : EventArgs
+public class NotifyIconClickEventArgs(NotifyIcon icon) : EventArgs
 {
-    public NotifyIcon SourceIcon
-    {
-        get; init;
-    }
-
-    public NotifyIconClickEventArgs(NotifyIcon icon)
-    {
-        SourceIcon = icon;
-    }
+    public NotifyIcon SourceIcon { get; init; } = icon;
 }
 
-public class MenuItemClickEventArgs : EventArgs
+public class MenuItemClickEventArgs(NotifyIcon icon, MenuItem item) : EventArgs
 {
-    public NotifyIcon SourceIcon
-    {
-        get; init;
-    }
+    public NotifyIcon SourceIcon { get; init; } = icon;
 
-    public MenuItem SourceItem
-    {
-        get; init;
-    }
-
-    public MenuItemClickEventArgs(NotifyIcon icon, MenuItem item)
-    {
-        SourceIcon = icon;
-        SourceItem = item;
-    }
+    public MenuItem SourceItem { get; init; } = item;
 }

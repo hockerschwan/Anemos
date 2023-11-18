@@ -19,7 +19,7 @@ public class MenuItem
 
     public Icon? Icon { get; set; } = null;
 
-    public List<MenuItem> Children { get; set; } = new();
+    public List<MenuItem> Children { get; set; } = [];
 
     ~MenuItem()
     {

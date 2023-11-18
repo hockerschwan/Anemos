@@ -1,33 +1,36 @@
 ﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text.Json.Serialization;
 
 namespace Anemos
 {
     [DebuggerDisplay("{X}, {Y}")]
-    public class Point2d
+    [method: JsonConstructor]
+    public readonly struct Point2d(double x, double y)
     {
-        public double X
-        {
-            get;
-        }
+        public double X { get; } = x;
 
-        public double Y
-        {
-            get;
-        }
+        public double Y { get; } = y;
 
-        public Point2d(double x, double y)
-        {
-            X = x;
-            Y = y;
-        }
-
-        public override bool Equals(object? obj)
+        public readonly override bool Equals(object? obj)
         {
             if (obj is not Point2d other) { return false; }
-            return other.X == X && other.Y == Y;
+            return Equals(other);
         }
 
-        public override int GetHashCode() => System.HashCode.Combine(X, Y);
+        private readonly bool Equals(Point2d other) => other.X == X && other.Y == Y;
+
+        public readonly override int GetHashCode() => HashCode.Combine(X, Y);
+
+        public static bool operator ==(Point2d left, Point2d right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Point2d left, Point2d right)
+        {
+            return !(left == right);
+        }
     }
 }
 
@@ -35,10 +38,27 @@ namespace Anemos.Helpers
 {
     public static class Point2dHelper
     {
-        public static bool IsSorted(IEnumerable<Point2d> collection)
-            => !collection.Zip(collection.Skip(1), (a, b) => a.X <= b.X).Contains(false);
+        public static bool IsSorted(in List<Point2d> collection)
+        {
+            if (collection.Count == 0) { return true; }
 
-        public static IEnumerable<Point2d> Sort(IEnumerable<Point2d> collection)
-            => collection.ToList().OrderBy(e => e.X);
+            var last = collection[0].X;
+            for (var i = 1; i < collection.Count; ++i)
+            {
+                if (collection[i].X < last) { return false; }
+                last = collection[i].X;
+            }
+            return true;
+        }
+
+        public static void Sort(ref List<Point2d> collection)
+        {
+            CollectionsMarshal.AsSpan(collection).Sort((a, b) =>
+            {
+                if (a.X < b.X) { return -1; }
+                else if (a.X > b.X) { return 1; }
+                return 0;
+            });
+        }
     }
 }

@@ -37,26 +37,23 @@ public sealed partial class FanOptionsDialog : ContentDialog
         PrimaryButtonClick -= FanOptionsDialog_PrimaryButtonClick;
     }
 
-    private void FanOptionsDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    private async void FanOptionsDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
+        while (IsLoaded)
         {
-            while (IsLoaded)
-            {
-                await Task.Delay(100);
-            }
             await Task.Delay(100);
+        }
+        await Task.Delay(100);
 
-            App.GetService<IMessenger>().Send<FanOptionsChangedMessage>(new(new()
-            {
-                MinSpeed = (int)NB_Min.Value,
-                MaxSpeed = (int)NB_Max.Value,
-                DeltaLimitUp = (int)NB_DeltaUp.Value,
-                DeltaLimitDown = (int)NB_DeltaDown.Value,
-                RefractoryPeriodCyclesDown = (int)NB_HoldCycleDown.Value,
-                Offset = (int)NB_Offset.Value
-            }));
-        });
+        App.GetService<IMessenger>().Send<FanOptionsChangedMessage>(new(new()
+        {
+            MinSpeed = (int)NB_Min.Value,
+            MaxSpeed = (int)NB_Max.Value,
+            DeltaLimitUp = (int)NB_DeltaUp.Value,
+            DeltaLimitDown = (int)NB_DeltaDown.Value,
+            RefractoryPeriodCyclesDown = (int)NB_HoldCycleDown.Value,
+            Offset = (int)NB_Offset.Value
+        }));
     }
 
     private void SetNumberFormatter()

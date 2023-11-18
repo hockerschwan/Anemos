@@ -5,8 +5,10 @@ using Anemos.Services;
 using Anemos.ViewModels;
 using Anemos.Views;
 using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.WinUI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Serilog;
 
@@ -27,6 +29,8 @@ public partial class App : Application
 
     public static new App Current => (App)Application.Current;
 
+    public static DispatcherQueue DispatcherQueue { get; } = DispatcherQueue.GetForCurrentThread();
+
     public IHost Host
     {
         get;
@@ -39,15 +43,24 @@ public partial class App : Application
 
     public static MainWindow MainWindow { get; } = new();
 
-    private readonly IMessenger _messenger;
+    private readonly IMessenger _messenger = WeakReferenceMessenger.Default;
 
-    private readonly HashSet<object> _servicesToShutDown = new();
+    private readonly HashSet<Type> _servicesToShutDown = [];
+
+    private readonly MessageHandler<App, ServiceStartupMessage> _serviceStartupMessageHandler;
+    private readonly MessageHandler<App, ServiceShutDownMessage> _serviceShutDownMessageHandler;
+    private readonly DispatcherQueueHandler _mainwindowCloseHandler;
 
     public App(string id) : base()
     {
         AppId = id;
 
         InitializeComponent();
+
+        _serviceStartupMessageHandler = ServiceStartupMessageHandler;
+        _serviceShutDownMessageHandler = ServiceShutDownMessageHandler;
+        _messenger.Register(this, _serviceStartupMessageHandler);
+        _messenger.Register(this, _serviceShutDownMessageHandler);
 
         Host = Microsoft.Extensions.Hosting.Host
             .CreateDefaultBuilder()
@@ -95,9 +108,7 @@ public partial class App : Application
 
         UnhandledException += App_UnhandledException;
 
-        _messenger = GetService<IMessenger>();
-        _messenger.Register<ServiceStartupMessage>(this, ServiceStartupMessageHandler);
-        _messenger.Register<ServiceShutDownMessage>(this, ServiceShutDownMessageHandler);
+        _mainwindowCloseHandler = MainWindow.Close;
     }
 
     private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
@@ -124,12 +135,12 @@ public partial class App : Application
     {
         base.OnLaunched(args);
 
-        await App.GetService<IActivationService>().ActivateAsync(args);
+        await GetService<IActivationService>().ActivateAsync(args);
     }
 
-    private void ServiceStartupMessageHandler(object recipient, ServiceStartupMessage message)
+    private void ServiceStartupMessageHandler(App recipient, ServiceStartupMessage message)
     {
-        if (message.Value == Type.Missing)
+        if (message.Value == null)
         {
             _messenger.Unregister<ServiceStartupMessage>(this);
             return;
@@ -138,7 +149,7 @@ public partial class App : Application
         _servicesToShutDown.Add(message.Value);
     }
 
-    private void ServiceShutDownMessageHandler(object recipient, ServiceShutDownMessage message)
+    private void ServiceShutDownMessageHandler(App recipient, ServiceShutDownMessage message)
     {
         if (message.Value is Type type && _servicesToShutDown.Contains(type))
         {
@@ -151,7 +162,7 @@ public partial class App : Application
     {
         if (MainWindow == null) { return; }
 
-        MainWindow.DispatcherQueue.TryEnqueue(() =>
+        DispatcherQueue.TryEnqueue(() =>
         {
             if (MainWindow.Visible)
             {
@@ -178,25 +189,28 @@ public partial class App : Application
         });
     }
 
-    public void Shutdown(bool forceShutdown = false)
+    public async void Shutdown(bool forceShutdown = false)
     {
-        var dq = MainWindow.DispatcherQueue;
-        dq.TryEnqueue(async () =>
+        if (!forceShutdown)
         {
-            if (!forceShutdown && !await GetService<ShellPage>().OpenExitDialog()) { return; }
+            var result = await DispatcherQueueExtensions.EnqueueAsync(
+                DispatcherQueue,
+                async () => await GetService<ShellPage>().OpenExitDialog(),
+                DispatcherQueuePriority.High);
+            if (!result) { return; }
+        }
 
-            Log.Information("[App] Shutting down...");
-            HasShutdownStarted = true;
-            _messenger.Send(new AppExitMessage());
-            MainWindow.Hide();
+        Log.Information("[App] Shutting down...");
+        HasShutdownStarted = true;
+        _messenger.Send(new AppExitMessage());
+        DispatcherQueue.TryEnqueue(DispatcherQueuePriority.High, _mainwindowCloseHandler);
 
-            while (true)
-            {
-                if (!_servicesToShutDown.Any()) { break; }
-                await Task.Delay(100);
-            }
+        while (true)
+        {
+            if (_servicesToShutDown.Count == 0) { break; }
+            await Task.Delay(100);
+        }
 
-            Current.Exit();
-        });
+        Current.Exit();
     }
 }

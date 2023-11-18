@@ -136,12 +136,12 @@ public class LimitedPooledQueue<T> : IEnumerable<T>, ICollection, IReadOnlyList<
     {
         if (!items.Any()) { return; }
 
-        while (_queue.Any() && _queue.Count >= Capacity - items.Count())
+        while (_queue.Count != 0 && _queue.Count >= Capacity - items.Count())
         {
             _queue.Dequeue();
         }
 
-        foreach (var item in items)
+        foreach (var item in items.ToList())
         {
             _queue.Enqueue(item);
         }
@@ -152,7 +152,7 @@ public class LimitedPooledQueue<T> : IEnumerable<T>, ICollection, IReadOnlyList<
 
     public IEnumerator<T> GetEnumerator() => _queue.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => _queue.GetEnumerator();
 
     public override int GetHashCode() => _queue.GetHashCode();
 

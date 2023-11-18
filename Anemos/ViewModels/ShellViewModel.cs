@@ -22,13 +22,16 @@ public partial class ShellViewModel : ObservableObject
         get;
     }
 
+    private readonly MessageHandler<object, WindowVisibilityChangedMessage> _windowVisibilityChangedMessageHandler;
+
     public ShellViewModel(
         IMessenger messenger,
         INavigationService navigationService,
         INavigationViewService navigationViewService)
     {
         _messenger = messenger;
-        _messenger.Register<WindowVisibilityChangedMessage>(this, handler: WindowVisibilityChangedMessageHandler);
+        _windowVisibilityChangedMessageHandler = WindowVisibilityChangedMessageHandler;
+        _messenger.Register(this, handler: _windowVisibilityChangedMessageHandler);
 
         NavigationService = navigationService;
         NavigationService.Navigated += OnNavigated;

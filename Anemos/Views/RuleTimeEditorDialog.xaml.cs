@@ -33,20 +33,17 @@ public sealed partial class RuleTimeEditorDialog : ContentDialog
         PrimaryButtonClick -= RuleTimeEditorDialog_PrimaryButtonClick;
     }
 
-    private void RuleTimeEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    private async void RuleTimeEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
+        while (IsLoaded)
         {
-            while (IsLoaded)
-            {
-                await Task.Delay(100);
-            }
             await Task.Delay(100);
+        }
+        await Task.Delay(100);
 
-            App.GetService<IMessenger>().Send<RuleTimeChangedMessage>(new(new(
-                _index,
-                TimeOnly.FromTimeSpan(TP_Begin.Time),
-                TimeOnly.FromTimeSpan(TP_End.Time))));
-        });
+        App.GetService<IMessenger>().Send<RuleTimeChangedMessage>(new(new(
+            _index,
+            TimeOnly.FromTimeSpan(TP_Begin.Time),
+            TimeOnly.FromTimeSpan(TP_End.Time))));
     }
 }

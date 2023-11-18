@@ -8,19 +8,16 @@ internal class AppExitMessage : ValueChangedMessage<object?>
     public AppExitMessage() : base(null) { }
 }
 
-internal class ServiceStartupMessage : ValueChangedMessage<object>
+internal class ServiceStartupMessage(Type? type) : ValueChangedMessage<Type?>(type)
 {
-    public ServiceStartupMessage(object type) : base(type) { }
 }
 
-internal class ServiceShutDownMessage : ValueChangedMessage<object>
+internal class ServiceShutDownMessage(Type? type) : ValueChangedMessage<Type?>(type)
 {
-    public ServiceShutDownMessage(object type) : base(type) { }
 }
 
-internal class WindowVisibilityChangedMessage : ValueChangedMessage<bool>
+internal class WindowVisibilityChangedMessage(bool isOpen) : ValueChangedMessage<bool>(isOpen)
 {
-    public WindowVisibilityChangedMessage(bool isOpen) : base(isOpen) { }
 }
 
 internal class LhwmUpdateDoneMessage : ValueChangedMessage<object?>
@@ -36,15 +33,13 @@ internal class CustomSensorsUpdateDoneMessage : ValueChangedMessage<object?>
 /// <summary>
 /// Sensors added/removed
 /// </summary>
-internal class CustomSensorsChangedMessage : PropertyChangedMessage<IEnumerable<SensorModelBase>>
+internal class CustomSensorsChangedMessage(
+    object sender,
+    string? propertyName,
+    IEnumerable<SensorModelBase> oldValue,
+    IEnumerable<SensorModelBase> newValue)
+    : PropertyChangedMessage<IEnumerable<SensorModelBase>>(sender, propertyName, oldValue, newValue)
 {
-    /// <inheritdoc cref="CustomSensorsChangedMessage"/>
-    public CustomSensorsChangedMessage(
-        object sender,
-        string? propertyName,
-        IEnumerable<SensorModelBase> oldValue,
-        IEnumerable<SensorModelBase> newValue)
-        : base(sender, propertyName, oldValue, newValue) { }
 }
 
 internal class CurvesUpdateDoneMessage : ValueChangedMessage<object?>
@@ -55,33 +50,28 @@ internal class CurvesUpdateDoneMessage : ValueChangedMessage<object?>
 /// <summary>
 /// Curves added/removed
 /// </summary>
-internal class CurvesChangedMessage : PropertyChangedMessage<IEnumerable<CurveModelBase>>
+internal class CurvesChangedMessage(
+    object sender,
+    string? propertyName,
+    IEnumerable<CurveModelBase> oldValue,
+    IEnumerable<CurveModelBase> newValue)
+    : PropertyChangedMessage<IEnumerable<CurveModelBase>>(sender, propertyName, oldValue, newValue)
 {
-    /// <inheritdoc cref="CurvesUpdateDoneMessage"/>
-    public CurvesChangedMessage(
-        object sender,
-        string? propertyName,
-        IEnumerable<CurveModelBase> oldValue,
-        IEnumerable<CurveModelBase> newValue)
-        : base(sender, propertyName, oldValue, newValue) { }
 }
 
 /// <summary>
 /// Chart editor result
 /// </summary>
-internal class ChartCurveChangedMessage : ValueChangedMessage<IEnumerable<Point2d>>
+internal class ChartCurveChangedMessage(List<Point2d> result) : ValueChangedMessage<List<Point2d>>(result)
 {
-    /// <inheritdoc cref="ChartCurveChangedMessage"/>
-    public ChartCurveChangedMessage(IEnumerable<Point2d> result) : base(result) { }
 }
 
 /// <summary>
 /// Latch editor result (X_Low, Y_Low, X_High, Y_High)
 /// </summary>
-internal class LatchCurveChangedMessage : ValueChangedMessage<Tuple<double, double, double, double>>
+internal class LatchCurveChangedMessage(Tuple<double, double, double, double> result)
+    : ValueChangedMessage<Tuple<double, double, double, double>>(result)
 {
-    /// <inheritdoc cref="LatchCurveChangedMessage"/>
-    public LatchCurveChangedMessage(Tuple<double, double, double, double> result) : base(result) { }
 }
 
 internal class FansUpdateDoneMessage : ValueChangedMessage<object?>
@@ -89,95 +79,82 @@ internal class FansUpdateDoneMessage : ValueChangedMessage<object?>
     public FansUpdateDoneMessage() : base(null) { }
 }
 
-internal class FanProfileSwitchedMessage : ValueChangedMessage<FanProfile>
+internal class FanProfileSwitchedMessage(FanProfile profile) : ValueChangedMessage<FanProfile>(profile)
 {
-    public FanProfileSwitchedMessage(FanProfile profile) : base(profile) { }
 }
 
 /// <summary>
 /// Profiles added/removed
 /// </summary>
-internal class FanProfilesChangedMessage : PropertyChangedMessage<IEnumerable<FanProfile>>
+internal class FanProfilesChangedMessage(
+    object sender,
+    string? propertyName,
+    IEnumerable<FanProfile> oldValue,
+    IEnumerable<FanProfile> newValue)
+    : PropertyChangedMessage<IEnumerable<FanProfile>>(sender, propertyName, oldValue, newValue)
 {
-    /// <inheritdoc cref="FanProfilesChangedMessage"/>
-    public FanProfilesChangedMessage(
-        object sender,
-        string? propertyName,
-        IEnumerable<FanProfile> oldValue,
-        IEnumerable<FanProfile> newValue)
-        : base(sender, propertyName, oldValue, newValue) { }
 }
 
-internal class FanProfileRenamedMessage : ValueChangedMessage<string>
+internal class FanProfileRenamedMessage(string newName) : ValueChangedMessage<string>(newName)
 {
-    public FanProfileRenamedMessage(string newName) : base(newName) { }
 }
 
-internal class FanOptionsChangedMessage : ValueChangedMessage<FanOptionsResult>
+internal class FanOptionsChangedMessage(FanOptionsResult result) : ValueChangedMessage<FanOptionsResult>(result)
 {
-    public FanOptionsChangedMessage(FanOptionsResult result) : base(result) { }
 }
 
 /// <summary>
 /// Rules added/removed
 /// </summary>
-internal class RulesChangedMessage : PropertyChangedMessage<IEnumerable<RuleModel>>
+internal class RulesChangedMessage(
+    object sender,
+    string? propertyName,
+    IEnumerable<RuleModel> oldValue,
+    IEnumerable<RuleModel> newValue)
+    : PropertyChangedMessage<IEnumerable<RuleModel>>(sender, propertyName, oldValue, newValue)
 {
-    /// <inheritdoc cref="RulesChangedMessage"/>
-    public RulesChangedMessage(
-        object sender,
-        string? propertyName,
-        IEnumerable<RuleModel> oldValue,
-        IEnumerable<RuleModel> newValue)
-        : base(sender, propertyName, oldValue, newValue) { }
 }
 
 /// <summary>
 /// Condition index, Beginning, Ending
 /// </summary>
-internal class RuleTimeChangedMessage : ValueChangedMessage<Tuple<int, TimeOnly, TimeOnly>>
+internal class RuleTimeChangedMessage(Tuple<int, TimeOnly, TimeOnly> result)
+    : ValueChangedMessage<Tuple<int, TimeOnly, TimeOnly>>(result)
 {
-    /// <inheritdoc cref="RuleTimeChangedMessage"/>
-    public RuleTimeChangedMessage(Tuple<int, TimeOnly, TimeOnly> result) : base(result) { }
 }
 
 /// <summary>
 /// Condition index, Process name, Memory low, Memory High, Type
 /// </summary>
-internal class RuleProcessChangedMessage : ValueChangedMessage<Tuple<int, string, int?, int?, int>>
+internal class RuleProcessChangedMessage(Tuple<int, string, int?, int?, int> result)
+    : ValueChangedMessage<Tuple<int, string, int?, int?, int>>(result)
 {
-    ///  <inheritdoc cref="RuleProcessChangedMessage"/>
-    public RuleProcessChangedMessage(Tuple<int, string, int?, int?, int> result) : base(result) { }
 }
 
 /// <summary>
 /// Condition index, Sensor ID, Lower, Include lower, Upper, Include upper
 /// </summary>
-internal class RuleSensorChangedMessage : ValueChangedMessage<Tuple<int, string, double?, bool, double?, bool>>
+internal class RuleSensorChangedMessage(Tuple<int, string, double?, bool, double?, bool> result)
+    : ValueChangedMessage<Tuple<int, string, double?, bool, double?, bool>>(result)
 {
-    ///  <inheritdoc cref="RuleSensorChangedMessage"/>
-    public RuleSensorChangedMessage(Tuple<int, string, double?, bool, double?, bool> result) : base(result) { }
 }
 
 /// <summary>
 /// Monitors added/removed
 /// </summary>
-internal class MonitorsChangedMessage : PropertyChangedMessage<IEnumerable<MonitorModelBase>>
+internal class MonitorsChangedMessage(
+    object sender,
+    string? propertyName,
+    IEnumerable<MonitorModelBase> oldValue,
+    IEnumerable<MonitorModelBase> newValue)
+    : PropertyChangedMessage<IEnumerable<MonitorModelBase>>(sender, propertyName, oldValue, newValue)
 {
-    /// <inheritdoc cref="CurvesUpdateDoneMessage"/>
-    public MonitorsChangedMessage(
-        object sender,
-        string? propertyName,
-        IEnumerable<MonitorModelBase> oldValue,
-        IEnumerable<MonitorModelBase> newValue)
-        : base(sender, propertyName, oldValue, newValue) { }
 }
 
 /// <summary>
 /// Old, New
 /// </summary>
-internal class MonitorColorChangedMessage : ValueChangedMessage<Tuple<MonitorColorThreshold, MonitorColorThreshold>>
+internal class MonitorColorChangedMessage(Tuple<MonitorColorThreshold, MonitorColorThreshold> result)
+    : ValueChangedMessage<Tuple<MonitorColorThreshold, MonitorColorThreshold>>(result)
 {
-    /// <inheritdoc cref="MonitorColorChangedMessage"/>
-    public MonitorColorChangedMessage(Tuple<MonitorColorThreshold, MonitorColorThreshold> result) : base(result) { }
 }

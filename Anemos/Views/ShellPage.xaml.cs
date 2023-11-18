@@ -1,5 +1,6 @@
 ﻿using Anemos.Helpers;
 using Anemos.ViewModels;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -15,8 +16,12 @@ public sealed partial class ShellPage : Page
 
     private ContentDialog? _dialog;
 
+    private readonly DispatcherQueueHandler _hideFooterScrollBarHandler;
+
     public ShellPage(ShellViewModel viewModel)
     {
+        _hideFooterScrollBarHandler = HideFooterScrollBar;
+
         ViewModel = viewModel;
         InitializeComponent();
 
@@ -45,18 +50,19 @@ public sealed partial class ShellPage : Page
         App.Current.Shutdown();
     }
 
+    private async void HideFooterScrollBar()
+    {
+        var w = NavigationViewControl.Width + 0;
+        NavigationViewControl.Width = 0;
+        await Task.Delay(200);
+        NavigationViewControl.Width = w;
+    }
+
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         TitleBarHelper.UpdateTitleBar(RequestedTheme);
 
-        // Hide scrollbar of FooterMenuItems
-        DispatcherQueue.TryEnqueue(async () =>
-        {
-            var w = NavigationViewControl.Width + 0;
-            NavigationViewControl.Width = 0;
-            await Task.Delay(200);
-            NavigationViewControl.Width = w;
-        });
+        DispatcherQueue.TryEnqueue(_hideFooterScrollBarHandler);
     }
 
     public async Task<bool> OpenExitDialog()

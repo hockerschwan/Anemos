@@ -41,24 +41,21 @@ public sealed partial class MonitorColorEditorDialog : ContentDialog
         ColorPicker.Focus(Microsoft.UI.Xaml.FocusState.Programmatic);
     }
 
-    private void MonitorColorEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    private async void MonitorColorEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        App.MainWindow.DispatcherQueue.TryEnqueue(async () =>
+        while (IsLoaded)
         {
-            while (IsLoaded)
-            {
-                await Task.Delay(100);
-            }
             await Task.Delay(100);
+        }
+        await Task.Delay(100);
 
-            _messenger.Send<MonitorColorChangedMessage>(new(new(
-                 ViewModel.OldColor,
-                 new()
-                 {
-                     Threshold = ViewModel.Threshold,
-                     Color = System.Drawing.Color.FromArgb(ColorPicker.Color.ToInt())
-                 })));
-        });
+        _messenger.Send<MonitorColorChangedMessage>(new(new(
+             ViewModel.OldColor,
+             new()
+             {
+                 Threshold = ViewModel.Threshold,
+                 Color = System.Drawing.Color.FromArgb(ColorPicker.Color.ToInt())
+             })));
     }
 
     private void MonitorColorEditorDialog_Unloaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
