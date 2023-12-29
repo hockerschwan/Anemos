@@ -129,8 +129,21 @@ public sealed partial class MainWindow : WindowEx
                 }
 
                 Log.Information("[MainWindow] WM_CLOSE received.");
+                break;
+            case 0x11: // WM_QUERYENDSESSION
+                var reason = (uint)e.Message.LParam switch
+                {
+                    0x00000001 => "ENDSESSION_CLOSEAPP",
+                    0x40000000 => "ENDSESSION_CRITICAL",
+                    0x80000000 => "ENDSESSION_LOGOFF",
+                    _ => $"{e.Message.LParam:X8}",
+                };
+                Log.Information($"[MainWindow] WM_QUERYENDSESSION received. Reason: {reason}");
                 App.Current.Shutdown(true);
-                return;
+                break;
+            case 0x16: // WM_ENDSESSION
+                App.Current.Shutdown(true);
+                break;
             case 0x112: // WM_SYSCOMMAND
                 if (e.Message.WParam == 0xF060) // SC_CLOSE
                 {
