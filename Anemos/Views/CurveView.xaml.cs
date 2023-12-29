@@ -57,7 +57,7 @@ public sealed partial class CurveView : UserControl
         App.MainWindow.PositionChanged += MainWindow_PositionChanged;
         _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
 
-        WinUIPlot1.Interaction.Actions = ScottPlot.Control.PlotActions.NonInteractive();
+        WinUIPlot1.Interaction.Disable();
 
         Plot1.XAxis.Min = _settingsService.Settings.CurveMinTemp;
         Plot1.XAxis.Max = _settingsService.Settings.CurveMaxTemp;

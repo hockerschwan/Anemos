@@ -54,7 +54,7 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
 
         SetNumberFormatter();
 
-        WinUIPlot1.Interaction.Actions = PlotActions.NonInteractive();
+        WinUIPlot1.Interaction.Disable();
 
         Plot1.XAxis.Min = _settingsService.Settings.CurveMinTemp;
         Plot1.XAxis.Max = _settingsService.Settings.CurveMaxTemp;
@@ -62,7 +62,7 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
         Plot1.YAxis.Max = 100;
         Plot1.XAxis.Label.Text = "CurveEditor_Plot_X_Label".GetLocalized();
         Plot1.YAxis.Label.Text = "CurveEditor_Plot_Y_Label".GetLocalized();
-        Plot1.XAxis.Label.Font.Name = SKFontManager.Default.MatchCharacter('℃').FamilyName;
+        Plot1.XAxis.Label.FontName = SKFontManager.Default.MatchCharacter('℃').FamilyName;
         Plot1.Style.ColorAxes(AxisColor);
         Plot1.Style.ColorGrids(GridColor);
         Plot1.DataBackground = Plot1.FigureBackground = BackgroundColor;

@@ -52,7 +52,7 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
 
         SetNumberFormatter();
 
-        WinUIPlot1.Interaction.Actions = PlotActions.NonInteractive();
+        WinUIPlot1.Interaction.Disable();
         WinUIPlot1.PointerMoved += WinUIPlot1_PointerMoved;
         WinUIPlot1.PointerPressed += WinUIPlot1_PointerPressed;
         WinUIPlot1.PointerReleased += WinUIPlot1_PointerReleased;
@@ -63,7 +63,7 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
         Plot1.YAxis.Max = 100;
         Plot1.XAxis.Label.Text = "CurveEditor_Plot_X_Label".GetLocalized();
         Plot1.YAxis.Label.Text = "CurveEditor_Plot_Y_Label".GetLocalized();
-        Plot1.XAxis.Label.Font.Name = SKFontManager.Default.MatchCharacter('℃').FamilyName;
+        Plot1.XAxis.Label.FontName = SKFontManager.Default.MatchCharacter('℃').FamilyName;
         Plot1.Style.ColorAxes(AxisColor);
         Plot1.Style.ColorGrids(GridColor);
         Plot1.DataBackground = Plot1.FigureBackground = BackgroundColor;

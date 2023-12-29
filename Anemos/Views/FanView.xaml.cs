@@ -59,7 +59,7 @@ public sealed partial class FanView : UserControl
         Signal.LineStyle.Width = 2;
         Signal.Marker.IsVisible = false;
 
-        WinUIPlot1.Interaction.Actions = PlotActions.NonInteractive();
+        WinUIPlot1.Interaction.Disable();
         WinUIPlot1.Refresh();
 
         ViewModel.LineData.QueueChanged += LineData_QueueChanged;
