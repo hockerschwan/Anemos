@@ -62,7 +62,7 @@ public static class Program
 
         RollLogFiles(folder, 10);
 
-        var template = "{Timestamp:HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}";
+        var template = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}";
 
         var config = new LoggerConfiguration();
 #if DEBUG
