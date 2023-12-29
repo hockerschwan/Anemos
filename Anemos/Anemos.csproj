@@ -37,7 +37,7 @@
 		<PackageReference Include="ColorCode.WinUI" Version="2.0.15" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
 		<PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
-		<PackageReference Include="LibreHardwareMonitorLib" Version="0.9.3-pre259" />
+		<PackageReference Include="LibreHardwareMonitorLib" Version="0.9.3-pre261" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Graphics.Win2D" Version="1.1.1" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.2428" />

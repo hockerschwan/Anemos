@@ -76,6 +76,48 @@ public class SettingsService : ISettingsService
         Settings = JsonSerializer.Deserialize<SettingsModel>(jsonString, _options) ?? throw new Exception("Could not deserialize json");
         Settings.PropertyChanged += Settings_PropertyChanged;
 
+        // LHWM 0.9.3-260 Identifier changed e.g. /lpc/nct6792d/fan/0 -> /lpc/nct6792d/0/fan/0
+        {
+            var save = false;
+
+            foreach (var fan in Settings.FanSettings.Fans)
+            {
+                if (IsNewID(fan.Id, out var newId)) { continue; }
+                fan.Id = newId;
+                save = true;
+            }
+
+            foreach (var fp in Settings.FanSettings.Profiles)
+            {
+                foreach (var p in fp.ProfileItems)
+                {
+                    if (IsNewID(p.Id, out var newId)) { continue; }
+                    p.Id = newId;
+                    save = true;
+                }
+            }
+
+            if (save)
+            {
+                Save();
+            }
+
+            static bool IsNewID(string oldId, out string newId)
+            {
+                var words = oldId.Split("/").ToList();
+                var i = words.IndexOf("fan") - 1;
+                if (i < -1 || int.TryParse(words[i], out var _))
+                {
+                    newId = string.Empty;
+                    return true;
+                }
+
+                words.Insert(i + 1, "0");
+                newId = string.Join("/", words);
+                return false;
+            }
+        }
+
         _timer.AutoReset = false;
         _timer.Elapsed += Timer_Elapsed;
         Log.Information("[Settings] Loaded");
