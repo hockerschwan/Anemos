@@ -6,7 +6,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using ScottPlot;
-using ScottPlot.Control;
+using ScottPlot.DataSources;
 using ScottPlot.Plottables;
 
 namespace Anemos.Views;
@@ -45,17 +45,18 @@ public sealed partial class FanView : UserControl
         App.MainWindow.PositionChanged += MainWindow_PositionChanged;
         _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
 
-        Plot1.SetAxisLimits(bottom: -25d, top: 525d);
-        Plot1.Grids.Clear();
-        Plot1.XAxis.TickGenerator = new ScottPlot.TickGenerators.NumericManual([]);
-        Plot1.XAxes.ForEach(x => x.IsVisible = false);
-        Plot1.YAxes[1].IsVisible = false;
+        Plot1.Axes.SetLimitsY(bottom: -25d, top: 525d);
+        Plot1.Axes.Grids.Clear();
+        Plot1.Axes.Bottom.TickGenerator = new ScottPlot.TickGenerators.EmptyTickGenerator();
+        Plot1.Axes.Bottom.IsVisible = false;
+        Plot1.Axes.Top.IsVisible = false;
+        Plot1.Axes.Right.IsVisible = false;
         Plot1.Style.ColorAxes(AxisColor);
         Plot1.DataBackground = Plot1.FigureBackground = BackgroundColor;
-        Plot1.Margins(horizontal: 0);
+        Plot1.Axes.Margins(horizontal: 0);
         Plot1.ScaleFactor = (float)App.MainWindow.DisplayScale;
 
-        Signal = Plot1.Add.Signal(ViewModel.LineData, color: LineColor);
+        Signal = Plot1.Add.Signal(new SignalSourceDouble(ViewModel.LineData, 1), color: LineColor);
         Signal.LineStyle.Width = 2;
         Signal.Marker.IsVisible = false;
 
@@ -80,16 +81,16 @@ public sealed partial class FanView : UserControl
         var d = max - min;
         if (max <= 500d)
         {
-            Plot1.SetAxisLimits(bottom: -25d, top: 525d);
+            Plot1.Axes.SetLimitsY(bottom: -25d, top: 525d);
         }
         else if (d < 500d)
         {
             var h = min + d / 2d;
-            Plot1.SetAxisLimits(bottom: h - 275d, top: h + 275d);
+            Plot1.Axes.SetLimitsY(bottom: h - 275d, top: h + 275d);
         }
         else
         {
-            Plot1.AutoScale();
+            Plot1.Axes.AutoScaleY();
         }
 
         if (FansVM.IsVisible && (!ViewModel.Model.IsHidden || FansVM.ShowHiddenFans))

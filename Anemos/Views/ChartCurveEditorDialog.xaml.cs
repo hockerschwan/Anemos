@@ -5,8 +5,6 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using ScottPlot;
-using ScottPlot.Control;
-using ScottPlot.DataSources;
 using ScottPlot.Plottables;
 using SkiaSharp;
 using Windows.Globalization.NumberFormatting;
@@ -57,13 +55,13 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
         WinUIPlot1.PointerPressed += WinUIPlot1_PointerPressed;
         WinUIPlot1.PointerReleased += WinUIPlot1_PointerReleased;
 
-        Plot1.XAxis.Min = _settingsService.Settings.CurveMinTemp;
-        Plot1.XAxis.Max = _settingsService.Settings.CurveMaxTemp;
-        Plot1.YAxis.Min = 0;
-        Plot1.YAxis.Max = 100;
-        Plot1.XAxis.Label.Text = "CurveEditor_Plot_X_Label".GetLocalized();
-        Plot1.YAxis.Label.Text = "CurveEditor_Plot_Y_Label".GetLocalized();
-        Plot1.XAxis.Label.FontName = SKFontManager.Default.MatchCharacter('℃').FamilyName;
+        Plot1.Axes.Bottom.Min = _settingsService.Settings.CurveMinTemp;
+        Plot1.Axes.Bottom.Max = _settingsService.Settings.CurveMaxTemp;
+        Plot1.Axes.Left.Min = 0;
+        Plot1.Axes.Left.Max = 100;
+        Plot1.Axes.Bottom.Label.Text = "CurveEditor_Plot_X_Label".GetLocalized();
+        Plot1.Axes.Left.Label.Text = "CurveEditor_Plot_Y_Label".GetLocalized();
+        Plot1.Axes.Bottom.Label.FontName = Plot1.Axes.Left.Label.FontName = SKFontManager.Default.MatchCharacter('℃').FamilyName;
         Plot1.Style.ColorAxes(AxisColor);
         Plot1.Style.ColorGrids(GridColor);
         Plot1.DataBackground = Plot1.FigureBackground = BackgroundColor;
@@ -73,7 +71,7 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
         Chart.LineStyle.Width = 2;
         Chart.MarkerStyle.Size = _markerSize;
 
-        Marker = Plot1.Add.Scatter(new ScatterSourceCoordinates(MarkerCoordinates));
+        Marker = Plot1.Add.Scatter(MarkerCoordinates);
         Marker.MarkerStyle.Size = _markerSize * 2;
         Marker.MarkerStyle.Fill.Color = MarkerColor;
 
@@ -110,7 +108,7 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
     private Coordinates GetNearestCoordinatesInRange(double x, double y)
     {
         var px = new Pixel(x, y);
-        var mc = WinUIPlot1.GetCoordinates(new(x * Plot1.ScaleFactor, y * Plot1.ScaleFactor));
+        var mc = Plot1.GetCoordinates(new(x * Plot1.ScaleFactor, y * Plot1.ScaleFactor));
 
         var points = Chart.Data.GetScatterPoints();
         if (!points.Any()) { return Coordinates.NaN; }
@@ -196,11 +194,11 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
             var prev = FindPreviousX(ViewModel.SelectedX);
             var next = FindNextX(ViewModel.SelectedX);
 
-            var axisLimits = Plot1.GetAxisLimits();
+            var axisLimits = Plot1.Axes.GetLimits();
             var low = double.Max(axisLimits.XRange.Min, prev + 0.1);
             var high = double.Min(axisLimits.XRange.Max, next - 0.1);
 
-            var mc = WinUIPlot1.GetCoordinates(new Pixel(mp.X * Plot1.ScaleFactor, mp.Y * Plot1.ScaleFactor));
+            var mc = Plot1.GetCoordinates(new Pixel(mp.X * Plot1.ScaleFactor, mp.Y * Plot1.ScaleFactor));
 
             var mc_x = double.Round(double.Clamp(mc.X, low, high), 1);
             var mc_y = double.Round(double.Clamp(mc.Y, 0, 100), 1);
@@ -239,7 +237,7 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
             if (nearest != Coordinates.NaN) { return; }
 
             var px = new Pixel(mp.X * Plot1.ScaleFactor, mp.Y * Plot1.ScaleFactor);
-            var mc = WinUIPlot1.GetCoordinates(px);
+            var mc = Plot1.GetCoordinates(px);
 
             var mc_x = double.Round(mc.X, 1);
             var mc_y = double.Round(mc.Y, 1);
