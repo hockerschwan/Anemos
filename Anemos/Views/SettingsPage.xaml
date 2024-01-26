@@ -6,6 +6,7 @@
 	xmlns:local="using:Anemos.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:tabler="using:Anemos.TablerIcon"
+	xmlns:vm="using:Anemos.ViewModels"
 	NavigationCacheMode="Required"
 	mc:Ignorable="d">
 	<Page.Resources>
@@ -23,12 +24,12 @@
 
 				<StackPanel Margin="{StaticResource SmallTopMargin_}" Spacing="5">
 					<StackPanel>
-						<CheckBox x:Uid="Settings_StartMinimizedCheckBox" IsChecked="{x:Bind ViewModel.Settings.StartMinimized, Mode=TwoWay}" />
+						<CheckBox x:Uid="Settings_StartMinimizedCheckBox" IsChecked="{x:Bind vm:SettingsViewModel.Settings.StartMinimized, Mode=TwoWay}" />
 						<CheckBox
+							x:Name="TaskCheckBox"
 							x:Uid="Settings_StartWithLogInCheckBox"
-							Command="{x:Bind ViewModel.CreateTaskCommand}"
-							CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}"
-							IsChecked="{x:Bind ViewModel.Settings.StartWithLogIn, Mode=TwoWay}" />
+							Command="{x:Bind CreateTaskCommand}"
+							CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" />
 					</StackPanel>
 
 					<Grid>
@@ -47,7 +48,7 @@
 							Maximum="3600"
 							Minimum="1"
 							SmallChange="1"
-							Value="{x:Bind ViewModel.Settings.UpdateInterval, Mode=TwoWay}" />
+							Value="{x:Bind vm:SettingsViewModel.Settings.UpdateInterval, Mode=TwoWay}" />
 						<NumberBox
 							x:Uid="Settings_RulesUpdateIntervalCyclesNumberBox"
 							Grid.Row="1"
@@ -55,7 +56,7 @@
 							Maximum="3600"
 							Minimum="1"
 							SmallChange="1"
-							Value="{x:Bind ViewModel.Settings.RulesUpdateIntervalCycles, Mode=TwoWay}" />
+							Value="{x:Bind vm:SettingsViewModel.Settings.RulesUpdateIntervalCycles, Mode=TwoWay}" />
 						<NumberBox
 							x:Uid="Settings_FanHistoryNumberBox"
 							Grid.Row="2"
@@ -63,7 +64,7 @@
 							Maximum="3600"
 							Minimum="1"
 							SmallChange="1"
-							Value="{x:Bind ViewModel.Settings.FanHistory, Mode=TwoWay}" />
+							Value="{x:Bind vm:SettingsViewModel.Settings.FanHistory, Mode=TwoWay}" />
 						<NumberBox
 							x:Uid="Settings_CurveMinTemperatureNumberBox"
 							Grid.Row="3"
@@ -71,7 +72,7 @@
 							Maximum="150"
 							Minimum="-273"
 							SmallChange="1"
-							Value="{x:Bind ViewModel.Settings.CurveMinTemp, Mode=TwoWay}" />
+							Value="{x:Bind vm:SettingsViewModel.Settings.CurveMinTemp, Mode=TwoWay}" />
 						<NumberBox
 							x:Uid="Settings_CurveMaxTemperatureNumberBox"
 							Grid.Row="4"
@@ -79,7 +80,7 @@
 							Maximum="150"
 							Minimum="-273"
 							SmallChange="1"
-							Value="{x:Bind ViewModel.Settings.CurveMaxTemp, Mode=TwoWay}" />
+							Value="{x:Bind vm:SettingsViewModel.Settings.CurveMaxTemp, Mode=TwoWay}" />
 					</Grid>
 				</StackPanel>
 			</StackPanel>

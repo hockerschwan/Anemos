@@ -78,7 +78,7 @@ public class NotifyIconService : INotifyIconService
         CreateCommonItems();
 
         _messenger.Send<ServiceStartupMessage>(new(GetType()));
-        Log.Information("[NotifyIcon] Started {guid}", _guid.ToString());
+        Log.Information("[NotifyIcon] Started");
         _settingsService = settingsService;
     }
 
