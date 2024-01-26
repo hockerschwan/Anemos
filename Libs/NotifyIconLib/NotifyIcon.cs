@@ -240,11 +240,11 @@ public partial class NotifyIcon
         NativeFunctions.SetMenuItems(GuidString, menu);
     }
 
-    public void SetTooltip(string toolip)
+    public void SetTooltip(string tooltip)
     {
         if (_closing) { return; }
 
-        NativeFunctions.SetTooltip(GuidString, toolip);
+        NativeFunctions.SetTooltip(GuidString, tooltip);
     }
 
     public void SetVisibility(bool visible)
