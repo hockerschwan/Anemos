@@ -13,13 +13,6 @@ public partial class SettingsModel : ObservableObject
         set => SetProperty(ref _startMinimized, value);
     }
 
-    private bool _startWithLogIn = false;
-    public bool StartWithLogIn
-    {
-        get => _startWithLogIn;
-        set => SetProperty(ref _startWithLogIn, value);
-    }
-
     private int _updateInterval = 2;
     public int UpdateInterval
     {
