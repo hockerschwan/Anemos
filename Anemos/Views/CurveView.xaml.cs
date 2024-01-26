@@ -6,7 +6,6 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using ScottPlot;
-using ScottPlot.DataSources;
 using ScottPlot.Plottables;
 
 namespace Anemos.Views;
@@ -59,14 +58,20 @@ public sealed partial class CurveView : UserControl
 
         WinUIPlot1.Interaction.Disable();
 
-        Plot1.XAxis.Min = _settingsService.Settings.CurveMinTemp;
-        Plot1.XAxis.Max = _settingsService.Settings.CurveMaxTemp;
-        Plot1.YAxis.Min = 0;
-        Plot1.YAxis.Max = 100;
+        Plot1.Axes.Bottom.Min = _settingsService.Settings.CurveMinTemp;
+        Plot1.Axes.Bottom.Max = _settingsService.Settings.CurveMaxTemp;
+        Plot1.Axes.Left.Min = 0;
+        Plot1.Axes.Left.Max = 100;
         Plot1.Style.ColorAxes(AxisColor);
         Plot1.Style.ColorGrids(GridColor);
         Plot1.DataBackground = Plot1.FigureBackground = BackgroundColor;
         Plot1.ScaleFactor = (float)App.MainWindow.DisplayScale;
+
+        {
+            // is there a better way?
+            var top = 10 * Plot1.ScaleFactor;
+            Plot1.Layout.Fixed(new PixelPadding(top * 3, top * 2, top * 3, top));
+        }
 
         if (ViewModel is ChartCurveViewModel chart)
         {
@@ -89,7 +94,7 @@ public sealed partial class CurveView : UserControl
             LatchArrowLow.LineStyle.Color = LatchArrowHigh.LineStyle.Color = LineColor;
         }
 
-        Marker = Plot1.Add.Scatter(new ScatterSourceCoordinates(MarkerCoordinates), MarkerColor);
+        Marker = Plot1.Add.Scatter(MarkerCoordinates, MarkerColor);
         Marker.MarkerStyle.Size = 10;
 
         WinUIPlot1.Refresh();
@@ -132,11 +137,11 @@ public sealed partial class CurveView : UserControl
     {
         if (e.PropertyName == nameof(_settingsService.Settings.CurveMinTemp))
         {
-            Plot1.XAxis.Min = _settingsService.Settings.CurveMinTemp;
+            Plot1.Axes.Bottom.Min = _settingsService.Settings.CurveMinTemp;
         }
         else if (e.PropertyName == nameof(_settingsService.Settings.CurveMaxTemp))
         {
-            Plot1.XAxis.Max = _settingsService.Settings.CurveMaxTemp;
+            Plot1.Axes.Bottom.Max = _settingsService.Settings.CurveMaxTemp;
         }
     }
 

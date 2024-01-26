@@ -30,11 +30,11 @@ internal class ArrowCoordinated : IPlottable
         IsVisible = false
     };
 
-    private readonly ScatterSourceCoordinates Source;
+    private readonly ScatterSourceCoordinatesArray Source;
 
-    public ArrowCoordinated(IReadOnlyList<Coordinates> coordinates)
+    public ArrowCoordinated(Coordinates[] coordinates)
     {
-        if (coordinates.Count != 2)
+        if (coordinates.Length != 2)
         {
             throw new ArgumentException("Must contain exactly 2 cooordinates.", nameof(coordinates));
         }
@@ -46,6 +46,8 @@ internal class ArrowCoordinated : IPlottable
 
     public void Render(RenderPack rp)
     {
+        if (Source == null) { return; }
+
         var px_base = Axes.GetPixel(Source.GetScatterPoints()[0]);
         var px_tip = Axes.GetPixel(Source.GetScatterPoints()[1]);
         var length = Length(px_tip - px_base);
@@ -87,7 +89,7 @@ internal class ArrowCoordinated : IPlottable
         // Marker
         if (MarkerStyle.IsVisible)
         {
-            MarkerStyle.Render(rp.Canvas, px_base);
+            Drawing.DrawMarker(rp.Canvas, paint, px_base, MarkerStyle);
         }
     }
 
