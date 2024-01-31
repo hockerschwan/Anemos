@@ -2,7 +2,7 @@
 	x:Class="Anemos.Views.MonitorsPage"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+	xmlns:controls="using:CommunityToolkit.WinUI.Controls"
 	xmlns:cv="using:Anemos.Converters"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:local="using:Anemos.Views"
@@ -75,15 +75,18 @@
 			HorizontalScrollBarVisibility="Disabled"
 			Style="{StaticResource TraditionalScrollViewerStyle_}"
 			VerticalScrollBarVisibility="Visible">
-			<controls:AdaptiveGridView
-				Padding="{StaticResource PageItemsContainerPadding_}"
-				DesiredWidth="600"
-				IsItemClickEnabled="False"
-				ItemHeight="200"
-				ItemsSource="{x:Bind ViewModel.Views, Mode=OneWay}"
-				SelectionMode="None"
-				StretchContentForSingleRow="False"
-				Visibility="{x:Bind ViewModel.IsVisible, Converter={StaticResource VisibilityConverter}, Mode=OneWay}" />
+			<Border Padding="{StaticResource PageItemsContainerPadding_}">
+				<ItemsRepeater ItemsSource="{x:Bind ViewModel.Views, Mode=OneWay}" Visibility="{x:Bind ViewModel.IsVisible, Converter={StaticResource VisibilityConverter}, Mode=OneWay}">
+					<ItemsRepeater.Layout>
+						<UniformGridLayout
+							ItemsStretch="Fill"
+							MinColumnSpacing="8"
+							MinItemHeight="200"
+							MinItemWidth="420"
+							MinRowSpacing="8" />
+					</ItemsRepeater.Layout>
+				</ItemsRepeater>
+			</Border>
 		</ScrollViewer>
 	</controls:DockPanel>
 </Page>

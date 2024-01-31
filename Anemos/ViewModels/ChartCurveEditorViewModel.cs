@@ -119,9 +119,10 @@ public class ChartCurveEditorViewModel : ObservableObject
 
     private double FindNextX(double value)
     {
-        foreach (var x in LineDataX)
+        for (var i = 0; i < LineDataX.Count; ++i)
         {
-            if (x > value) { return x; };
+            if (i == SelectedIndex) { continue; }
+            if (LineDataX[i] > value) { return LineDataX[i]; }
         }
         return double.PositiveInfinity;
     }
@@ -130,7 +131,8 @@ public class ChartCurveEditorViewModel : ObservableObject
     {
         for (var i = LineDataX.Count - 1; i >= 0; --i)
         {
-            if (LineDataX[i] < value) { return LineDataX[i]; };
+            if (i == SelectedIndex) { continue; }
+            if (LineDataX[i] < value) { return LineDataX[i]; }
         }
         return double.NegativeInfinity;
     }

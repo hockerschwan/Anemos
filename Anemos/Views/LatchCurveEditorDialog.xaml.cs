@@ -6,7 +6,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using ScottPlot;
-using ScottPlot.Control;
 using ScottPlot.Plottables;
 using SkiaSharp;
 using Windows.Globalization.NumberFormatting;
@@ -26,15 +25,19 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
     private Plot Plot1 => WinUIPlot1.Plot;
     private readonly Scatter OutputLow;
     private readonly Scatter OutputHigh;
-    private readonly ArrowCoordinated ArrowLow;
-    private readonly ArrowCoordinated ArrowHigh;
+    private readonly Arrow ArrowLow;
+    private readonly Arrow ArrowHigh;
 
     private readonly Color LineColor = Color.FromARGB((uint)System.Drawing.Color.CornflowerBlue.ToArgb());
     private readonly Color AxisColor = Color.FromARGB((uint)System.Drawing.Color.DarkGray.ToArgb());
     private readonly Color BackgroundColor = Color.FromARGB((uint)System.Drawing.Color.Black.ToArgb());
     private readonly Color GridColor = Color.FromHex("404040");
 
-    public LatchCurveEditorDialog(double thresholdLow, double outputLow, double thresholdHigh, double outputHigh)
+    public LatchCurveEditorDialog(
+        double thresholdLow,
+        double outputLow,
+        double thresholdHigh,
+        double outputHigh)
     {
         ViewModel = new()
         {
@@ -43,7 +46,7 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
             OutputLowTemperature = outputLow,
             OutputHighTemperature = outputHigh
         };
-        ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+        ViewModel.LatchCurveEditorPropertyChanged += ViewModel_LatchCurveEditorPropertyChanged;
 
         InitializeComponent();
         Loaded += LatchCurveEditorDialog_Loaded;
@@ -62,7 +65,8 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
         Plot1.Axes.Left.Max = 100;
         Plot1.Axes.Bottom.Label.Text = "CurveEditor_Plot_X_Label".GetLocalized();
         Plot1.Axes.Left.Label.Text = "CurveEditor_Plot_Y_Label".GetLocalized();
-        Plot1.Axes.Bottom.Label.FontName = Plot1.Axes.Left.Label.FontName = SKFontManager.Default.MatchCharacter('℃').FamilyName;
+        Plot1.Axes.Bottom.Label.FontName = Plot1.Axes.Left.Label.FontName
+            = SKFontManager.Default.MatchCharacter('℃').FamilyName;
         Plot1.Style.ColorAxes(AxisColor);
         Plot1.Style.ColorGrids(GridColor);
         Plot1.DataBackground = Plot1.FigureBackground = BackgroundColor;
@@ -70,20 +74,41 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
 
         OutputLow = Plot1.Add.Scatter(ViewModel.LineDataLowTempX, ViewModel.LineDataLowTempY, LineColor);
         OutputHigh = Plot1.Add.Scatter(ViewModel.LineDataHighTempX, ViewModel.LineDataHighTempY, LineColor);
-        ArrowLow = new(ViewModel.ArrowLowCoordinates);
-        ArrowHigh = new(ViewModel.ArrowHighCoordinates);
-        Plot1.Add.Plottable(ArrowLow);
-        Plot1.Add.Plottable(ArrowHigh);
+        ArrowLow = Plot1.Add.Arrow(ViewModel.ArrowLowBase, ViewModel.ArrowLowTip);
+        ArrowHigh = Plot1.Add.Arrow(ViewModel.ArrowHighBase, ViewModel.ArrowHighTip);
 
-        OutputLow.LineStyle.Width = OutputHigh.LineStyle.Width = ArrowLow.LineStyle.Width = ArrowHigh.LineStyle.Width = 2;
+        OutputLow.LineStyle.Width = OutputHigh.LineStyle.Width
+            = ArrowLow.LineStyle.Width = ArrowHigh.LineStyle.Width = 2;
         OutputLow.MarkerStyle.IsVisible = OutputHigh.MarkerStyle.IsVisible = false;
         ArrowLow.LineStyle.Color = ArrowHigh.LineStyle.Color = LineColor;
 
         WinUIPlot1.Refresh();
     }
 
-    private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    private void ViewModel_LatchCurveEditorPropertyChanged(object? sender, LatchCurveEditorEventArgs e)
     {
+        switch (e.Property)
+        {
+            case LatchCurveEditorEventArgs.Values.XLow:
+                ArrowLow.Base = ViewModel.ArrowLowBase;
+                ArrowLow.Tip = ViewModel.ArrowLowTip;
+                break;
+            case LatchCurveEditorEventArgs.Values.XHigh:
+                ArrowHigh.Base = ViewModel.ArrowHighBase;
+                ArrowHigh.Tip = ViewModel.ArrowHighTip;
+                break;
+            case LatchCurveEditorEventArgs.Values.YLow:
+                ArrowLow.Tip = ViewModel.ArrowLowTip;
+                ArrowHigh.Base = ViewModel.ArrowHighBase;
+                break;
+            case LatchCurveEditorEventArgs.Values.YHigh:
+                ArrowLow.Base = ViewModel.ArrowLowBase;
+                ArrowHigh.Tip = ViewModel.ArrowHighTip;
+                break;
+            default:
+                break;
+        }
+
         WinUIPlot1.Refresh();
     }
 
@@ -101,7 +126,8 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
             NumberRounder = rounder
         };
 
-        NB_X_Low.NumberFormatter = NB_X_High.NumberFormatter = NB_Y_Low.NumberFormatter = NB_Y_High.NumberFormatter = formatter;
+        NB_X_Low.NumberFormatter = NB_X_High.NumberFormatter
+            = NB_Y_Low.NumberFormatter = NB_Y_High.NumberFormatter = formatter;
     }
 
     private void LatchCurveEditorDialog_Loaded(object sender, RoutedEventArgs e)
@@ -120,7 +146,9 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
         Bindings.StopTracking();
     }
 
-    private async void LatchCurveEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    private async void LatchCurveEditorDialog_PrimaryButtonClick(
+        ContentDialog sender,
+        ContentDialogButtonClickEventArgs args)
     {
         while (IsLoaded)
         {

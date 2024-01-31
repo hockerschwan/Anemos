@@ -52,7 +52,7 @@ public class CustomSensorModel : SensorModelBase
 
     public IEnumerable<SensorModelBase> SourceModels => _sensorService.GetSensors(SourceIds);
 
-    private readonly LimitedPooledQueue<double> _data = new(1);
+    private readonly LimitedQueue _data;
 
     private CustomSensorCalcMethod _calcMethod;
     public CustomSensorCalcMethod CalcMethod
@@ -96,7 +96,8 @@ public class CustomSensorModel : SensorModelBase
         _id = args.Id == string.Empty ? Guid.NewGuid().ToString() : args.Id;
         _name = args.Name;
         _calcMethod = args.CalcMethod;
-        _sampleSize = _data.Capacity = args.SampleSize;
+        _sampleSize = args.SampleSize;
+        _data = new(args.SampleSize);
         _sourceIds = args.SourceIds.ToList();
 
         Update();

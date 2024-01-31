@@ -16,7 +16,7 @@ public class CurveMonitorModel : MonitorModelBase
             if (SetProperty(ref _sourceId, value))
             {
                 Model = _curveService.GetCurve(_sourceId);
-                History.EnqueueRange(Enumerable.Repeat<double?>(0.0, History.Capacity));
+                History.Clear();
                 Update(true);
                 _monitorService.Save();
             }
@@ -49,6 +49,6 @@ public class CurveMonitorModel : MonitorModelBase
         }
 
         Value = Model?.Output;
-        History.Enqueue(Value);
+        History.Enqueue(Value ?? 0.0);
     }
 }

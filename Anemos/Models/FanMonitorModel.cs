@@ -16,7 +16,7 @@ public sealed class FanMonitorModel : MonitorModelBase
             if (SetProperty(ref _sourceId, value))
             {
                 Model = _fanService.GetFanModel(_sourceId);
-                History.EnqueueRange(Enumerable.Repeat<double?>(0.0, History.Capacity));
+                History.Clear();
                 Update(true);
                 _monitorService.Save();
             }
@@ -53,6 +53,6 @@ public sealed class FanMonitorModel : MonitorModelBase
         }
 
         Value = Model?.CurrentPercent;
-        History.Enqueue(Value);
+        History.Enqueue(Value ?? 0.0);
     }
 }
