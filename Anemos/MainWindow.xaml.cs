@@ -95,7 +95,7 @@ public sealed partial class MainWindow : WindowEx
 
     private void MainWindow_Closed(object sender, Microsoft.UI.Xaml.WindowEventArgs args)
     {
-        if (!App.HasShutdownStarted)
+        if (!App.ShutdownStarted)
         {
             this.Hide();
             _messenger.Send<WindowVisibilityChangedMessage>(new(false));

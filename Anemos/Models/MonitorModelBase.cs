@@ -93,7 +93,7 @@ public abstract class MonitorModelBase : ObservableObject
 
     private protected string DisplayedValue { get; set; } = string.Empty;
 
-    public LimitedPooledQueue<double?> History { get; } = new(14);
+    public LimitedQueue History { get; } = new(14);
 
     public ObservableCollection<MonitorColorThreshold> Colors { get; } = [];
 
@@ -133,8 +133,6 @@ public abstract class MonitorModelBase : ObservableObject
 
         _updateHandler = Update_;
         _forcedUpdateHandler = UpdateForced_;
-
-        History.EnqueueRange(Enumerable.Repeat<double?>(0.0, History.Capacity));
 
         var colors = CreateColors(arg).ToList();
         Sort(ref colors);
@@ -274,10 +272,7 @@ public abstract class MonitorModelBase : ObservableObject
                 {
                     for (var i = 0; i < History.Count; ++i)
                     {
-                        var n = History[i];
-                        if (n == null) { continue; }
-
-                        var h = (int)double.Ceiling(n.Value * 15.0 / 100.0) - 1;
+                        var h = (int)double.Ceiling(History[i] * 15.0 / 100.0) - 1;
                         if (h < 1) { continue; }
 
                         _graphics.FillRectangle(brush, i + 1, 15 - h, 1, h);
@@ -291,10 +286,7 @@ public abstract class MonitorModelBase : ObservableObject
                     var min = _settingsService.Settings.CurveMinTemp;
                     for (var i = 0; i < History.Count; ++i)
                     {
-                        var n = History[i];
-                        if (n == null) { continue; }
-
-                        var h = Math.Clamp((int)double.Ceiling((n.Value - min) * 15.0 / (max - min)) - 1, 0, 14);
+                        var h = Math.Clamp((int)double.Ceiling((History[i] - min) * 15.0 / (max - min)) - 1, 0, 14);
                         if (h < 1) { continue; }
 
                         _graphics.FillRectangle(brush, i + 1, 15 - h, 1, h);

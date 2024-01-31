@@ -36,7 +36,7 @@ public partial class App : Application
         get;
     }
 
-    public static bool HasShutdownStarted
+    public static bool ShutdownStarted
     {
         get; private set;
     }
@@ -113,12 +113,24 @@ public partial class App : Application
 
     private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
     {
+        if (e.Exception.Source == "SkiaSharp.Views.Windows"
+            && e.Exception.TargetSite?.DeclaringType?.Name == "SKXamlCanvas"
+            && e.Exception.TargetSite?.Name == "OnUnloaded"
+            && e.Exception.HResult == -2147467261)
+        {
+            e.Handled = true;
+            return;
+        }
+
         Log.Fatal("[App] {0}\n{1}", e.Message, e.Exception);
         if (Debugger.IsAttached)
         {
             Debugger.Break();
         }
-        Shutdown(true);
+        if (!ShutdownStarted)
+        {
+            Shutdown(true);
+        }
     }
 
     public static T GetService<T>() where T : class
@@ -201,7 +213,7 @@ public partial class App : Application
         }
 
         Log.Information("[App] Shutting down...");
-        HasShutdownStarted = true;
+        ShutdownStarted = true;
         _messenger.Send(new AppExitMessage());
         DispatcherQueue.TryEnqueue(DispatcherQueuePriority.High, _mainwindowCloseHandler);
 
@@ -211,6 +223,6 @@ public partial class App : Application
             await Task.Delay(100);
         }
 
-        Current.Exit();
+        Current?.Exit();
     }
 }

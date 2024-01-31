@@ -70,7 +70,7 @@ public partial class FanViewModel : ObservableObject
         }
     }
 
-    public readonly LimitedPooledQueue<double> LineData = new(1);
+    public readonly LimitedQueue LineData;
 
     private bool _isVisible;
     public bool IsVisible
@@ -118,8 +118,7 @@ public partial class FanViewModel : ObservableObject
         _controlModeIndex = (int)Model.ControlMode;
         _selectedCurve = Model.CurveModel;
 
-        LineData.Capacity = _settingsService.Settings.FanHistory;
-        LineData.EnqueueRange(Enumerable.Repeat(0d, LineData.Capacity));
+        LineData = new(_settingsService.Settings.FanHistory);
     }
 
     private void CurvesChangedMessageHandler(object recipient, CurvesChangedMessage message)

@@ -2,7 +2,6 @@
 	x:Class="Anemos.Views.MonitorColorEditorDialog"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:local="using:Anemos.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -15,7 +14,7 @@
 	<Page x:Name="DialogContent">
 		<ScrollViewer Style="{StaticResource TraditionalScrollViewerStyle_}">
 			<StackPanel Orientation="Horizontal" Spacing="10">
-				<controls:ColorPicker x:Name="ColorPicker" />
+				<ColorPicker x:Name="ColorPicker" />
 
 				<NumberBox
 					x:Name="NB_Threshold"

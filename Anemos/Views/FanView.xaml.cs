@@ -56,6 +56,9 @@ public sealed partial class FanView : UserControl
         Plot1.Axes.Margins(horizontal: 0);
         Plot1.ScaleFactor = (float)App.MainWindow.DisplayScale;
 
+        var left = 50 * Plot1.ScaleFactor;
+        Plot1.Layout.Fixed(new PixelPadding(left, 0, 0, 0));
+
         Signal = Plot1.Add.Signal(new SignalSourceDouble(ViewModel.LineData, 1), color: LineColor);
         Signal.LineStyle.Width = 2;
         Signal.Marker.IsVisible = false;

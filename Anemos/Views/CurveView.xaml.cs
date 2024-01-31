@@ -1,5 +1,4 @@
 using Anemos.Contracts.Services;
-using Anemos.Helpers;
 using Anemos.Models;
 using Anemos.ViewModels;
 using CommunityToolkit.Mvvm.Messaging;
@@ -34,8 +33,8 @@ public sealed partial class CurveView : UserControl
 
     private readonly Scatter? LatchLow;
     private readonly Scatter? LatchHigh;
-    private readonly ArrowCoordinated? LatchArrowLow;
-    private readonly ArrowCoordinated? LatchArrowHigh;
+    private readonly Arrow? LatchArrowLow;
+    private readonly Arrow? LatchArrowHigh;
 
     private bool _chartEditorOpened;
     private bool _latchEditorOpened;
@@ -56,8 +55,6 @@ public sealed partial class CurveView : UserControl
         App.MainWindow.PositionChanged += MainWindow_PositionChanged;
         _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
 
-        WinUIPlot1.Interaction.Disable();
-
         Plot1.Axes.Bottom.Min = _settingsService.Settings.CurveMinTemp;
         Plot1.Axes.Bottom.Max = _settingsService.Settings.CurveMaxTemp;
         Plot1.Axes.Left.Min = 0;
@@ -67,11 +64,8 @@ public sealed partial class CurveView : UserControl
         Plot1.DataBackground = Plot1.FigureBackground = BackgroundColor;
         Plot1.ScaleFactor = (float)App.MainWindow.DisplayScale;
 
-        {
-            // is there a better way?
-            var top = 10 * Plot1.ScaleFactor;
-            Plot1.Layout.Fixed(new PixelPadding(top * 3, top * 2, top * 3, top));
-        }
+        var top = 15 * Plot1.ScaleFactor;
+        Plot1.Layout.Fixed(new PixelPadding(top * 2, top, top * 2, top));
 
         if (ViewModel is ChartCurveViewModel chart)
         {
@@ -83,10 +77,8 @@ public sealed partial class CurveView : UserControl
         {
             LatchLow = Plot1.Add.Scatter(latch.LineDataLowTempX, latch.LineDataLowTempY, LineColor);
             LatchHigh = Plot1.Add.Scatter(latch.LineDataHighTempX, latch.LineDataHighTempY, LineColor);
-            LatchArrowLow = new(latch.ArrowLowCoordinates);
-            LatchArrowHigh = new(latch.ArrowHighCoordinates);
-            Plot1.Add.Plottable(LatchArrowLow);
-            Plot1.Add.Plottable(LatchArrowHigh);
+            LatchArrowLow = Plot1.Add.Arrow(latch.ArrowLowBase, latch.ArrowLowTip);
+            LatchArrowHigh = Plot1.Add.Arrow(latch.ArrowHighBase, latch.ArrowHighTip);
 
             LatchLow.LineStyle.Width = LatchHigh.LineStyle.Width
                 = LatchArrowLow.LineStyle.Width = LatchArrowHigh.LineStyle.Width = 2;
@@ -97,6 +89,7 @@ public sealed partial class CurveView : UserControl
         Marker = Plot1.Add.Scatter(MarkerCoordinates, MarkerColor);
         Marker.MarkerStyle.Size = 10;
 
+        WinUIPlot1.Interaction.Disable();
         WinUIPlot1.Refresh();
 
         ViewModel.CurveDataChanged += ViewModel_CurveDataChanged;
@@ -147,6 +140,14 @@ public sealed partial class CurveView : UserControl
 
     private void ViewModel_CurveDataChanged(object? sender, EventArgs e)
     {
+        if (ViewModel is LatchCurveViewModel latch)
+        {
+            LatchArrowLow!.Base = latch.ArrowLowBase;
+            LatchArrowLow!.Tip = latch.ArrowLowTip;
+            LatchArrowHigh!.Base = latch.ArrowHighBase;
+            LatchArrowHigh!.Tip = latch.ArrowHighTip;
+        }
+
         WinUIPlot1.Refresh();
     }
 

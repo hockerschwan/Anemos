@@ -18,8 +18,10 @@ internal class LatchCurveViewModel : CurveViewModelBase
     internal readonly double[] LineDataHighTempX = [0, 0];
     internal readonly double[] LineDataHighTempY = [0, 0];
 
-    internal readonly Coordinates[] ArrowLowCoordinates = Enumerable.Repeat(Coordinates.Origin, 2).ToArray();
-    internal readonly Coordinates[] ArrowHighCoordinates = Enumerable.Repeat(Coordinates.Origin, 2).ToArray();
+    internal Coordinates ArrowLowBase = Coordinates.Origin;
+    internal Coordinates ArrowLowTip = Coordinates.Origin;
+    internal Coordinates ArrowHighBase = Coordinates.Origin;
+    internal Coordinates ArrowHighTip = Coordinates.Origin;
 
     private readonly System.Timers.Timer _timer = new(100) { AutoReset = false };
 
@@ -51,10 +53,10 @@ internal class LatchCurveViewModel : CurveViewModelBase
 
     private void SetLineData()
     {
-        LineDataLowTempX[1] = ArrowHighCoordinates[0].X = ArrowHighCoordinates[1].X = CurveModel.TemperatureThresholdHigh;
-        LineDataLowTempY[0] = LineDataLowTempY[1] = ArrowLowCoordinates[1].Y = ArrowHighCoordinates[0].Y = CurveModel.OutputLowTemperature;
-        LineDataHighTempX[0] = ArrowLowCoordinates[0].X = ArrowLowCoordinates[1].X = CurveModel.TemperatureThresholdLow;
-        LineDataHighTempY[0] = LineDataHighTempY[1] = ArrowLowCoordinates[0].Y = ArrowHighCoordinates[1].Y = CurveModel.OutputHighTemperature;
+        LineDataLowTempX[1] = ArrowHighBase.X = ArrowHighTip.X = CurveModel.TemperatureThresholdHigh;
+        LineDataLowTempY[0] = LineDataLowTempY[1] = ArrowLowTip.Y = ArrowHighBase.Y = CurveModel.OutputLowTemperature;
+        LineDataHighTempX[0] = ArrowLowBase.X = ArrowLowTip.X = CurveModel.TemperatureThresholdLow;
+        LineDataHighTempY[0] = LineDataHighTempY[1] = ArrowLowBase.Y = ArrowHighTip.Y = CurveModel.OutputHighTemperature;
 
         OnCurveDataChanged();
     }
