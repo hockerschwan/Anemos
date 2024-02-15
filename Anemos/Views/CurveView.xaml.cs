@@ -1,11 +1,11 @@
 using Anemos.Contracts.Services;
 using Anemos.Models;
+using Anemos.Plot;
 using Anemos.ViewModels;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using ScottPlot;
-using ScottPlot.Plottables;
 
 namespace Anemos.Views;
 
@@ -19,15 +19,10 @@ public sealed partial class CurveView : UserControl
         get;
     }
 
-    private Plot Plot1 => WinUIPlot1.Plot;
+    private Plot.Plot Plot1 => PlotControl1.Plot;
     private readonly Scatter Marker;
-    private readonly Coordinates[] MarkerCoordinates = [Coordinates.NaN];
-
-    private readonly Color LineColor = Color.FromARGB((uint)System.Drawing.Color.CornflowerBlue.ToArgb());
-    private readonly Color MarkerColor = Color.FromARGB((uint)System.Drawing.Color.Orange.ToArgb());
-    private readonly Color AxisColor = Color.FromARGB((uint)System.Drawing.Color.DarkGray.ToArgb());
-    private readonly Color BackgroundColor = Color.FromARGB((uint)System.Drawing.Color.Black.ToArgb());
-    private readonly Color GridColor = Color.FromHex("404040");
+    private readonly double[] MarkerX = [double.NaN];
+    private readonly double[] MarkerY = [double.NaN];
 
     private readonly Scatter? Chart;
 
@@ -52,45 +47,46 @@ public sealed partial class CurveView : UserControl
         _messenger.Register(this, _chartCurveChangedMessageHandler);
         _messenger.Register(this, _latchCurveChangedMessageHandler);
 
-        App.MainWindow.PositionChanged += MainWindow_PositionChanged;
         _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
 
-        Plot1.Axes.Bottom.Min = _settingsService.Settings.CurveMinTemp;
-        Plot1.Axes.Bottom.Max = _settingsService.Settings.CurveMaxTemp;
-        Plot1.Axes.Left.Min = 0;
-        Plot1.Axes.Left.Max = 100;
-        Plot1.Style.ColorAxes(AxisColor);
-        Plot1.Style.ColorGrids(GridColor);
-        Plot1.DataBackground = Plot1.FigureBackground = BackgroundColor;
-        Plot1.ScaleFactor = (float)App.MainWindow.DisplayScale;
-
-        var top = 15 * Plot1.ScaleFactor;
-        Plot1.Layout.Fixed(new PixelPadding(top * 2, top, top * 2, top));
+        Plot1.MinX = _settingsService.Settings.CurveMinTemp;
+        Plot1.MaxX = _settingsService.Settings.CurveMaxTemp;
+        Plot1.MinY = 0;
+        Plot1.MaxY = 100;
 
         if (ViewModel is ChartCurveViewModel chart)
         {
-            Chart = Plot1.Add.Scatter(chart.LineDataX, chart.LineDataY, LineColor);
-            Chart.LineStyle.Width = 2;
-            Chart.MarkerStyle.IsVisible = false;
+            Chart = new(chart.LineDataX, chart.LineDataY)
+            {
+                LineWidth = 2
+            };
+
+            Plot1.Plottables.Add(Chart);
         }
         else if (ViewModel is LatchCurveViewModel latch)
         {
-            LatchLow = Plot1.Add.Scatter(latch.LineDataLowTempX, latch.LineDataLowTempY, LineColor);
-            LatchHigh = Plot1.Add.Scatter(latch.LineDataHighTempX, latch.LineDataHighTempY, LineColor);
-            LatchArrowLow = Plot1.Add.Arrow(latch.ArrowLowBase, latch.ArrowLowTip);
-            LatchArrowHigh = Plot1.Add.Arrow(latch.ArrowHighBase, latch.ArrowHighTip);
+            LatchLow = new(latch.LineDataLowTempX, latch.LineDataLowTempY);
+            LatchHigh = new(latch.LineDataHighTempX, latch.LineDataHighTempY);
+            LatchArrowLow = new(latch.ArrowLowX, latch.ArrowLowY);
+            LatchArrowHigh = new(latch.ArrowHighX, latch.ArrowHighY);
 
-            LatchLow.LineStyle.Width = LatchHigh.LineStyle.Width
-                = LatchArrowLow.LineStyle.Width = LatchArrowHigh.LineStyle.Width = 2;
-            LatchLow.MarkerStyle.IsVisible = LatchHigh.MarkerStyle.IsVisible = false;
-            LatchArrowLow.LineStyle.Color = LatchArrowHigh.LineStyle.Color = LineColor;
+            Plot1.Plottables.Add(LatchLow);
+            Plot1.Plottables.Add(LatchHigh);
+            Plot1.Plottables.Add(LatchArrowLow);
+            Plot1.Plottables.Add(LatchArrowHigh);
+
+            LatchLow.LineWidth = LatchHigh.LineWidth = LatchArrowLow.LineWidth = LatchArrowHigh.LineWidth = 2;
         }
 
-        Marker = Plot1.Add.Scatter(MarkerCoordinates, MarkerColor);
-        Marker.MarkerStyle.Size = 10;
+        Marker = new(MarkerX, MarkerY)
+        {
+            Color = Colors.Orange,
+            LineWidth = 0,
+            MarkerRadius = 5
+        };
+        Plot1.Plottables.Add(Marker);
 
-        WinUIPlot1.Interaction.Disable();
-        WinUIPlot1.Refresh();
+        PlotControl1.Refresh();
 
         ViewModel.CurveDataChanged += ViewModel_CurveDataChanged;
         ViewModel.CurveMarkerChanged += ViewModel_CurveMarkerChanged;
@@ -116,47 +112,29 @@ public sealed partial class CurveView : UserControl
         latch.Update();
     }
 
-    private void MainWindow_PositionChanged(object? sender, Windows.Graphics.PointInt32 e)
-    {
-        var scale = (float)App.MainWindow.DisplayScale;
-        if (Plot1.ScaleFactor != scale)
-        {
-            Plot1.ScaleFactor = scale;
-            WinUIPlot1.Refresh();
-        }
-    }
-
     private void Settings_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(_settingsService.Settings.CurveMinTemp))
         {
-            Plot1.Axes.Bottom.Min = _settingsService.Settings.CurveMinTemp;
+            Plot1.MinX = _settingsService.Settings.CurveMinTemp;
         }
         else if (e.PropertyName == nameof(_settingsService.Settings.CurveMaxTemp))
         {
-            Plot1.Axes.Bottom.Max = _settingsService.Settings.CurveMaxTemp;
+            Plot1.MaxX = _settingsService.Settings.CurveMaxTemp;
         }
     }
 
     private void ViewModel_CurveDataChanged(object? sender, EventArgs e)
     {
-        if (ViewModel is LatchCurveViewModel latch)
-        {
-            LatchArrowLow!.Base = latch.ArrowLowBase;
-            LatchArrowLow!.Tip = latch.ArrowLowTip;
-            LatchArrowHigh!.Base = latch.ArrowHighBase;
-            LatchArrowHigh!.Tip = latch.ArrowHighTip;
-        }
-
-        WinUIPlot1.Refresh();
+        PlotControl1.Refresh();
     }
 
     private void ViewModel_CurveMarkerChanged(object? sender, EventArgs e)
     {
-        MarkerCoordinates[0].X = ViewModel.Model.Input ?? double.NaN;
-        MarkerCoordinates[0].Y = ViewModel.Model.Output ?? double.NaN;
+        MarkerX[0] = ViewModel.Model.Input ?? double.NaN;
+        MarkerY[0] = ViewModel.Model.Output ?? double.NaN;
 
-        WinUIPlot1.Refresh();
+        PlotControl1.Refresh();
     }
 
     private async void DeleteSelfButton_Click(object sender, RoutedEventArgs e)

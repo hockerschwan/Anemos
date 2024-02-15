@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using Anemos.Contracts.Services;
 using Anemos.Models;
-using ScottPlot;
 
 namespace Anemos.ViewModels;
 
@@ -18,10 +17,10 @@ internal class LatchCurveViewModel : CurveViewModelBase
     internal readonly double[] LineDataHighTempX = [0, 0];
     internal readonly double[] LineDataHighTempY = [0, 0];
 
-    internal Coordinates ArrowLowBase = Coordinates.Origin;
-    internal Coordinates ArrowLowTip = Coordinates.Origin;
-    internal Coordinates ArrowHighBase = Coordinates.Origin;
-    internal Coordinates ArrowHighTip = Coordinates.Origin;
+    internal readonly double[] ArrowLowX = [0, 0];
+    internal readonly double[] ArrowLowY = [0, 0];
+    internal readonly double[] ArrowHighX = [0, 0];
+    internal readonly double[] ArrowHighY = [0, 0];
 
     private readonly System.Timers.Timer _timer = new(100) { AutoReset = false };
 
@@ -53,10 +52,10 @@ internal class LatchCurveViewModel : CurveViewModelBase
 
     private void SetLineData()
     {
-        LineDataLowTempX[1] = ArrowHighBase.X = ArrowHighTip.X = CurveModel.TemperatureThresholdHigh;
-        LineDataLowTempY[0] = LineDataLowTempY[1] = ArrowLowTip.Y = ArrowHighBase.Y = CurveModel.OutputLowTemperature;
-        LineDataHighTempX[0] = ArrowLowBase.X = ArrowLowTip.X = CurveModel.TemperatureThresholdLow;
-        LineDataHighTempY[0] = LineDataHighTempY[1] = ArrowLowBase.Y = ArrowHighTip.Y = CurveModel.OutputHighTemperature;
+        LineDataLowTempX[1] = ArrowHighX[0] = ArrowHighX[1] = CurveModel.TemperatureThresholdHigh;
+        LineDataLowTempY[0] = LineDataLowTempY[1] = ArrowLowY[1] = ArrowHighY[0] = CurveModel.OutputLowTemperature;
+        LineDataHighTempX[0] = ArrowLowX[0] = ArrowLowX[1] = CurveModel.TemperatureThresholdLow;
+        LineDataHighTempY[0] = LineDataHighTempY[1] = ArrowLowY[0] = ArrowHighY[1] = CurveModel.OutputHighTemperature;
 
         OnCurveDataChanged();
     }

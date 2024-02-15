@@ -2,11 +2,10 @@
 	x:Class="Anemos.Views.ChartCurveEditorDialog"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:ScottPlot="using:ScottPlot.WinUI"
 	xmlns:controls="using:CommunityToolkit.WinUI.Controls"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:local="using:Anemos.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:plot="using:Anemos.Plot"
 	mc:Ignorable="d">
 	<ContentDialog.Resources>
 		<x:Double x:Key="ContentDialogMaxWidth">1000000</x:Double>
@@ -48,8 +47,8 @@
 					Value="{x:Bind ViewModel.SelectedY, Mode=TwoWay}" />
 			</Grid>
 
-			<ScottPlot:WinUIPlot
-				x:Name="WinUIPlot1"
+			<plot:PlotControl
+				x:Name="PlotControl1"
 				Margin="{StaticResource ContentDialogPlotMargin_}"
 				controls:DockPanel.Dock="Right"
 				Background="{StaticResource SolidBackgroundFillColorTertiaryBrush}" />

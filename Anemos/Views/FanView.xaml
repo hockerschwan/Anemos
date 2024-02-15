@@ -2,13 +2,12 @@
 	x:Class="Anemos.Views.FanView"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:ScottPlot="using:ScottPlot.WinUI"
 	xmlns:controls="using:CommunityToolkit.WinUI.Controls"
 	xmlns:cv="using:Anemos.Converters"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:local="using:Anemos.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:models="using:Anemos.Models"
+	xmlns:plot="using:Anemos.Plot"
 	xmlns:tabler="using:Anemos.TablerIcon"
 	mc:Ignorable="d">
 	<UserControl.Resources>
@@ -179,8 +178,8 @@
 					<Border controls:DockPanel.Dock="Right" BorderThickness="0" />
 				</controls:DockPanel>
 
-				<ScottPlot:WinUIPlot
-					x:Name="WinUIPlot1"
+				<plot:PlotControl
+					x:Name="PlotControl1"
 					Grid.Row="0"
 					Grid.RowSpan="2"
 					Grid.Column="0"

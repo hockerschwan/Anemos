@@ -1,29 +1,11 @@
 ﻿using Anemos.Contracts.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
-using ScottPlot;
 
 namespace Anemos.ViewModels;
-
-public class LatchCurveEditorEventArgs : EventArgs
-{
-    public enum Values
-    {
-        XLow, XHigh, YLow, YHigh
-    }
-
-    public Values Property
-    {
-        get; init;
-    }
-}
-
-public delegate void LatchCurveEditorPropertyChangedEventHandler(object? sender, LatchCurveEditorEventArgs e);
 
 public class LatchCurveEditorViewModel : ObservableObject
 {
     private readonly ISettingsService _settingsService = App.GetService<ISettingsService>();
-
-    public event LatchCurveEditorPropertyChangedEventHandler? LatchCurveEditorPropertyChanged;
 
     private double _temperatureThresholdLow = double.NaN;
     public double TemperatureThresholdLow
@@ -35,13 +17,8 @@ public class LatchCurveEditorViewModel : ObservableObject
 
             if (SetProperty(ref _temperatureThresholdLow, value))
             {
-                LineDataHighTempX[0] = ArrowLowBase.X = ArrowLowTip.X = value;
+                LineDataHighTempX[0] = ArrowLowX[0] = ArrowLowX[1] = value;
                 XHighMin = value + 1d;
-
-                LatchCurveEditorPropertyChanged?.Invoke(this, new()
-                {
-                    Property = LatchCurveEditorEventArgs.Values.XLow
-                });
             }
         }
     }
@@ -56,13 +33,8 @@ public class LatchCurveEditorViewModel : ObservableObject
 
             if (SetProperty(ref _temperatureThresholdHigh, value))
             {
-                LineDataLowTempX[1] = ArrowHighBase.X = ArrowHighTip.X = value;
+                LineDataLowTempX[1] = ArrowHighX[0] = ArrowHighX[1] = value;
                 XLowMax = value - 1d;
-
-                LatchCurveEditorPropertyChanged?.Invoke(this, new()
-                {
-                    Property = LatchCurveEditorEventArgs.Values.XHigh
-                });
             }
         }
     }
@@ -77,12 +49,7 @@ public class LatchCurveEditorViewModel : ObservableObject
 
             if (SetProperty(ref _outputLowTemperature, value))
             {
-                LineDataLowTempY[0] = LineDataLowTempY[1] = ArrowLowTip.Y = ArrowHighBase.Y = OutputLowTemperature;
-
-                LatchCurveEditorPropertyChanged?.Invoke(this, new()
-                {
-                    Property = LatchCurveEditorEventArgs.Values.YLow
-                });
+                LineDataLowTempY[0] = LineDataLowTempY[1] = ArrowLowY[1] = ArrowHighY[0] = OutputLowTemperature;
             }
         }
     }
@@ -97,12 +64,7 @@ public class LatchCurveEditorViewModel : ObservableObject
 
             if (SetProperty(ref _outputHighTemperature, value))
             {
-                LineDataHighTempY[0] = LineDataHighTempY[1] = ArrowLowBase.Y = ArrowHighTip.Y = OutputHighTemperature;
-
-                LatchCurveEditorPropertyChanged?.Invoke(this, new()
-                {
-                    Property = LatchCurveEditorEventArgs.Values.YHigh
-                });
+                LineDataHighTempY[0] = LineDataHighTempY[1] = ArrowLowY[0] = ArrowHighY[1] = OutputHighTemperature;
             }
         }
     }
@@ -131,10 +93,10 @@ public class LatchCurveEditorViewModel : ObservableObject
     internal readonly double[] LineDataHighTempX = [0, 0];
     internal readonly double[] LineDataHighTempY = [0, 0];
 
-    internal Coordinates ArrowLowBase = Coordinates.Origin;
-    internal Coordinates ArrowLowTip = Coordinates.Origin;
-    internal Coordinates ArrowHighBase = Coordinates.Origin;
-    internal Coordinates ArrowHighTip = Coordinates.Origin;
+    internal readonly double[] ArrowLowX = [0, 0];
+    internal readonly double[] ArrowLowY = [0, 0];
+    internal readonly double[] ArrowHighX = [0, 0];
+    internal readonly double[] ArrowHighY = [0, 0];
 
     public LatchCurveEditorViewModel()
     {
