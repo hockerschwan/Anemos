@@ -1,13 +1,11 @@
 using Anemos.Contracts.Services;
 using Anemos.Helpers;
+using Anemos.Plot;
 using Anemos.ViewModels;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using ScottPlot;
-using ScottPlot.Plottables;
-using SkiaSharp;
 using Windows.Globalization.NumberFormatting;
 
 namespace Anemos.Views;
@@ -22,22 +20,13 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
         get;
     }
 
-    private Plot Plot1 => WinUIPlot1.Plot;
+    private Plot.Plot Plot1 => PlotControl1.Plot;
     private readonly Scatter OutputLow;
     private readonly Scatter OutputHigh;
     private readonly Arrow ArrowLow;
     private readonly Arrow ArrowHigh;
 
-    private readonly Color LineColor = Color.FromARGB((uint)System.Drawing.Color.CornflowerBlue.ToArgb());
-    private readonly Color AxisColor = Color.FromARGB((uint)System.Drawing.Color.DarkGray.ToArgb());
-    private readonly Color BackgroundColor = Color.FromARGB((uint)System.Drawing.Color.Black.ToArgb());
-    private readonly Color GridColor = Color.FromHex("404040");
-
-    public LatchCurveEditorDialog(
-        double thresholdLow,
-        double outputLow,
-        double thresholdHigh,
-        double outputHigh)
+    public LatchCurveEditorDialog(double thresholdLow, double outputLow, double thresholdHigh, double outputHigh)
     {
         ViewModel = new()
         {
@@ -46,70 +35,41 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
             OutputLowTemperature = outputLow,
             OutputHighTemperature = outputHigh
         };
-        ViewModel.LatchCurveEditorPropertyChanged += ViewModel_LatchCurveEditorPropertyChanged;
+        ViewModel.PropertyChanged += ViewModel_PropertyChanged;
 
         InitializeComponent();
         Loaded += LatchCurveEditorDialog_Loaded;
         Unloaded += LatchCurveEditorDialog_Unloaded;
         PrimaryButtonClick += LatchCurveEditorDialog_PrimaryButtonClick;
-        App.MainWindow.PositionChanged += MainWindow_PositionChanged;
         App.MainWindow.SizeChanged += MainWindow_SizeChanged;
 
         SetNumberFormatter();
 
-        WinUIPlot1.Interaction.Disable();
+        Plot1.MinX = _settingsService.Settings.CurveMinTemp;
+        Plot1.MaxX = _settingsService.Settings.CurveMaxTemp;
+        Plot1.MinY = 0;
+        Plot1.MaxY = 100;
+        Plot1.BottomAxisLabel = "CurveEditor_Plot_X_Label".GetLocalized();
+        Plot1.LeftAxisLabel = "CurveEditor_Plot_Y_Label".GetLocalized();
 
-        Plot1.Axes.Bottom.Min = _settingsService.Settings.CurveMinTemp;
-        Plot1.Axes.Bottom.Max = _settingsService.Settings.CurveMaxTemp;
-        Plot1.Axes.Left.Min = 0;
-        Plot1.Axes.Left.Max = 100;
-        Plot1.Axes.Bottom.Label.Text = "CurveEditor_Plot_X_Label".GetLocalized();
-        Plot1.Axes.Left.Label.Text = "CurveEditor_Plot_Y_Label".GetLocalized();
-        Plot1.Axes.Bottom.Label.FontName = Plot1.Axes.Left.Label.FontName
-            = SKFontManager.Default.MatchCharacter('℃').FamilyName;
-        Plot1.Style.ColorAxes(AxisColor);
-        Plot1.Style.ColorGrids(GridColor);
-        Plot1.DataBackground = Plot1.FigureBackground = BackgroundColor;
-        Plot1.ScaleFactor = (float)App.MainWindow.DisplayScale;
+        OutputLow = new(ViewModel.LineDataLowTempX, ViewModel.LineDataLowTempY);
+        OutputHigh = new(ViewModel.LineDataHighTempX, ViewModel.LineDataHighTempY);
+        ArrowLow = new(ViewModel.ArrowLowX, ViewModel.ArrowLowY);
+        ArrowHigh = new(ViewModel.ArrowHighX, ViewModel.ArrowHighY);
 
-        OutputLow = Plot1.Add.Scatter(ViewModel.LineDataLowTempX, ViewModel.LineDataLowTempY, LineColor);
-        OutputHigh = Plot1.Add.Scatter(ViewModel.LineDataHighTempX, ViewModel.LineDataHighTempY, LineColor);
-        ArrowLow = Plot1.Add.Arrow(ViewModel.ArrowLowBase, ViewModel.ArrowLowTip);
-        ArrowHigh = Plot1.Add.Arrow(ViewModel.ArrowHighBase, ViewModel.ArrowHighTip);
+        Plot1.Plottables.Add(OutputLow);
+        Plot1.Plottables.Add(OutputHigh);
+        Plot1.Plottables.Add(ArrowLow);
+        Plot1.Plottables.Add(ArrowHigh);
 
-        OutputLow.LineStyle.Width = OutputHigh.LineStyle.Width
-            = ArrowLow.LineStyle.Width = ArrowHigh.LineStyle.Width = 2;
-        OutputLow.MarkerStyle.IsVisible = OutputHigh.MarkerStyle.IsVisible = false;
-        ArrowLow.LineStyle.Color = ArrowHigh.LineStyle.Color = LineColor;
+        OutputLow.LineWidth = OutputHigh.LineWidth = ArrowLow.LineWidth = ArrowHigh.LineWidth = 2;
 
-        WinUIPlot1.Refresh();
+        PlotControl1.Refresh();
     }
 
-    private void ViewModel_LatchCurveEditorPropertyChanged(object? sender, LatchCurveEditorEventArgs e)
+    private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        switch (e.Property)
-        {
-            case LatchCurveEditorEventArgs.Values.XLow:
-                ArrowLow.Base = ViewModel.ArrowLowBase;
-                ArrowLow.Tip = ViewModel.ArrowLowTip;
-                break;
-            case LatchCurveEditorEventArgs.Values.XHigh:
-                ArrowHigh.Base = ViewModel.ArrowHighBase;
-                ArrowHigh.Tip = ViewModel.ArrowHighTip;
-                break;
-            case LatchCurveEditorEventArgs.Values.YLow:
-                ArrowLow.Tip = ViewModel.ArrowLowTip;
-                ArrowHigh.Base = ViewModel.ArrowHighBase;
-                break;
-            case LatchCurveEditorEventArgs.Values.YHigh:
-                ArrowLow.Base = ViewModel.ArrowLowBase;
-                ArrowHigh.Tip = ViewModel.ArrowHighTip;
-                break;
-            default:
-                break;
-        }
-
-        WinUIPlot1.Refresh();
+        PlotControl1.Refresh();
     }
 
     private void SetNumberFormatter()
@@ -140,7 +100,6 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
     {
         Unloaded -= LatchCurveEditorDialog_Unloaded;
         PrimaryButtonClick -= LatchCurveEditorDialog_PrimaryButtonClick;
-        App.MainWindow.PositionChanged -= MainWindow_PositionChanged;
         App.MainWindow.SizeChanged -= MainWindow_SizeChanged;
 
         Bindings.StopTracking();
@@ -161,16 +120,6 @@ public sealed partial class LatchCurveEditorDialog : ContentDialog
             ViewModel.OutputLowTemperature,
             ViewModel.TemperatureThresholdHigh,
             ViewModel.OutputHighTemperature)));
-    }
-
-    private void MainWindow_PositionChanged(object? sender, Windows.Graphics.PointInt32 e)
-    {
-        var scale = (float)App.MainWindow.DisplayScale;
-        if (Plot1.ScaleFactor != scale)
-        {
-            Plot1.ScaleFactor = scale;
-            WinUIPlot1.Refresh();
-        }
     }
 
     private void MainWindow_SizeChanged(object sender, WindowSizeChangedEventArgs args)

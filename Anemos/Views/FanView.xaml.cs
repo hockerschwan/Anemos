@@ -1,13 +1,11 @@
 using System.ComponentModel;
 using Anemos.Contracts.Services;
 using Anemos.Models;
+using Anemos.Plot;
 using Anemos.ViewModels;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using ScottPlot;
-using ScottPlot.DataSources;
-using ScottPlot.Plottables;
 
 namespace Anemos.Views;
 
@@ -23,12 +21,8 @@ public sealed partial class FanView : UserControl
 
     private static FansViewModel FansVM => App.GetService<FansViewModel>();
 
-    private Plot Plot1 => WinUIPlot1.Plot;
-    private readonly Signal Signal;
-
-    private readonly Color LineColor = Color.FromARGB((uint)System.Drawing.Color.CornflowerBlue.ToArgb());
-    private readonly Color AxisColor = Color.FromARGB((uint)System.Drawing.Color.DarkGray.ToArgb());
-    private readonly Color BackgroundColor = Color.FromARGB((uint)System.Drawing.Color.Black.ToArgb());
+    private Plot.Plot Plot1 => PlotControl1.Plot;
+    private readonly Signal History;
 
     private bool _optionsDialogOpened;
 
@@ -42,29 +36,23 @@ public sealed partial class FanView : UserControl
         ViewModel = viewModel;
         InitializeComponent();
 
-        App.MainWindow.PositionChanged += MainWindow_PositionChanged;
         _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
 
-        Plot1.Axes.SetLimitsY(bottom: -25d, top: 525d);
-        Plot1.Axes.Grids.Clear();
-        Plot1.Axes.Bottom.TickGenerator = new ScottPlot.TickGenerators.EmptyTickGenerator();
-        Plot1.Axes.Bottom.IsVisible = false;
-        Plot1.Axes.Top.IsVisible = false;
-        Plot1.Axes.Right.IsVisible = false;
-        Plot1.Style.ColorAxes(AxisColor);
-        Plot1.DataBackground = Plot1.FigureBackground = BackgroundColor;
-        Plot1.Axes.Margins(horizontal: 0);
-        Plot1.ScaleFactor = (float)App.MainWindow.DisplayScale;
+        Plot1.BottomAxisIsVisible = Plot1.TopAxisIsVisible = Plot1.RightAxisIsVisible = false;
+        Plot1.BottomAxisGridIsVisible = Plot1.LeftAxisGridIsVisible = false;
 
-        var left = 50 * Plot1.ScaleFactor;
-        Plot1.Layout.Fixed(new PixelPadding(left, 0, 0, 0));
+        Plot1.MinY = 0;
+        Plot1.MaxY = 500;
+        Plot1.MaxX = ViewModel.LineData.Capacity - 1;
+        Plot1.AxisMargin = 6;
 
-        Signal = Plot1.Add.Signal(new SignalSourceDouble(ViewModel.LineData, 1), color: LineColor);
-        Signal.LineStyle.Width = 2;
-        Signal.Marker.IsVisible = false;
+        History = new(ViewModel.LineData)
+        {
+            LineWidth = 2
+        };
+        Plot1.Plottables.Add(History);
 
-        WinUIPlot1.Interaction.Disable();
-        WinUIPlot1.Refresh();
+        PlotControl1.Refresh();
 
         ViewModel.LineData.QueueChanged += LineData_QueueChanged;
     }
@@ -84,31 +72,24 @@ public sealed partial class FanView : UserControl
         var d = max - min;
         if (max <= 500d)
         {
-            Plot1.Axes.SetLimitsY(bottom: -25d, top: 525d);
+            Plot1.MinY = -25;
+            Plot1.MaxY = 525;
         }
         else if (d < 500d)
         {
             var h = min + d / 2d;
-            Plot1.Axes.SetLimitsY(bottom: h - 275d, top: h + 275d);
+            Plot1.MinY = h - 275;
+            Plot1.MaxY = h + 275;
         }
         else
         {
-            Plot1.Axes.AutoScaleY();
+            Plot1.MinY = min - 25;
+            Plot1.MaxY = max + 25;
         }
 
         if (FansVM.IsVisible && (!ViewModel.Model.IsHidden || FansVM.ShowHiddenFans))
         {
-            WinUIPlot1.Refresh();
-        }
-    }
-
-    private void MainWindow_PositionChanged(object? sender, Windows.Graphics.PointInt32 e)
-    {
-        var scale = (float)App.MainWindow.DisplayScale;
-        if (Plot1.ScaleFactor != scale)
-        {
-            Plot1.ScaleFactor = scale;
-            WinUIPlot1.Refresh();
+            PlotControl1.Refresh();
         }
     }
 
@@ -116,7 +97,7 @@ public sealed partial class FanView : UserControl
     {
         if (e.PropertyName == nameof(_settingsService.Settings.FanHistory))
         {
-            Signal.Axes.XAxis.Max = _settingsService.Settings.FanHistory;
+            Plot1.MaxX = _settingsService.Settings.FanHistory - 1;
             ViewModel.LineData.Capacity = _settingsService.Settings.FanHistory;
         }
     }
@@ -125,7 +106,7 @@ public sealed partial class FanView : UserControl
     {
         if (e.PropertyName == nameof(ViewModel.IsVisible) && ViewModel.IsVisible)
         {
-            WinUIPlot1.Refresh();
+            PlotControl1.Refresh();
         }
     }
 

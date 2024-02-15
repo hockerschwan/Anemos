@@ -59,18 +59,14 @@
 			HorizontalScrollBarVisibility="Disabled"
 			Style="{StaticResource TraditionalScrollViewerStyle_}"
 			VerticalScrollBarVisibility="Visible">
-			<Border Padding="{StaticResource PageItemsContainerPadding_}">
-				<ItemsRepeater ItemsSource="{x:Bind ViewModel.Views, Mode=OneWay}" Visibility="{x:Bind ViewModel.IsVisible, Converter={StaticResource VisibilityConverter}, Mode=OneWay}">
-					<ItemsRepeater.Layout>
-						<UniformGridLayout
-							ItemsStretch="Fill"
-							MinColumnSpacing="8"
-							MinItemHeight="200"
-							MinItemWidth="420"
-							MinRowSpacing="8" />
-					</ItemsRepeater.Layout>
-				</ItemsRepeater>
-			</Border>
+			<local:AdaptiveGrid
+				Padding="{StaticResource PageItemsContainerPadding_}"
+				ColumnSpacing="8"
+				ItemHeight="200"
+				ItemsSource="{x:Bind ViewModel.Views, Mode=OneWay}"
+				MinItemWidth="420"
+				RowSpacing="8"
+				Visibility="{x:Bind ViewModel.IsVisible, Converter={StaticResource VisibilityConverter}, Mode=OneWay}" />
 		</ScrollViewer>
 	</controls:DockPanel>
 </Page>

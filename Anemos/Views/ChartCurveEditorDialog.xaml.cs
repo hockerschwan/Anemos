@@ -1,12 +1,11 @@
 ﻿using Anemos.Contracts.Services;
 using Anemos.Helpers;
+using Anemos.Plot;
 using Anemos.ViewModels;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.UI;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using ScottPlot;
-using ScottPlot.Plottables;
-using SkiaSharp;
 using Windows.Globalization.NumberFormatting;
 
 namespace Anemos.Views;
@@ -21,18 +20,13 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
         get;
     }
 
-    private Plot Plot1 => WinUIPlot1.Plot;
+    private Plot.Plot Plot1 => PlotControl1.Plot;
     private readonly Scatter Chart;
     private readonly Scatter Marker;
-    private readonly Coordinates[] MarkerCoordinates = [Coordinates.NaN];
+    private readonly double[] MarkerX = [double.NaN];
+    private readonly double[] MarkerY = [double.NaN];
 
-    private readonly Color LineColor = Color.FromARGB((uint)System.Drawing.Color.CornflowerBlue.ToArgb());
-    private readonly Color MarkerColor = Color.FromARGB((uint)System.Drawing.Color.Orange.ToArgb());
-    private readonly Color AxisColor = Color.FromARGB((uint)System.Drawing.Color.DarkGray.ToArgb());
-    private readonly Color BackgroundColor = Color.FromARGB((uint)System.Drawing.Color.Black.ToArgb());
-    private readonly Color GridColor = Color.FromHex("404040");
-
-    private readonly float _markerSize = 7.5f;
+    private readonly float _markerSize = 3.75f;
 
     private bool _isDragged;
 
@@ -45,37 +39,37 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
         Loaded += ChartCurveEditorDialog_Loaded;
         Unloaded += ChartCurveEditorDialog_Unloaded;
         PrimaryButtonClick += ChartCurveEditorDialog_PrimaryButtonClick;
-        App.MainWindow.PositionChanged += MainWindow_PositionChanged;
         App.MainWindow.SizeChanged += MainWindow_SizeChanged;
 
         SetNumberFormatter();
 
-        WinUIPlot1.Interaction.Disable();
-        WinUIPlot1.PointerMoved += WinUIPlot1_PointerMoved;
-        WinUIPlot1.PointerPressed += WinUIPlot1_PointerPressed;
-        WinUIPlot1.PointerReleased += WinUIPlot1_PointerReleased;
+        PlotControl1.PointerMoved += WinUIPlot1_PointerMoved;
+        PlotControl1.PointerPressed += WinUIPlot1_PointerPressed;
+        PlotControl1.PointerReleased += WinUIPlot1_PointerReleased;
 
-        Plot1.Axes.Bottom.Min = _settingsService.Settings.CurveMinTemp;
-        Plot1.Axes.Bottom.Max = _settingsService.Settings.CurveMaxTemp;
-        Plot1.Axes.Left.Min = 0;
-        Plot1.Axes.Left.Max = 100;
-        Plot1.Axes.Bottom.Label.Text = "CurveEditor_Plot_X_Label".GetLocalized();
-        Plot1.Axes.Left.Label.Text = "CurveEditor_Plot_Y_Label".GetLocalized();
-        Plot1.Axes.Bottom.Label.FontName = Plot1.Axes.Left.Label.FontName = SKFontManager.Default.MatchCharacter('℃').FamilyName;
-        Plot1.Style.ColorAxes(AxisColor);
-        Plot1.Style.ColorGrids(GridColor);
-        Plot1.DataBackground = Plot1.FigureBackground = BackgroundColor;
-        Plot1.ScaleFactor = (float)App.MainWindow.DisplayScale;
+        Plot1.MinX = _settingsService.Settings.CurveMinTemp;
+        Plot1.MaxX = _settingsService.Settings.CurveMaxTemp;
+        Plot1.MinY = 0;
+        Plot1.MaxY = 100;
+        Plot1.BottomAxisLabel = "CurveEditor_Plot_X_Label".GetLocalized();
+        Plot1.LeftAxisLabel = "CurveEditor_Plot_Y_Label".GetLocalized();
 
-        Chart = Plot1.Add.Scatter(ViewModel.LineDataX, ViewModel.LineDataY, LineColor);
-        Chart.LineStyle.Width = 2;
-        Chart.MarkerStyle.Size = _markerSize;
+        Chart = new(ViewModel.LineDataX, ViewModel.LineDataY)
+        {
+            LineWidth = 2,
+            MarkerRadius = _markerSize
+        };
+        Plot1.Plottables.Add(Chart);
 
-        Marker = Plot1.Add.Scatter(MarkerCoordinates);
-        Marker.MarkerStyle.Size = _markerSize * 2;
-        Marker.MarkerStyle.Fill.Color = MarkerColor;
+        Marker = new(MarkerX, MarkerY)
+        {
+            Color = Colors.Orange,
+            LineWidth = 0,
+            MarkerRadius = _markerSize * 2
+        };
+        Plot1.Plottables.Add(Marker);
 
-        WinUIPlot1.Refresh();
+        PlotControl1.Refresh();
     }
 
     private int FindIndex(double value)
@@ -105,39 +99,40 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
         return double.NegativeInfinity;
     }
 
-    private Coordinates GetNearestCoordinatesInRange(double x, double y)
+    private Point2d GetNearestPoint(double px, double py)
     {
-        var px = new Pixel(x, y);
-        var mc = Plot1.GetCoordinates(new(x * Plot1.ScaleFactor, y * Plot1.ScaleFactor));
+        var points = Chart.GetScatterPoints();
+        if (points.Length == 0) { return Point2d.NaN; }
 
-        var points = Chart.Data.GetScatterPoints();
-        if (!points.Any()) { return Coordinates.NaN; }
+        var mc_x = Plot1.GetPointX((float)px);
 
         var i = 0;
-        for (; i < points.Count; ++i)
+        for (; i < points.Length; ++i)
         {
-            if (mc.X <= points[i].X) { break; }
+            if (mc_x <= points[i].X) { break; }
         }
 
-        IEnumerable<Coordinates> near;
+        Span<Point2d> near;
         if (i == 0)
         {
-            near = points.Take(1);
+            near = points.AsSpan(0, 1);
         }
-        else if (i == points.Count)
+        else if (i == points.Length)
         {
-            near = points.TakeLast(1);
+            near = points.AsSpan(points.Length - 1, 1);
         }
         else
         {
-            near = points.Skip(i - 1).Take(2);
+            near = points.AsSpan(i - 1, 2);
         }
 
-        var nearest = near.First();
+        var nearest = Point2d.NaN;
         var distMin = double.PositiveInfinity;
-        foreach (var point in near.ToList())
+        foreach (var point in near)
         {
-            var dist = point.Distance(mc);
+            var x = Plot1.GetPixelX(point.X);
+            var y = Plot1.GetPixelY(point.Y);
+            var dist = Math.Pow(x - px, 2) + Math.Pow(y - py, 2);
             if (dist < distMin)
             {
                 distMin = dist;
@@ -145,11 +140,7 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
             }
         }
 
-        var nearest_scaled = new Coordinates(nearest.X / Plot1.ScaleFactor, nearest.Y / Plot1.ScaleFactor);
-        var px_d = Plot1.GetPixel(nearest_scaled) - px;
-
-        var d = double.Sqrt(double.Pow(px_d.X, 2) + double.Pow(px_d.Y, 2));
-        return d > _markerSize ? Coordinates.NaN : nearest;
+        return distMin > double.Pow(_markerSize, 2) ? Point2d.NaN : nearest;
     }
 
     private void SetNumberFormatter()
@@ -187,38 +178,35 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
 
     private void WinUIPlot1_PointerMoved(object sender, PointerRoutedEventArgs e)
     {
+        var mp = e.GetCurrentPoint(PlotControl1).Position;
         if (_isDragged) // drag
         {
-            var mp = e.GetCurrentPoint((Microsoft.UI.Xaml.UIElement)sender).Position;
-
             var prev = FindPreviousX(ViewModel.SelectedX);
             var next = FindNextX(ViewModel.SelectedX);
 
-            var axisLimits = Plot1.Axes.GetLimits();
-            var low = double.Max(axisLimits.XRange.Min, prev + 0.1);
-            var high = double.Min(axisLimits.XRange.Max, next - 0.1);
+            var low = double.Max(Plot1.MinX, prev + 0.1);
+            var high = double.Min(Plot1.MaxX, next - 0.1);
 
-            var mc = Plot1.GetCoordinates(new Pixel(mp.X * Plot1.ScaleFactor, mp.Y * Plot1.ScaleFactor));
+            var mc_x = Plot1.GetPointX((float)mp.X);
+            var mc_y = Plot1.GetPointY((float)mp.Y);
 
-            var mc_x = double.Round(double.Clamp(mc.X, low, high), 1);
-            var mc_y = double.Round(double.Clamp(mc.Y, 0, 100), 1);
+            mc_x = double.Round(double.Clamp(mc_x, low, high), 1);
+            mc_y = double.Round(double.Clamp(mc_y, 0, 100), 1);
 
-            ViewModel.LineDataX[ViewModel.SelectedIndex] = ViewModel.SelectedX = MarkerCoordinates[0].X = mc_x;
-            ViewModel.LineDataY[ViewModel.SelectedIndex] = ViewModel.SelectedY = MarkerCoordinates[0].Y = mc_y;
+            ViewModel.LineDataX[ViewModel.SelectedIndex] = ViewModel.SelectedX = MarkerX[0] = mc_x;
+            ViewModel.LineDataY[ViewModel.SelectedIndex] = ViewModel.SelectedY = MarkerY[0] = mc_y;
 
             UpdateInfinity();
         }
         else // select
         {
-            var mp = e.GetCurrentPoint((Microsoft.UI.Xaml.UIElement)sender).Position;
-            var nearest = GetNearestCoordinatesInRange(mp.X, mp.Y);
-            if (nearest == Coordinates.NaN) { return; }
+            var nearest = GetNearestPoint(mp.X, mp.Y);
+            if (nearest == Point2d.NaN) { return; }
             if (nearest.X == ViewModel.SelectedX && nearest.Y == ViewModel.SelectedY) { return; }
 
             ViewModel.SelectedIndex = ViewModel.LineDataX.IndexOf(nearest.X);
-            ViewModel.SelectedX = MarkerCoordinates[0].X = nearest.X;
-            ViewModel.SelectedY = MarkerCoordinates[0].Y = nearest.Y;
-            Marker.IsVisible = true;
+            ViewModel.SelectedX = MarkerX[0] = nearest.X;
+            ViewModel.SelectedY = MarkerY[0] = nearest.Y;
 
             NB_X.IsEnabled = NB_Y.IsEnabled = true;
         }
@@ -227,47 +215,40 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
     private void WinUIPlot1_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
         var pp = e.GetCurrentPoint(this).Properties;
-        var mp = e.GetCurrentPoint((Microsoft.UI.Xaml.UIElement)sender).Position;
+        var mp = e.GetCurrentPoint(PlotControl1).Position;
         if (pp.IsLeftButtonPressed) // add
         {
             _isDragged = true;
             NB_X.IsEnabled = NB_Y.IsEnabled = false;
 
-            var nearest = GetNearestCoordinatesInRange(mp.X, mp.Y);
-            if (nearest != Coordinates.NaN) { return; }
+            var nearest = GetNearestPoint(mp.X, mp.Y);
+            if (nearest != Point2d.NaN) { return; }
 
-            var px = new Pixel(mp.X * Plot1.ScaleFactor, mp.Y * Plot1.ScaleFactor);
-            var mc = Plot1.GetCoordinates(px);
-
-            var mc_x = double.Round(mc.X, 1);
-            var mc_y = double.Round(mc.Y, 1);
+            var mc_x = double.Round(Plot1.GetPointX((float)mp.X), 1);
+            var mc_y = double.Round(Plot1.GetPointY((float)mp.Y), 1);
 
             var index = FindIndex(mc_x);
             ViewModel.LineDataX.Insert(index, mc_x);
             ViewModel.LineDataY.Insert(index, mc_y);
 
             ViewModel.SelectedIndex = index;
-            ViewModel.SelectedX = MarkerCoordinates[0].X = mc_x;
-            ViewModel.SelectedY = MarkerCoordinates[0].Y = mc_y;
-            Marker.IsVisible = true;
+            ViewModel.SelectedX = MarkerX[0] = mc_x;
+            ViewModel.SelectedY = MarkerY[0] = mc_y;
 
             UpdateInfinity();
         }
         else if (pp.IsRightButtonPressed) // delete
         {
-            var co_marker = new Coordinates(
-                MarkerCoordinates[0].X / Plot1.ScaleFactor,
-                MarkerCoordinates[0].Y / Plot1.ScaleFactor);
-            var px_selected = Plot1.GetPixel(co_marker);
-            var px_d = px_selected - new Pixel(mp.X, mp.Y);
-            var d = double.Sqrt(double.Pow(px_d.X, 2) + double.Pow(px_d.Y, 2));
+            var px_selectedX = Plot1.GetPixelX(MarkerX[0]);
+            var px_selectedY = Plot1.GetPixelY(MarkerY[0]);
+            var d = double.Sqrt(double.Pow(px_selectedX - mp.X, 2) + double.Pow(px_selectedY - mp.Y, 2));
             if (d > _markerSize) { return; }
+            if (ViewModel.SelectedIndex < 0 || ViewModel.SelectedIndex >= ViewModel.LineDataX.Count) { return; }
 
             ViewModel.LineDataX.RemoveAt(ViewModel.SelectedIndex);
             ViewModel.LineDataY.RemoveAt(ViewModel.SelectedIndex);
 
-            MarkerCoordinates[0] = Coordinates.NaN;
-            Marker.IsVisible = false;
+            MarkerX[0] = MarkerY[0] = double.NaN;
 
             ViewModel.SelectedX = ViewModel.SelectedY = double.NaN;
             ViewModel.SelectedIndex = -1;
@@ -294,11 +275,10 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
     {
         Unloaded -= ChartCurveEditorDialog_Unloaded;
         PrimaryButtonClick -= ChartCurveEditorDialog_PrimaryButtonClick;
-        App.MainWindow.PositionChanged -= MainWindow_PositionChanged;
         App.MainWindow.SizeChanged -= MainWindow_SizeChanged;
-        WinUIPlot1.PointerMoved -= WinUIPlot1_PointerMoved;
-        WinUIPlot1.PointerPressed -= WinUIPlot1_PointerPressed;
-        WinUIPlot1.PointerReleased -= WinUIPlot1_PointerReleased;
+        PlotControl1.PointerMoved -= WinUIPlot1_PointerMoved;
+        PlotControl1.PointerPressed -= WinUIPlot1_PointerPressed;
+        PlotControl1.PointerReleased -= WinUIPlot1_PointerReleased;
 
         Bindings.StopTracking();
     }
@@ -311,18 +291,8 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
         }
         await Task.Delay(100);
 
-        var points = Chart.Data.GetScatterPoints().Skip(1).SkipLast(1).Select(c => new Point2d(c.X, c.Y)).ToList();
+        var points = Chart.GetScatterPoints().Skip(1).SkipLast(1).ToList();
         _messenger.Send<ChartCurveChangedMessage>(new(points));
-    }
-
-    private void MainWindow_PositionChanged(object? sender, Windows.Graphics.PointInt32 e)
-    {
-        var scale = (float)App.MainWindow.DisplayScale;
-        if (Plot1.ScaleFactor != scale)
-        {
-            Plot1.ScaleFactor = scale;
-            WinUIPlot1.Refresh();
-        }
     }
 
     private void MainWindow_SizeChanged(object sender, Microsoft.UI.Xaml.WindowSizeChangedEventArgs args)
@@ -338,17 +308,17 @@ public sealed partial class ChartCurveEditorDialog : ContentDialog
 
     private void NB_X_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
     {
-        MarkerCoordinates[0].X = sender.Value = args.NewValue;
+        MarkerX[0] = sender.Value = args.NewValue;
 
-        WinUIPlot1.Refresh();
+        PlotControl1.Refresh();
     }
 
     private void NB_Y_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
     {
-        MarkerCoordinates[0].Y = sender.Value = args.NewValue;
+        MarkerY[0] = sender.Value = args.NewValue;
         UpdateInfinity();
 
-        WinUIPlot1.Refresh();
+        PlotControl1.Refresh();
     }
 
     private void PreviewKeyDown_(object sender, KeyRoutedEventArgs e)
