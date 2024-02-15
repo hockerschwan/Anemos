@@ -3,9 +3,9 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+	xmlns:ctcv="using:CommunityToolkit.WinUI.Converters"
 	xmlns:cv="using:Anemos.Converters"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:local="using:Anemos.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:models="using:Anemos.Models"
 	xmlns:tabler="using:Anemos.TablerIcon"
@@ -13,8 +13,7 @@
 	mc:Ignorable="d">
 	<UserControl.Resources>
 		<cv:TemperatureConverter x:Key="TemperatureConverter" />
-		<cv:BoolToVisibilityConverter x:Key="VisibilityConverter" />
-		<cv:InvertedBoolToVisibilityConverter x:Key="InvertedVisibilityConverter" />
+		<ctcv:BoolToVisibilityConverter x:Key="VisibilityConverter" />
 
 		<SolidColorBrush x:Key="_ConditionBrush1" Color="LimeGreen" />
 		<SolidColorBrush x:Key="_ConditionBrush2" Color="OrangeRed" />
@@ -51,7 +50,7 @@
 							FontSize="{StaticResource PageItemMediumFontSize_}"
 							Text="{x:Bind ViewModel.Model.Name, Mode=OneWay}"
 							TextTrimming="CharacterEllipsis"
-							Visibility="{x:Bind ViewModel.EditingName, Converter={StaticResource InvertedVisibilityConverter}, Mode=OneWay}" />
+							Visibility="{x:Bind ViewModel.EditingName, Converter={StaticResource VisibilityConverter}, ConverterParameter=True, Mode=OneWay}" />
 
 						<TextBox
 							HorizontalAlignment="Stretch"
@@ -75,7 +74,7 @@
 							FontSize="{StaticResource PageItemMediumFontSize_}"
 							Foreground="{StaticResource _ConditionBrush2}"
 							Symbol="CircleX"
-							Visibility="{x:Bind ViewModel.Model.ConditionsSatisfied, Converter={StaticResource InvertedVisibilityConverter}, Mode=OneWay}" />
+							Visibility="{x:Bind ViewModel.Model.ConditionsSatisfied, Converter={StaticResource VisibilityConverter}, ConverterParameter=True, Mode=OneWay}" />
 					</Grid>
 
 					<StackPanel
@@ -222,7 +221,7 @@
 										FontSize="{StaticResource PageItemMediumFontSize_}"
 										Foreground="{StaticResource _ConditionBrush2}"
 										Symbol="CircleX"
-										Visibility="{x:Bind IsSatisfied, Converter={StaticResource InvertedVisibilityConverter}, Mode=OneWay}" />
+										Visibility="{x:Bind IsSatisfied, Converter={StaticResource VisibilityConverter}, ConverterParameter=True, Mode=OneWay}" />
 								</Grid>
 
 								<Button
