@@ -49,11 +49,6 @@
 			</StackPanel>
 		</Border>
 
-		<Border
-			controls:DockPanel.Dock="Top"
-			BorderBrush="{StaticResource SubtleFillColorSecondaryBrush}"
-			BorderThickness="1" />
-
 		<ScrollViewer
 			controls:DockPanel.Dock="Bottom"
 			HorizontalScrollBarVisibility="Disabled"

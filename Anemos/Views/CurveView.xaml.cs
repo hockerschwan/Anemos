@@ -92,6 +92,11 @@ public sealed partial class CurveView : UserControl
         ViewModel.CurveMarkerChanged += ViewModel_CurveMarkerChanged;
     }
 
+    public void Close()
+    {
+        PlotControl1.Close();
+    }
+
     private void ChartCurveChangedMessageHandler(object recipient, ChartCurveChangedMessage message)
     {
         if (!_chartEditorOpened || ViewModel.Model is not ChartCurveModel chart) { return; }

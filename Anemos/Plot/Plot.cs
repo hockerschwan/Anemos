@@ -63,8 +63,8 @@ public class Plot
     private readonly Matrix3x2 _translate0 = Matrix3x2.CreateRotation(0);
     private readonly Matrix3x2 _rotate270 = Matrix3x2.CreateRotation(-MathF.PI / 2);
 
-    private readonly Color _bgColor = Color.FromArgb(255, 32, 32, 32);
-    private readonly Color _borderColor = Color.FromArgb(255, 128, 128, 128);
+    private readonly Color _bgColor = Color.FromArgb(255, 27, 27, 27);
+    private readonly Color _borderColor = Color.FromArgb(255, 96, 96, 96);
     private readonly Color _gridColor = Color.FromArgb(255, 64, 64, 64);
 
     private Rect _plotRect;
