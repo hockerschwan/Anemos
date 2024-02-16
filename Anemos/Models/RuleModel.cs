@@ -13,12 +13,16 @@ public enum RuleType
 }
 
 [DebuggerDisplay("{Name}")]
-public class RuleArg
+public struct RuleArg
 {
     public string Name = string.Empty;
     public RuleType Type = RuleType.All;
     public string ProfileId = string.Empty;
     public IEnumerable<RuleConditionArg> Conditions = Enumerable.Empty<RuleConditionArg>();
+
+    public RuleArg()
+    {
+    }
 }
 
 [DebuggerDisplay("{Name}, {ConditionsSatisfied}")]
@@ -101,8 +105,9 @@ public class RuleModel : ObservableObject
         }
         _type = arg.Type;
 
-        foreach (var cond in arg.Conditions.ToList())
+        for (var i = 0; i < arg.Conditions.Count(); i++)
         {
+            var cond = arg.Conditions.ElementAt(i);
             if (cond.Type == RuleConditionType.Time && cond.TimeBeginning != null && cond.TimeEnding != null)
             {
                 Conditions.Add(new TimeRuleCondition(this, cond.TimeBeginning.Value, cond.TimeEnding.Value));

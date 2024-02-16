@@ -11,7 +11,7 @@ public enum CurveType
 }
 
 [DebuggerDisplay("{Name}")]
-public class CurveArg
+public struct CurveArg
 {
     public CurveType Type;
     public string Id = string.Empty;
@@ -26,6 +26,10 @@ public class CurveArg
     public double? OutputHighTemperature;
     public double? TemperatureThresholdLow;
     public double? TemperatureThresholdHigh;
+
+    public CurveArg()
+    {
+    }
 }
 
 [DebuggerDisplay("{Name}")]

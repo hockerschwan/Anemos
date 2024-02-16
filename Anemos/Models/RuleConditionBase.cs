@@ -9,7 +9,7 @@ public enum RuleConditionType
 }
 
 [DebuggerDisplay("{Type}")]
-public class RuleConditionArg
+public struct RuleConditionArg
 {
     public RuleConditionType Type;
 

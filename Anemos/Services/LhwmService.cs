@@ -188,7 +188,10 @@ internal class LhwmService : ILhwmService
     private void Update()
     {
         _isUpdating = true;
-        Parallel.ForEach(Hardware, _updateAction);
+        foreach (var hw in Hardware)
+        {
+            ThreadPool.QueueUserWorkItem(_updateAction, hw, true);
+        }
         _isUpdating = false;
     }
 }
