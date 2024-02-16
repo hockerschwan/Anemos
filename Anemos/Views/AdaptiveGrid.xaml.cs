@@ -97,7 +97,6 @@ public sealed partial class AdaptiveGrid : Grid
         InitializeComponent();
         DataContext = this;
         SizeChanged += AdaptiveGrid_SizeChanged;
-        Unloaded += AdaptiveGrid_Unloaded;
     }
 
     private void AdaptiveGrid_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -105,16 +104,6 @@ public sealed partial class AdaptiveGrid : Grid
         if (e.PreviousSize.Width != e.NewSize.Width)
         {
             CalcColumns();
-        }
-    }
-
-    private void AdaptiveGrid_Unloaded(object sender, RoutedEventArgs e)
-    {
-        SizeChanged -= AdaptiveGrid_SizeChanged;
-        Unloaded -= AdaptiveGrid_Unloaded;
-        if (ItemsSource is INotifyCollectionChanged incc)
-        {
-            incc.CollectionChanged -= ItemsSource_CollectionChanged;
         }
     }
 
@@ -155,6 +144,15 @@ public sealed partial class AdaptiveGrid : Grid
                 return;
             }
             ++col;
+        }
+    }
+
+    public void Close()
+    {
+        SizeChanged -= AdaptiveGrid_SizeChanged;
+        if (ItemsSource is INotifyCollectionChanged incc)
+        {
+            incc.CollectionChanged -= ItemsSource_CollectionChanged;
         }
     }
 

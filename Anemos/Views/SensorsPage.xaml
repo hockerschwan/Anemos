@@ -5,6 +5,7 @@
 	xmlns:controls="using:CommunityToolkit.WinUI.Controls"
 	xmlns:ctcv="using:CommunityToolkit.WinUI.Converters"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:local="using:Anemos.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:tabler="using:Anemos.TablerIcon"
 	NavigationCacheMode="Required"
@@ -30,28 +31,19 @@
 			</StackPanel>
 		</Border>
 
-		<Border
-			controls:DockPanel.Dock="Top"
-			BorderBrush="{StaticResource SubtleFillColorSecondaryBrush}"
-			BorderThickness="1" />
-
 		<ScrollViewer
 			controls:DockPanel.Dock="Bottom"
 			HorizontalScrollBarVisibility="Disabled"
 			Style="{StaticResource TraditionalScrollViewerStyle_}"
 			VerticalScrollBarVisibility="Visible">
-			<Border Padding="{StaticResource PageItemsContainerPadding_}">
-				<ItemsRepeater ItemsSource="{x:Bind ViewModel.Views, Mode=OneWay}" Visibility="{x:Bind ViewModel.IsVisible, Converter={StaticResource VisibilityConverter}, Mode=OneWay}">
-					<ItemsRepeater.Layout>
-						<UniformGridLayout
-							ItemsStretch="Fill"
-							MinColumnSpacing="8"
-							MinItemHeight="200"
-							MinItemWidth="420"
-							MinRowSpacing="8" />
-					</ItemsRepeater.Layout>
-				</ItemsRepeater>
-			</Border>
+			<local:AdaptiveGrid
+				Padding="{StaticResource PageItemsContainerPadding_}"
+				ColumnSpacing="8"
+				ItemHeight="200"
+				ItemsSource="{x:Bind ViewModel.Views, Mode=OneWay}"
+				MinItemWidth="420"
+				RowSpacing="8"
+				Visibility="{x:Bind ViewModel.IsVisible, Converter={StaticResource VisibilityConverter}, Mode=OneWay}" />
 		</ScrollViewer>
 	</controls:DockPanel>
 </Page>

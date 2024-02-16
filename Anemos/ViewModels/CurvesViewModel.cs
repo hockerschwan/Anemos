@@ -77,6 +77,7 @@ public partial class CurvesViewModel : PageViewModelBase
             {
                 if (v.ViewModel.Model.Id == model.Id)
                 {
+                    v.Close();
                     Views.Remove(v);
                     break;
                 }
