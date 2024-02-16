@@ -17,8 +17,8 @@ internal class CurveService : ICurveService
 
     private readonly MessageHandler<object, AppExitMessage> _appExitMessageHandler;
     private readonly MessageHandler<object, CustomSensorsUpdateDoneMessage> _customSensorsUpdatedMessageHandler;
+    private readonly Action _loadAction;
     private readonly Action<CurveModelBase> _updateAction;
-
     public CurveService(
         IMessenger messenger,
         ISettingsService settingsService)
@@ -31,8 +31,8 @@ internal class CurveService : ICurveService
         _messenger.Register(this, _appExitMessageHandler);
         _messenger.Register(this, _customSensorsUpdatedMessageHandler);
 
+        _loadAction = Load;
         _updateAction = Update_;
-
         _messenger.Send<ServiceStartupMessage>(new(GetType()));
         Log.Information("[Curve] Started");
     }
@@ -119,7 +119,7 @@ internal class CurveService : ICurveService
 
     public async Task LoadAsync()
     {
-        await Task.Run(Load);
+        await Task.Run(_loadAction);
         Log.Information("[Curve] Loaded");
     }
 
@@ -177,7 +177,10 @@ internal class CurveService : ICurveService
     private void Update()
     {
         _isUpdating = true;
-        Parallel.ForEach(Curves, _updateAction);
+        foreach (var c in Curves)
+        {
+            ThreadPool.QueueUserWorkItem(_updateAction, c, true);
+        }
         _isUpdating = false;
     }
 

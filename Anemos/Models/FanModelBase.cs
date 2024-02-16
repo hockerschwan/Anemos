@@ -26,7 +26,7 @@ public class FanProfile : ObservableObject
     public IEnumerable<FanSettings_ProfileItem> Fans { get; set; } = Enumerable.Empty<FanSettings_ProfileItem>();
 }
 
-public class FanOptionsResult
+public struct FanOptionsResult
 {
     public int MaxSpeed;
     public int MinSpeed;

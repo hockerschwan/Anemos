@@ -7,13 +7,17 @@ public enum CustomSensorCalcMethod
     Max, Min, Average, MovingAverage
 }
 
-public class CustomSensorArg
+public struct CustomSensorArg
 {
     public CustomSensorCalcMethod CalcMethod;
     public string Id = string.Empty;
     public string Name = string.Empty;
     public int SampleSize = 1;
     public IEnumerable<string> SourceIds = Enumerable.Empty<string>();
+
+    public CustomSensorArg()
+    {
+    }
 }
 
 public class CustomSensorModel : SensorModelBase

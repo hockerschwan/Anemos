@@ -17,6 +17,7 @@ internal class NotifyIconMonitorService : INotifyIconMonitorService
 
     private readonly MessageHandler<object, AppExitMessage> _appExitMessageHandler;
     private readonly MessageHandler<object, FansUpdateDoneMessage> _fansUpdatedMessageHandler;
+    private readonly Action _loadAction;
     private readonly Action<MonitorModelBase> _updateAction;
 
     public NotifyIconMonitorService(IMessenger messenger, ISettingsService settingsService)
@@ -29,6 +30,7 @@ internal class NotifyIconMonitorService : INotifyIconMonitorService
         _messenger.Register(this, _appExitMessageHandler);
         _messenger.Register(this, _fansUpdatedMessageHandler);
 
+        _loadAction = Load;
         _updateAction = Update_;
 
         _messenger.Send<ServiceStartupMessage>(new(GetType()));
@@ -116,7 +118,7 @@ internal class NotifyIconMonitorService : INotifyIconMonitorService
 
     public async Task LoadAsync()
     {
-        await Task.Run(Load);
+        await Task.Run(_loadAction);
         Log.Information("[Monitor] Loaded");
     }
 
@@ -166,7 +168,10 @@ internal class NotifyIconMonitorService : INotifyIconMonitorService
         if (_isUpdating) { return; }
 
         _isUpdating = true;
-        Parallel.ForEach(Monitors, _updateAction);
+        foreach (var m in Monitors)
+        {
+            ThreadPool.QueueUserWorkItem(_updateAction, m, true);
+        }
         _isUpdating = false;
     }
 

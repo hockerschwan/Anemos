@@ -113,15 +113,6 @@ public partial class App : Application
 
     private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
     {
-        if (e.Exception.Source == "SkiaSharp.Views.Windows"
-            && e.Exception.TargetSite?.DeclaringType?.Name == "SKXamlCanvas"
-            && e.Exception.TargetSite?.Name == "OnUnloaded"
-            && e.Exception.HResult == -2147467261)
-        {
-            e.Handled = true;
-            return;
-        }
-
         Log.Fatal("[App] {0}\n{1}", e.Message, e.Exception);
         if (Debugger.IsAttached)
         {

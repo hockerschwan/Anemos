@@ -95,6 +95,7 @@ internal class FanService : IFanService
 
     private readonly MessageHandler<object, AppExitMessage> _appExitMessageHandler;
     private readonly MessageHandler<object, CurvesUpdateDoneMessage> _curvesUpdatedMessageHandler;
+    private readonly Action _loadAction;
     private readonly Action<FanModelBase> _updateAction;
 
     public FanService(
@@ -111,8 +112,8 @@ internal class FanService : IFanService
         _messenger.Register(this, _appExitMessageHandler);
         _messenger.Register(this, _curvesUpdatedMessageHandler);
 
+        _loadAction = Load;
         _updateAction = Update_;
-
         _messenger.Send<ServiceStartupMessage>(new(GetType()));
         Log.Information("[Fan] Started");
     }
@@ -394,7 +395,7 @@ internal class FanService : IFanService
         {
             ADLXWrapper.ADLXWrapper.Initialize();
         }
-        await Task.Run(Load);
+        await Task.Run(_loadAction);
         _messenger.Send<FanProfilesChangedMessage>(new(this, nameof(Profiles), Enumerable.Empty<FanProfile>(), Profiles));
         Log.Information("[Fan] Loaded");
     }
@@ -471,7 +472,10 @@ internal class FanService : IFanService
     private void Update()
     {
         _isUpdating = true;
-        Parallel.ForEach(Fans, _updateAction);
+        foreach (var f in Fans)
+        {
+            ThreadPool.QueueUserWorkItem(_updateAction, f, true);
+        }
         _isUpdating = false;
     }
 

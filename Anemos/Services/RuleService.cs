@@ -52,6 +52,7 @@ internal class RuleService : IRuleService
 
     private readonly MessageHandler<object, AppExitMessage> _appExitMessageHandler;
     private readonly MessageHandler<object, LhwmUpdateDoneMessage> _lhwmUpdatedMessageHandler;
+    private readonly Action _loadAction;
     private readonly Action<RuleModel> _updateAction;
 
     public RuleService(
@@ -70,6 +71,7 @@ internal class RuleService : IRuleService
 
         _settingsService.Settings.PropertyChanged += Settings_PropertyChanged;
 
+        _loadAction = Load;
         _updateAction = Update_;
 
         UpdateIntervalCycles = _settingsService.Settings.RulesUpdateIntervalCycles;
@@ -199,7 +201,7 @@ internal class RuleService : IRuleService
 
     public async Task LoadAsync()
     {
-        await Task.Run(Load);
+        await Task.Run(_loadAction);
         Log.Information("[Rule] Loaded");
     }
 
@@ -281,7 +283,10 @@ internal class RuleService : IRuleService
         _updateCounter = 0;
         _isUpdating = true;
 
-        Parallel.ForEach(Rules, _updateAction);
+        foreach (var r in Rules)
+        {
+            ThreadPool.QueueUserWorkItem(_updateAction, r, true);
+        }
 
         Task.Delay(10).Wait();
 

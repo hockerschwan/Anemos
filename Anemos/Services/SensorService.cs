@@ -22,6 +22,7 @@ internal class SensorService : ISensorService
 
     private readonly MessageHandler<object, AppExitMessage> _appExitMessageHandler;
     private readonly MessageHandler<object, LhwmUpdateDoneMessage> _lhwmUpdatedMessageHandler;
+    private readonly Action _loadAction;
     private readonly Action<SensorModelBase> _updateAction;
 
     public SensorService(
@@ -38,6 +39,7 @@ internal class SensorService : ISensorService
         _messenger.Register(this, _appExitMessageHandler);
         _messenger.Register(this, _lhwmUpdatedMessageHandler);
 
+        _loadAction = Load;
         _updateAction = Update_;
 
         Scan();
@@ -133,7 +135,7 @@ internal class SensorService : ISensorService
     public async Task LoadAsync()
     {
         UpdateSensors();
-        await Task.Run(Load);
+        await Task.Run(_loadAction);
         Log.Information("[Sensor] Loaded");
     }
 
@@ -198,7 +200,10 @@ internal class SensorService : ISensorService
     private void Update()
     {
         _isUpdating = true;
-        Parallel.ForEach(Sensors, _updateAction);
+        foreach (var s in Sensors)
+        {
+            ThreadPool.QueueUserWorkItem(_updateAction, s, true);
+        }
         _isUpdating = false;
     }
 
