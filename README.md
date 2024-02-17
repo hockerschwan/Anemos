@@ -7,11 +7,11 @@ Control chassis, CPU & GPU fans on Windows 10 or later.
 ## Screenshots
 
 <div>
-<img src="https://github.com/hockerschwan/Anemos/assets/80553357/1a402336-bbe5-4355-bcfe-c5646eb7b486" width=300>
-<img src="https://github.com/hockerschwan/Anemos/assets/80553357/0e1c7cd8-5576-49fb-8310-22f9248b1278" width=300>
-<img src="https://github.com/hockerschwan/Anemos/assets/80553357/388b063b-44e6-4afc-81a3-b34a539df8ca" width=300>
-<img src="https://github.com/hockerschwan/Anemos/assets/80553357/b2a144d5-8733-4b85-aef5-f8a7fc0b6950" width=300>
-<img src="https://github.com/hockerschwan/Anemos/assets/80553357/d63a44c5-3bf7-423f-af33-50630c768694" width=300>
+<img src="https://github.com/hockerschwan/Anemos/assets/80553357/9bcb43e0-98b8-47b1-8f8b-0f949b2628ca" width=300>
+<img src="https://github.com/hockerschwan/Anemos/assets/80553357/38c0645e-42d0-4337-9ad1-e2cead7613b4" width=300>
+<img src="https://github.com/hockerschwan/Anemos/assets/80553357/3ae32364-f7b1-4f93-bae4-d345fee34c75" width=300>
+<img src="https://github.com/hockerschwan/Anemos/assets/80553357/87741a0e-ebb4-489c-ae0f-255c4a081bae" width=300>
+<img src="https://github.com/hockerschwan/Anemos/assets/80553357/550fd230-eb50-423d-80b1-fa520eaf6dbf" width=300>
 <img src="https://github.com/hockerschwan/Anemos/assets/80553357/95686806-bd45-44bb-9c70-683bab4975a6">
 </div>
 
@@ -63,7 +63,6 @@ Multi-GPU not tested.
 - [AMD Device Library eXtra](https://github.com/GPUOpen-LibrariesAndSDKs/ADLX)
 - [LibreHardwareMonitorLib](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor)
 - [PlainlyIpc](https://github.com/chrbaeu/PlainlyIpc)
-- [ScottPlot](https://github.com/ScottPlot/ScottPlot)
 - [Serilog](https://github.com/serilog/serilog)
 - [Windows Community Toolkit](https://github.com/CommunityToolkit/Windows)
 - [WinUIEx](https://github.com/dotMorten/WinUIEx)
