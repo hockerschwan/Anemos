@@ -2,7 +2,6 @@
 using Anemos.Helpers;
 using Anemos.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Anemos.ViewModels;
@@ -47,7 +46,6 @@ public partial class SensorViewModel : ObservableObject
         "Sensor_CalcMethodNames_MovingAverage".GetLocalized()
     ];
 
-
     private int _selectedMethodIndex = -1;
     public int SelectedMethodIndex
     {
@@ -91,30 +89,11 @@ public partial class SensorViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(SensorsNotInSources));
 
-        var removed = message.OldValue.Except(message.NewValue).Select(m => m.Id);
-        if (removed.Any())
+        var removed = message.OldValue.Except(message.NewValue).Select(m => m.Id).ToList();
+        foreach (var item in removed)
         {
-            foreach (var id in Model.SourceIds)
-            {
-                if (removed.Contains(id))
-                {
-                    Model.SourceIds.Remove(id);
-                }
-            }
+            Model.SourceIds.Remove(item);
         }
-    }
-
-    [RelayCommand]
-    public void AddSource(string id)
-    {
-        Model.AddSource(id);
-        OnPropertyChanged(nameof(SensorsNotInSources));
-    }
-
-    public void RemoveSource(string id)
-    {
-        Model.RemoveSource(id);
-        OnPropertyChanged(nameof(SensorsNotInSources));
     }
 
     public void RemoveSelf()

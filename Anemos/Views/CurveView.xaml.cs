@@ -142,6 +142,21 @@ public sealed partial class CurveView : UserControl
         PlotControl1.Refresh();
     }
 
+    private void Border_ContextRequested(UIElement sender, Microsoft.UI.Xaml.Input.ContextRequestedEventArgs e)
+    {
+        if (Resources["ContextMenu"] is not MenuFlyout menu) { return; }
+        if (e.OriginalSource is not FrameworkElement elm) { return; }
+
+        if (e.TryGetPosition(elm, out var point))
+        {
+            menu.ShowAt(elm, point);
+        }
+        else
+        {
+            menu.ShowAt(elm);
+        }
+    }
+
     private async void DeleteSelfButton_Click(object sender, RoutedEventArgs e)
     {
         if (await CurvesPage.OpenDeleteDialog(ViewModel.Model.Name))
@@ -150,16 +165,9 @@ public sealed partial class CurveView : UserControl
         }
     }
 
-    private async void EditCurveButton_Click(object sender, RoutedEventArgs e)
+    private void EditCurveButton_Click(object sender, RoutedEventArgs e)
     {
-        if (ViewModel.Model is ChartCurveModel chart)
-        {
-            _chartEditorOpened = await CurvesPage.OpenCurveEditorDialog(chart.Id);
-        }
-        else if (ViewModel.Model is LatchCurveModel latch)
-        {
-            _latchEditorOpened = await CurvesPage.OpenCurveEditorDialog(latch.Id);
-        }
+        OpenEditor();
     }
 
     private void EditNameTextBox_IsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -184,13 +192,24 @@ public sealed partial class CurveView : UserControl
         }
     }
 
-    private void Grid_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    private void PlotControl1_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
     {
-        PlotOverlay.Visibility = Visibility.Visible;
+        var pt = e.GetCurrentPoint(PlotControl1);
+        if (pt.Properties.IsLeftButtonPressed)
+        {
+            OpenEditor();
+        }
     }
 
-    private void Grid_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    private async void OpenEditor()
     {
-        PlotOverlay.Visibility = Visibility.Collapsed;
+        if (ViewModel.Model is ChartCurveModel chart)
+        {
+            _chartEditorOpened = await CurvesPage.OpenCurveEditorDialog(chart.Id);
+        }
+        else if (ViewModel.Model is LatchCurveModel latch)
+        {
+            _latchEditorOpened = await CurvesPage.OpenCurveEditorDialog(latch.Id);
+        }
     }
 }

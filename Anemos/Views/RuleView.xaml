@@ -21,9 +21,38 @@
 		<Style TargetType="tabler:TablerIcon">
 			<Setter Property="FontSize" Value="{StaticResource PageItemIconFontSize_}" />
 		</Style>
+
+		<MenuFlyout x:Key="ContextMenu">
+			<MenuFlyoutSeparator />
+			<MenuFlyoutItem x:Uid="Rule_ContextFlyout_DeleteSelf" Click="DeleteSelf_Click">
+				<MenuFlyoutItem.Icon>
+					<FontIcon Glyph="&#xE74D;" />
+				</MenuFlyoutItem.Icon>
+			</MenuFlyoutItem>
+		</MenuFlyout>
+
+		<MenuFlyout x:Key="ContextMenu_Conditions">
+			<MenuFlyoutItem
+				x:Name="EditCondition"
+				x:Uid="Rule_ContextFlyout_EditCondition"
+				Click="EditCondition_Click">
+				<MenuFlyoutItem.Icon>
+					<FontIcon Glyph="&#xE70F;" />
+				</MenuFlyoutItem.Icon>
+			</MenuFlyoutItem>
+			<MenuFlyoutSeparator />
+			<MenuFlyoutItem
+				x:Name="DeleteCondition"
+				x:Uid="Rule_ContextFlyout_DeleteCondition"
+				Click="DeleteCondition_Click">
+				<MenuFlyoutItem.Icon>
+					<FontIcon Glyph="&#xE738;" />
+				</MenuFlyoutItem.Icon>
+			</MenuFlyoutItem>
+		</MenuFlyout>
 	</UserControl.Resources>
 
-	<Border Style="{StaticResource PageItemContainerBorderStyle_}">
+	<Border ContextRequested="Border_ContextRequested" Style="{StaticResource PageItemContainerBorderStyle_}">
 		<controls:DockPanel LastChildFill="True">
 			<!--  Left  -->
 			<StackPanel Width="200" controls:DockPanel.Dock="Left">
@@ -133,131 +162,57 @@
 			</StackPanel>
 
 			<!--  Right  -->
-			<controls:DockPanel
+			<ListView
 				Margin="{StaticResource PageItemMiddleMargin_}"
 				controls:DockPanel.Dock="Right"
-				LastChildFill="True">
-				<controls:DockPanel controls:DockPanel.Dock="Top" LastChildFill="True">
-					<Button Padding="2,0" controls:DockPanel.Dock="Left">
-						<StackPanel Orientation="Horizontal" Spacing="{StaticResource PageItemTopRightButtonIconSpacing_}">
-							<tabler:TablerIcon Symbol="Plus" />
-							<TextBlock x:Uid="Rule_AddCondition" />
-						</StackPanel>
+				Background="{StaticResource SolidBackgroundFillColorTertiaryBrush}"
+				ContextRequested="ListView_ContextRequested"
+				CornerRadius="5"
+				IsItemClickEnabled="True"
+				ItemClick="ListView_ItemClick"
+				ItemsSource="{x:Bind ViewModel.Model.Conditions, Mode=OneWay}"
+				SelectionMode="None">
+				<ListView.Resources>
+					<x:Double x:Key="ListViewItemMinWidth">10</x:Double>
+					<x:Double x:Key="ListViewItemMinHeight">24</x:Double>
+				</ListView.Resources>
 
-						<Button.Flyout>
-							<Flyout
-								x:Name="AddConditionFlyout"
-								FlyoutPresenterStyle="{StaticResource FlyoutPresenterStyle_}"
-								ShowMode="Standard">
-								<Border Style="{StaticResource FlyoutBorderStyle_}">
-									<StackPanel Orientation="Vertical">
-										<ItemsControl ItemsSource="{x:Bind ViewModel.ConditionTypeNames, Mode=OneWay}">
-											<ItemsControl.ItemTemplate>
-												<DataTemplate x:DataType="x:String">
-													<Button
-														HorizontalAlignment="Stretch"
-														HorizontalContentAlignment="Stretch"
-														Click="AddConditionFlyoutButton_Click"
-														CommandParameter="{x:Bind}"
-														Style="{StaticResource FlyoutButtonStyle_}">
-														<TextBlock VerticalAlignment="Center" Text="{x:Bind}" />
-													</Button>
-												</DataTemplate>
-											</ItemsControl.ItemTemplate>
-										</ItemsControl>
-									</StackPanel>
-								</Border>
-							</Flyout>
-						</Button.Flyout>
-					</Button>
+				<ListView.ItemTemplate>
+					<DataTemplate x:DataType="models:RuleConditionBase">
+						<Grid
+							Margin="-10,0,4,0"
+							HorizontalAlignment="Stretch"
+							ColumnSpacing="2">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="20" />
+								<ColumnDefinition Width="*" />
+							</Grid.ColumnDefinitions>
 
-					<Button
-						controls:DockPanel.Dock="Right"
-						Click="DeleteSelfButton_Click"
-						Style="{StaticResource SmallCloseButtonStyle_}">
-						<tabler:TablerIcon Symbol="X" />
-
-						<ToolTipService.ToolTip>
-							<ToolTip x:Uid="Rule_Delete_ToolTip" />
-						</ToolTipService.ToolTip>
-					</Button>
-
-					<Border controls:DockPanel.Dock="Right" BorderThickness="0" />
-				</controls:DockPanel>
-
-				<ListView
-					Margin="{StaticResource PageItemVerticalMargin_}"
-					VerticalAlignment="Stretch"
-					controls:DockPanel.Dock="Bottom"
-					Background="{StaticResource SolidBackgroundFillColorTertiaryBrush}"
-					CornerRadius="5"
-					ItemsSource="{x:Bind ViewModel.Model.Conditions, Mode=OneWay}"
-					ScrollViewer.VerticalScrollBarVisibility="Visible"
-					SelectionMode="None">
-					<ListView.Resources>
-						<x:Double x:Key="ListViewItemMinWidth">10</x:Double>
-						<x:Double x:Key="ListViewItemMinHeight">24</x:Double>
-					</ListView.Resources>
-
-					<ListView.ItemTemplate>
-						<DataTemplate x:DataType="models:RuleConditionBase">
-							<Grid
-								Margin="-10,0,0,0"
-								HorizontalAlignment="Stretch"
-								ColumnSpacing="2">
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="20" />
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="Auto" />
-								</Grid.ColumnDefinitions>
-
-								<Grid Grid.Column="0">
-									<tabler:TablerIcon
-										FontSize="{StaticResource PageItemMediumFontSize_}"
-										Foreground="{StaticResource _ConditionBrush1}"
-										Symbol="CircleCheck"
-										Visibility="{x:Bind IsSatisfied, Converter={StaticResource VisibilityConverter}, Mode=OneWay}" />
-									<tabler:TablerIcon
-										FontSize="{StaticResource PageItemMediumFontSize_}"
-										Foreground="{StaticResource _ConditionBrush2}"
-										Symbol="CircleX"
-										Visibility="{x:Bind IsSatisfied, Converter={StaticResource VisibilityConverter}, ConverterParameter=True, Mode=OneWay}" />
-								</Grid>
-
-								<Button
-									Grid.Column="1"
-									Padding="2"
-									HorizontalAlignment="Stretch"
-									VerticalAlignment="Center"
-									HorizontalContentAlignment="Left"
-									Click="EditConditionButton_Click"
-									CommandParameter="{x:Bind}">
-									<Button.Resources>
-										<ResourceDictionary>
-											<StaticResource x:Key="ButtonBackground" ResourceKey="ControlFillColorTransparentBrush" />
-											<StaticResource x:Key="ButtonBorderBrush" ResourceKey="ControlFillColorTransparentBrush" />
-										</ResourceDictionary>
-									</Button.Resources>
-
-									<TextBlock
-										Text="{x:Bind Text, Mode=OneWay}"
-										TextTrimming="CharacterEllipsis"
-										ToolTipService.ToolTip="{x:Bind Text, Mode=OneWay}" />
-								</Button>
-
-								<Button
-									Grid.Column="2"
-									Margin="4"
-									Click="DeleteConditionButton_Click"
-									CommandParameter="{x:Bind}"
-									Style="{StaticResource SmallCloseButtonStyle_}">
-									<tabler:TablerIcon FontSize="{StaticResource PageItemIconFontSize_}" Symbol="X" />
-								</Button>
+							<Grid Grid.Column="0">
+								<tabler:TablerIcon
+									FontSize="{StaticResource PageItemMediumFontSize_}"
+									Foreground="{StaticResource _ConditionBrush1}"
+									Symbol="CircleCheck"
+									Visibility="{x:Bind IsSatisfied, Converter={StaticResource VisibilityConverter}, Mode=OneWay}" />
+								<tabler:TablerIcon
+									FontSize="{StaticResource PageItemMediumFontSize_}"
+									Foreground="{StaticResource _ConditionBrush2}"
+									Symbol="CircleX"
+									Visibility="{x:Bind IsSatisfied, Converter={StaticResource VisibilityConverter}, ConverterParameter=True, Mode=OneWay}" />
 							</Grid>
-						</DataTemplate>
-					</ListView.ItemTemplate>
-				</ListView>
-			</controls:DockPanel>
+
+							<TextBlock
+								Grid.Column="1"
+								HorizontalAlignment="Stretch"
+								VerticalAlignment="Center"
+								Text="{x:Bind Text, Mode=OneWay}"
+								TextAlignment="Left"
+								TextTrimming="CharacterEllipsis"
+								ToolTipService.ToolTip="{x:Bind Text, Mode=OneWay}" />
+						</Grid>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
 		</controls:DockPanel>
 	</Border>
 </UserControl>

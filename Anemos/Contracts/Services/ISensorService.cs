@@ -23,7 +23,7 @@ public interface ISensorService
 
     SensorModelBase? GetSensor(string id);
 
-    IEnumerable<SensorModelBase> GetSensors(IEnumerable<string> idList);
+    IList<SensorModelBase> GetSensors(IList<string> idList);
 
     Task LoadAsync();
 

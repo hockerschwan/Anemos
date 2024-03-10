@@ -110,6 +110,20 @@ public sealed partial class FanView : UserControl
         }
     }
 
+    private void Border_ContextRequested(UIElement sender, Microsoft.UI.Xaml.Input.ContextRequestedEventArgs e)
+    {
+        if (e.OriginalSource is not FrameworkElement elm) { return; }
+
+        if (e.TryGetPosition(elm, out var point))
+        {
+            ContextMenu.ShowAt(elm, point);
+        }
+        else
+        {
+            ContextMenu.ShowAt(elm);
+        }
+    }
+
     private void EditNameTextBox_IsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
         if (sender is not TextBox tb) { return; }
@@ -144,15 +158,5 @@ public sealed partial class FanView : UserControl
             Offset = ViewModel.Model.Offset
         };
         _optionsDialogOpened = await FansPage.OpenOptionsDialog(args);
-    }
-
-    private void Grid_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
-    {
-        PlotOverlay.Visibility = Visibility.Visible;
-    }
-
-    private void Grid_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
-    {
-        PlotOverlay.Visibility = Visibility.Collapsed;
     }
 }

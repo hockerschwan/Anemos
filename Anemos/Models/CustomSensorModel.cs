@@ -1,4 +1,5 @@
 ﻿using Anemos.Contracts.Services;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace Anemos.Models;
 
@@ -47,14 +48,23 @@ public class CustomSensorModel : SensorModelBase
         {
             if (SetProperty(ref _sourceIds, value))
             {
-                OnPropertyChanged(nameof(SourceModels));
+                UpdateSourceModels();
                 _sensorService.Save();
                 Update();
             }
         }
     }
 
-    public IEnumerable<SensorModelBase> SourceModels => _sensorService.GetSensors(SourceIds);
+    private IList<SensorModelBase> _sourceModels = [];
+    public IList<SensorModelBase> SourceModels
+    {
+        get => _sourceModels;
+        private set
+        {
+            if (_sourceModels.SequenceEqual(value)) { return; }
+            SetProperty(ref _sourceModels, value);
+        }
+    }
 
     private readonly LimitedQueue _data;
 
@@ -95,6 +105,8 @@ public class CustomSensorModel : SensorModelBase
         }
     }
 
+    private readonly MessageHandler<object, CustomSensorsChangedMessage> _customSensorsChangedMessageHandler;
+
     public CustomSensorModel(CustomSensorArg args)
     {
         _id = args.Id == string.Empty ? Guid.NewGuid().ToString() : args.Id;
@@ -104,6 +116,15 @@ public class CustomSensorModel : SensorModelBase
         _data = new(args.SampleSize);
         _sourceIds = args.SourceIds.ToList();
 
+        _customSensorsChangedMessageHandler = CustomSensorsChangedMessageHandler;
+        Messenger.Register(this, _customSensorsChangedMessageHandler);
+    }
+
+    private void CustomSensorsChangedMessageHandler(object recipient, CustomSensorsChangedMessage message)
+    {
+        Messenger.UnregisterAll(this);
+
+        UpdateSourceModels();
         Update();
     }
 
@@ -115,7 +136,7 @@ public class CustomSensorModel : SensorModelBase
     private double? CalcValue()
     {
         double? value = null;
-        if (!SourceModels.Any())
+        if (SourceModels.Count == 0)
         {
             return value;
         }
@@ -137,12 +158,10 @@ public class CustomSensorModel : SensorModelBase
                 }
                 break;
             case CustomSensorCalcMethod.Average:
-                value = Average(SourceModels);
+                value = Average();
                 break;
             case CustomSensorCalcMethod.MovingAverage:
-                if (!SourceModels.Any()) { break; }
-
-                var average = Average(SourceModels);
+                var average = Average();
                 if (average != null)
                 {
                     _data.Enqueue(average.Value);
@@ -161,15 +180,16 @@ public class CustomSensorModel : SensorModelBase
         return double.Round(value.Value, 1);
     }
 
-    private static double? Average(in IEnumerable<SensorModelBase> sensors)
+    private double? Average()
     {
         var sum = 0d;
         var count = 0;
-        foreach (var s in sensors.ToList())
+        for (var i = 0; i < SourceModels.Count; ++i)
         {
-            if (s.Value != null)
+            var v = SourceModels[i].Value;
+            if (v.HasValue)
             {
-                sum += s.Value.Value;
+                sum += v.Value;
                 ++count;
             }
         }
@@ -182,7 +202,7 @@ public class CustomSensorModel : SensorModelBase
         if (SourceIds.Contains(id)) { return; }
 
         SourceIds.Add(id);
-        OnPropertyChanged(nameof(SourceModels));
+        UpdateSourceModels();
         _sensorService.Save();
         Update();
     }
@@ -190,8 +210,10 @@ public class CustomSensorModel : SensorModelBase
     public void RemoveSource(string id)
     {
         SourceIds.Remove(id);
-        OnPropertyChanged(nameof(SourceModels));
+        UpdateSourceModels();
         _sensorService.Save();
         Update();
     }
+
+    private void UpdateSourceModels() => SourceModels = _sensorService.GetSensors(SourceIds);
 }

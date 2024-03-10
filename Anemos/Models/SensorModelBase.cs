@@ -5,7 +5,7 @@ using Microsoft.UI.Dispatching;
 namespace Anemos.Models;
 
 [DebuggerDisplay("{LongName}")]
-public abstract class SensorModelBase : ObservableObject
+public abstract class SensorModelBase : ObservableRecipient
 {
     private protected string _id = string.Empty;
     public string Id => _id;

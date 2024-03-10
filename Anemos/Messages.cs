@@ -42,6 +42,14 @@ internal class CustomSensorsChangedMessage(
 {
 }
 
+/// <summary>
+/// Source editor result
+/// </summary>
+internal class CustomSensorSourceEditedMessage : ValueChangedMessage<List<string>>
+{
+    public CustomSensorSourceEditedMessage(List<string> value) : base(value) { }
+}
+
 internal class CurvesUpdateDoneMessage : ValueChangedMessage<object?>
 {
     public CurvesUpdateDoneMessage() : base(null) { }

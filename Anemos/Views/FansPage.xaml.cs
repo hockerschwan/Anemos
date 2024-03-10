@@ -54,7 +54,7 @@ public sealed partial class FansPage : Page
         {
             Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
             PrimaryButtonStyle = Application.Current.Resources["DangerButtonStyle_"] as Style,
-            Title = "Dialog_DeleteFanProfile_Title".GetLocalized(),
+            Title = "Dialog_Delete_Title".GetLocalized(),
             PrimaryButtonText = "Dialog_Delete".GetLocalized(),
             IsSecondaryButtonEnabled = false,
             CloseButtonText = "Dialog_Cancel".GetLocalized(),

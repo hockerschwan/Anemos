@@ -20,9 +20,23 @@
 		<Style TargetType="tabler:TablerIcon">
 			<Setter Property="FontSize" Value="{StaticResource PageItemIconFontSize_}" />
 		</Style>
+
+		<MenuFlyout x:Key="ContextMenu">
+			<MenuFlyoutItem x:Uid="Curve_ContextFlyout_EditCurve" Click="EditCurveButton_Click">
+				<MenuFlyoutItem.Icon>
+					<FontIcon Glyph="&#xE70F;" />
+				</MenuFlyoutItem.Icon>
+			</MenuFlyoutItem>
+			<MenuFlyoutSeparator />
+			<MenuFlyoutItem x:Uid="Curve_ContextFlyout_Delete" Click="DeleteSelfButton_Click">
+				<MenuFlyoutItem.Icon>
+					<FontIcon Glyph="&#xE74D;" />
+				</MenuFlyoutItem.Icon>
+			</MenuFlyoutItem>
+		</MenuFlyout>
 	</UserControl.Resources>
 
-	<Border Style="{StaticResource PageItemContainerBorderStyle_}">
+	<Border ContextRequested="Border_ContextRequested" Style="{StaticResource PageItemContainerBorderStyle_}">
 		<controls:DockPanel LastChildFill="True">
 			<!--  Left  -->
 			<StackPanel Width="200" controls:DockPanel.Dock="Left">
@@ -94,64 +108,12 @@
 			</StackPanel>
 
 			<!--  Right  -->
-			<Grid
+			<plot:PlotControl
+				x:Name="PlotControl1"
 				Margin="{StaticResource PageItemMiddleMargin_}"
 				controls:DockPanel.Dock="Right"
-				PointerEntered="Grid_PointerEntered"
-				PointerExited="Grid_PointerExited">
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto" />
-					<RowDefinition Height="*" />
-				</Grid.RowDefinitions>
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="*" />
-					<ColumnDefinition Width="Auto" />
-				</Grid.ColumnDefinitions>
-
-				<controls:DockPanel
-					x:Name="PlotOverlay"
-					Grid.Row="0"
-					Grid.Column="0"
-					Grid.ColumnSpan="2"
-					Padding="5"
-					HorizontalAlignment="Stretch"
-					Background="{StaticResource PlotOverlayBackgroundBrush_}"
-					Canvas.ZIndex="5"
-					LastChildFill="True"
-					Visibility="Collapsed">
-					<Button
-						Padding="2,0"
-						controls:DockPanel.Dock="Left"
-						Click="EditCurveButton_Click">
-						<StackPanel Orientation="Horizontal" Spacing="{StaticResource PageItemTopRightButtonIconSpacing_}">
-							<tabler:TablerIcon Symbol="Pencil" />
-							<TextBlock x:Uid="Curve_EditCurve" />
-						</StackPanel>
-					</Button>
-
-					<Button
-						controls:DockPanel.Dock="Right"
-						Click="DeleteSelfButton_Click"
-						Style="{StaticResource SmallCloseButtonStyle_}">
-						<tabler:TablerIcon Symbol="X" />
-
-						<ToolTipService.ToolTip>
-							<ToolTip x:Uid="Curve_Delete_ToolTip" />
-						</ToolTipService.ToolTip>
-					</Button>
-
-					<Border controls:DockPanel.Dock="Right" BorderThickness="0" />
-				</controls:DockPanel>
-
-				<plot:PlotControl
-					x:Name="PlotControl1"
-					Grid.Row="0"
-					Grid.RowSpan="2"
-					Grid.Column="0"
-					Grid.ColumnSpan="2"
-					VerticalAlignment="Stretch"
-					Background="{StaticResource SolidBackgroundFillColorTertiaryBrush}" />
-			</Grid>
+				Cursor="Hand"
+				PointerPressed="PlotControl1_PointerPressed" />
 		</controls:DockPanel>
 	</Border>
 </UserControl>

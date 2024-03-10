@@ -95,6 +95,7 @@ public abstract class FanModelBase : ObservableObject
     {
         get;
     }
+
     public virtual double? CurrentPercent
     {
         get

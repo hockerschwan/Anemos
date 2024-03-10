@@ -95,9 +95,9 @@ internal class SensorService : ISensorService
         }
     }
 
-    public IEnumerable<SensorModelBase> GetSensors(IEnumerable<string> idList)
+    public IList<SensorModelBase> GetSensors(IList<string> idList)
     {
-        return GetSensorsImpl(this, idList);
+        return GetSensorsImpl(this, idList).ToList();
 
         static IEnumerable<SensorModelBase> GetSensorsImpl(SensorService @this, IEnumerable<string> idList)
         {
