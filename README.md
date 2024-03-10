@@ -64,6 +64,7 @@ Multi-GPU not tested.
 - [LibreHardwareMonitorLib](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor)
 - [PlainlyIpc](https://github.com/chrbaeu/PlainlyIpc)
 - [Serilog](https://github.com/serilog/serilog)
+- [Win2D](https://github.com/microsoft/Win2D)
 - [Windows Community Toolkit](https://github.com/CommunityToolkit/Windows)
 - [WinUIEx](https://github.com/dotMorten/WinUIEx)
 
