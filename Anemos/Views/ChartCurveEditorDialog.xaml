@@ -51,7 +51,8 @@
 				x:Name="PlotControl1"
 				Margin="{StaticResource ContentDialogPlotMargin_}"
 				controls:DockPanel.Dock="Right"
-				Background="{StaticResource SolidBackgroundFillColorTertiaryBrush}" />
+				Background="{StaticResource SolidBackgroundFillColorTertiaryBrush}"
+				Cursor="Cross" />
 		</controls:DockPanel>
 	</Page>
 </ContentDialog>

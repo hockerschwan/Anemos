@@ -132,13 +132,8 @@ public partial class RulesViewModel : PageViewModelBase
                     models.RemoveAt(i);
                     models.Insert(j, model);
 
-                    var vm = ViewModels[i];
-                    ViewModels.RemoveAt(i);
-                    ViewModels.Insert(j, vm);
-
-                    var view = Views[i];
-                    Views.RemoveAt(i);
-                    Views.Insert(j, view);
+                    ViewModels.Move(i, j);
+                    Views.Move(i, j);
                     break;
                 }
             }

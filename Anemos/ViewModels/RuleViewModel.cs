@@ -24,15 +24,6 @@ public partial class RuleViewModel : ObservableObject
         get;
     }
 
-    public List<string> ConditionTypeNames
-    {
-        get;
-    } =
-    [
-        "Rule_ConditionTypeNames_Time".GetLocalized(),
-        "Rule_ConditionTypeNames_Process".GetLocalized(),
-        "Rule_ConditionTypeNames_Sensor".GetLocalized()
-    ];
 
     public List<string> RuleTypeNames
     {
@@ -131,9 +122,9 @@ public partial class RuleViewModel : ObservableObject
 
     public void AddCondition(string param)
     {
-        switch (ConditionTypeNames.IndexOf(param))
+        switch (param)
         {
-            case 0:
+            case "Time":
                 Model.AddCondition(new()
                 {
                     Type = RuleConditionType.Time,
@@ -141,14 +132,14 @@ public partial class RuleViewModel : ObservableObject
                     TimeEnding = new TimeOnly(18, 0)
                 });
                 break;
-            case 1:
+            case "Process":
                 Model.AddCondition(new()
                 {
                     Type = RuleConditionType.Process,
                     ProcessName = "explorer"
                 });
                 break;
-            case 2:
+            case "Sensor":
                 Model.AddCondition(new()
                 {
                     Type = RuleConditionType.Sensor,

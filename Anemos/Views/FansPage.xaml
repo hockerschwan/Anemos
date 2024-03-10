@@ -20,104 +20,107 @@
 	</Page.Resources>
 
 	<controls:DockPanel LastChildFill="True">
-		<Border
+		<Grid
 			Height="{StaticResource PageToolbarHeight_}"
 			Padding="{StaticResource PageToolbarPadding_}"
 			controls:DockPanel.Dock="Top"
 			Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
 
-			<controls:DockPanel LastChildFill="True">
-				<Button VerticalAlignment="Stretch" controls:DockPanel.Dock="Right">
-					<tabler:TablerIcon Symbol="Dots" />
+			<StackPanel
+				Grid.Column="0"
+				controls:DockPanel.Dock="Left"
+				Orientation="Horizontal"
+				Spacing="{StaticResource PageToolbarButtonSpacing_}">
+				<ComboBox
+					Width="250"
+					VerticalAlignment="Stretch"
+					IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}"
+					ItemsSource="{x:Bind ViewModel.FanProfiles, Mode=OneWay}"
+					SelectedItem="{x:Bind ViewModel.SelectedProfile, Mode=TwoWay}">
+					<ComboBox.ItemTemplate>
+						<DataTemplate x:DataType="models:FanProfile">
+							<TextBlock
+								Width="250"
+								Text="{Binding Name, Mode=OneWay}"
+								TextTrimming="CharacterEllipsis" />
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
 
-					<Button.Flyout>
-						<Flyout Placement="BottomEdgeAlignedRight" ShowMode="Standard">
-							<StackPanel>
-								<CheckBox x:Uid="Fans_ShowHiddenFans" IsChecked="{x:Bind ViewModel.ShowHiddenFans, Mode=TwoWay}" />
-							</StackPanel>
-						</Flyout>
-					</Button.Flyout>
+					<ToolTipService.ToolTip>
+						<ToolTip x:Uid="Fans_SelectedProfile_ToolTip" />
+					</ToolTipService.ToolTip>
+				</ComboBox>
+
+				<Button
+					VerticalAlignment="Stretch"
+					Click="ProfileRenameButton_Click"
+					IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}">
+					<tabler:TablerIcon Symbol="Pencil" />
+
+					<ToolTipService.ToolTip>
+						<ToolTip x:Uid="Fans_ProfileEditName_ToolTip" />
+					</ToolTipService.ToolTip>
 				</Button>
 
-				<StackPanel
-					controls:DockPanel.Dock="Left"
-					Orientation="Horizontal"
-					Spacing="{StaticResource PageToolbarButtonSpacing_}">
-					<ComboBox
-						Width="250"
-						VerticalAlignment="Stretch"
-						IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}"
-						ItemsSource="{x:Bind ViewModel.FanProfiles, Mode=OneWay}"
-						SelectedItem="{x:Bind ViewModel.SelectedProfile, Mode=TwoWay}">
-						<ComboBox.ItemTemplate>
-							<DataTemplate x:DataType="models:FanProfile">
-								<TextBlock
-									Width="250"
-									Text="{Binding Name, Mode=OneWay}"
-									TextTrimming="CharacterEllipsis" />
-							</DataTemplate>
-						</ComboBox.ItemTemplate>
+				<Button
+					VerticalAlignment="Stretch"
+					Command="{x:Bind ViewModel.AddProfileCommand}"
+					IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}">
+					<tabler:TablerIcon Symbol="Plus" />
 
-						<ToolTipService.ToolTip>
-							<ToolTip x:Uid="Fans_SelectedProfile_ToolTip" />
-						</ToolTipService.ToolTip>
-					</ComboBox>
+					<ToolTipService.ToolTip>
+						<ToolTip x:Uid="Fans_ProfileAdd_ToolTip" />
+					</ToolTipService.ToolTip>
+				</Button>
 
-					<Button
-						VerticalAlignment="Stretch"
-						Click="ProfileRenameButton_Click"
-						IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}">
-						<tabler:TablerIcon Symbol="Pencil" />
+				<Button
+					VerticalAlignment="Stretch"
+					Command="{x:Bind ViewModel.AddProfileCommand}"
+					CommandParameter="1"
+					IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}">
+					<tabler:TablerIcon Symbol="Copy" />
 
-						<ToolTipService.ToolTip>
-							<ToolTip x:Uid="Fans_ProfileEditName_ToolTip" />
-						</ToolTipService.ToolTip>
-					</Button>
+					<ToolTipService.ToolTip>
+						<ToolTip x:Uid="Fans_ProfileDuplicate_ToolTip" />
+					</ToolTipService.ToolTip>
+				</Button>
 
-					<Button
-						VerticalAlignment="Stretch"
-						Command="{x:Bind ViewModel.AddProfileCommand}"
-						IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}">
-						<tabler:TablerIcon Symbol="Plus" />
+				<Button
+					VerticalAlignment="Stretch"
+					Click="ProfileDeleteButton_Click"
+					IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}"
+					Style="{StaticResource CloseButtonStyle_}">
+					<tabler:TablerIcon Symbol="TrashFilled" />
 
-						<ToolTipService.ToolTip>
-							<ToolTip x:Uid="Fans_ProfileAdd_ToolTip" />
-						</ToolTipService.ToolTip>
-					</Button>
+					<ToolTipService.ToolTip>
+						<ToolTip x:Uid="Fans_ProfileDelete_ToolTip" />
+					</ToolTipService.ToolTip>
+				</Button>
 
-					<Button
-						VerticalAlignment="Stretch"
-						Command="{x:Bind ViewModel.AddProfileCommand}"
-						CommandParameter="1"
-						IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}">
-						<tabler:TablerIcon Symbol="Copy" />
+				<AppBarSeparator />
 
-						<ToolTipService.ToolTip>
-							<ToolTip x:Uid="Fans_ProfileDuplicate_ToolTip" />
-						</ToolTipService.ToolTip>
-					</Button>
+				<ToggleSwitch
+					x:Uid="Fans_UseRules"
+					VerticalAlignment="Center"
+					IsOn="{x:Bind ViewModel.UseRules, Mode=TwoWay}" />
+			</StackPanel>
 
-					<Button
-						VerticalAlignment="Stretch"
-						Click="ProfileDeleteButton_Click"
-						IsEnabled="{x:Bind ViewModel.UnlockControls, Mode=OneWay}"
-						Style="{StaticResource CloseButtonStyle_}">
-						<tabler:TablerIcon Symbol="TrashFilled" />
+			<Button Grid.Column="1" VerticalAlignment="Stretch">
+				<tabler:TablerIcon Symbol="Dots" />
 
-						<ToolTipService.ToolTip>
-							<ToolTip x:Uid="Fans_ProfileDelete_ToolTip" />
-						</ToolTipService.ToolTip>
-					</Button>
-
-					<AppBarSeparator />
-
-					<ToggleSwitch
-						x:Uid="Fans_UseRules"
-						VerticalAlignment="Center"
-						IsOn="{x:Bind ViewModel.UseRules, Mode=TwoWay}" />
-				</StackPanel>
-			</controls:DockPanel>
-		</Border>
+				<Button.Flyout>
+					<Flyout Placement="BottomEdgeAlignedRight" ShowMode="Standard">
+						<StackPanel>
+							<CheckBox x:Uid="Fans_ShowHiddenFans" IsChecked="{x:Bind ViewModel.ShowHiddenFans, Mode=TwoWay}" />
+						</StackPanel>
+					</Flyout>
+				</Button.Flyout>
+			</Button>
+		</Grid>
 
 		<ScrollViewer
 			controls:DockPanel.Dock="Bottom"

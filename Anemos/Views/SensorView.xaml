@@ -6,6 +6,7 @@
 	xmlns:ctcv="using:CommunityToolkit.WinUI.Converters"
 	xmlns:cv="using:Anemos.Converters"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:local="using:Anemos.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:models="using:Anemos.Models"
 	xmlns:tabler="using:Anemos.TablerIcon"
@@ -18,9 +19,23 @@
 		<Style TargetType="tabler:TablerIcon">
 			<Setter Property="FontSize" Value="{StaticResource PageItemIconFontSize_}" />
 		</Style>
+
+		<MenuFlyout x:Key="ContextMenu">
+			<MenuFlyoutItem x:Uid="Sensor_ContextFlyout_EditSource" Click="EditSource_Click">
+				<MenuFlyoutItem.Icon>
+					<tabler:TablerIcon Symbol="Temperature" />
+				</MenuFlyoutItem.Icon>
+			</MenuFlyoutItem>
+			<MenuFlyoutSeparator />
+			<MenuFlyoutItem x:Uid="Sensor_ContextFlyout_DeleteSelf" Click="DeleteSelf_Click">
+				<MenuFlyoutItem.Icon>
+					<FontIcon Glyph="&#xE74D;" />
+				</MenuFlyoutItem.Icon>
+			</MenuFlyoutItem>
+		</MenuFlyout>
 	</UserControl.Resources>
 
-	<Border Style="{StaticResource PageItemContainerBorderStyle_}">
+	<Border ContextRequested="Border_ContextRequested" Style="{StaticResource PageItemContainerBorderStyle_}">
 		<controls:DockPanel LastChildFill="True">
 			<!--  Left  -->
 			<StackPanel Width="200" controls:DockPanel.Dock="Left">
@@ -86,78 +101,18 @@
 			</StackPanel>
 
 			<!--  Right  -->
-			<controls:DockPanel
+			<local:CursorGrid
 				Margin="{StaticResource PageItemMiddleMargin_}"
 				controls:DockPanel.Dock="Right"
-				LastChildFill="True">
-				<controls:DockPanel controls:DockPanel.Dock="Top" LastChildFill="True">
-					<Button Padding="2,0" controls:DockPanel.Dock="Left">
-						<StackPanel Orientation="Horizontal" Spacing="{StaticResource PageItemTopRightButtonIconSpacing_}">
-							<tabler:TablerIcon Symbol="Plus" />
-							<TextBlock x:Uid="Sensor_AddSource" />
-						</StackPanel>
-
-						<Button.Flyout>
-							<Flyout
-								x:Name="AddSourceFlyout"
-								FlyoutPresenterStyle="{StaticResource FlyoutPresenterStyle_}"
-								ShowMode="Standard">
-								<Border Style="{StaticResource FlyoutBorderStyle_}">
-									<StackPanel Orientation="Vertical">
-										<ItemsControl ItemsSource="{x:Bind ViewModel.SensorsNotInSources, Mode=OneWay}">
-											<ItemsControl.ItemTemplate>
-												<DataTemplate x:DataType="models:SensorModelBase">
-													<Button
-														HorizontalAlignment="Stretch"
-														HorizontalContentAlignment="Stretch"
-														Click="CloseFlyout"
-														CommandParameter="{x:Bind Id}"
-														Style="{StaticResource FlyoutButtonStyle_}"
-														ToolTipService.ToolTip="{x:Bind LongName, Mode=OneWay}">
-														<controls:DockPanel HorizontalAlignment="Stretch" LastChildFill="True">
-															<TextBlock
-																VerticalAlignment="Center"
-																controls:DockPanel.Dock="Right"
-																Style="{StaticResource MonoTextBlockStyle_}"
-																Text="{x:Bind Value, Converter={StaticResource TemperatureConverter}, Mode=OneWay}" />
-															<TextBlock
-																Margin="{StaticResource PageItemFlyoutItemMargin_}"
-																VerticalAlignment="Center"
-																Text="{x:Bind LongName, Mode=OneWay}"
-																TextTrimming="CharacterEllipsis" />
-														</controls:DockPanel>
-													</Button>
-												</DataTemplate>
-											</ItemsControl.ItemTemplate>
-										</ItemsControl>
-									</StackPanel>
-								</Border>
-							</Flyout>
-						</Button.Flyout>
-					</Button>
-
-					<Button
-						controls:DockPanel.Dock="Right"
-						Click="DeleteSelfButton_Click"
-						Style="{StaticResource SmallCloseButtonStyle_}">
-						<tabler:TablerIcon Symbol="X" />
-
-						<ToolTipService.ToolTip>
-							<ToolTip x:Uid="Sensor_Delete_ToolTip" />
-						</ToolTipService.ToolTip>
-					</Button>
-
-					<Border controls:DockPanel.Dock="Right" BorderThickness="0" />
-				</controls:DockPanel>
-
+				Click="EditSource_Click"
+				Cursor="Hand">
 				<ListView
-					Margin="{StaticResource PageItemVerticalMargin_}"
-					VerticalAlignment="Stretch"
-					controls:DockPanel.Dock="Bottom"
+					x:Name="ListViewSources"
 					Background="{StaticResource SolidBackgroundFillColorTertiaryBrush}"
 					CornerRadius="5"
+					IsItemClickEnabled="True"
+					ItemClick="ListViewSources_ItemClick"
 					ItemsSource="{x:Bind ViewModel.Model.SourceModels, Mode=OneWay}"
-					ScrollViewer.VerticalScrollBarVisibility="Visible"
 					SelectionMode="None">
 					<ListView.Resources>
 						<x:Double x:Key="ListViewItemMinWidth">10</x:Double>
@@ -173,7 +128,6 @@
 								<Grid.ColumnDefinitions>
 									<ColumnDefinition Width="*" />
 									<ColumnDefinition Width="Auto" />
-									<ColumnDefinition Width="Auto" />
 								</Grid.ColumnDefinitions>
 
 								<TextBlock
@@ -187,24 +141,16 @@
 
 								<TextBlock
 									Grid.Column="1"
+									Margin="0,0,6,0"
 									VerticalAlignment="Center"
 									HorizontalTextAlignment="Right"
 									Style="{StaticResource MonoTextBlockStyle_}"
 									Text="{x:Bind Value, Converter={StaticResource TemperatureConverter}, Mode=OneWay}" />
-
-								<Button
-									Grid.Column="2"
-									Margin="4"
-									Click="DeleteSourceButton_Click"
-									CommandParameter="{x:Bind Id}"
-									Style="{StaticResource SmallCloseButtonStyle_}">
-									<tabler:TablerIcon FontSize="{StaticResource PageItemIconFontSize_}" Symbol="X" />
-								</Button>
 							</Grid>
 						</DataTemplate>
 					</ListView.ItemTemplate>
 				</ListView>
-			</controls:DockPanel>
+			</local:CursorGrid>
 		</controls:DockPanel>
 	</Border>
 </UserControl>

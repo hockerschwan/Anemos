@@ -19,9 +19,38 @@
 		<Style TargetType="tabler:TablerIcon">
 			<Setter Property="FontSize" Value="{StaticResource PageItemIconFontSize_}" />
 		</Style>
+
+		<MenuFlyout x:Key="ContextMenu">
+			<MenuFlyoutSeparator />
+			<MenuFlyoutItem x:Uid="Monitor_ContextFlyout_DeleteSelf" Click="DeleteSelf_Click">
+				<MenuFlyoutItem.Icon>
+					<FontIcon Glyph="&#xE74D;" />
+				</MenuFlyoutItem.Icon>
+			</MenuFlyoutItem>
+		</MenuFlyout>
+
+		<MenuFlyout x:Key="ContextMenu_Colors">
+			<MenuFlyoutItem
+				x:Name="EditColor"
+				x:Uid="Monitor_ContextFlyout_EditColor"
+				Click="EditColor_Click">
+				<MenuFlyoutItem.Icon>
+					<FontIcon Glyph="&#xE70F;" />
+				</MenuFlyoutItem.Icon>
+			</MenuFlyoutItem>
+			<MenuFlyoutSeparator />
+			<MenuFlyoutItem
+				x:Name="DeleteColor"
+				x:Uid="Monitor_ContextFlyout_DeleteColor"
+				Click="DeleteColor_Click">
+				<MenuFlyoutItem.Icon>
+					<FontIcon Glyph="&#xE738;" />
+				</MenuFlyoutItem.Icon>
+			</MenuFlyoutItem>
+		</MenuFlyout>
 	</UserControl.Resources>
 
-	<Border Style="{StaticResource PageItemContainerBorderStyle_}">
+	<Border ContextRequested="Border_ContextRequested" Style="{StaticResource PageItemContainerBorderStyle_}">
 		<controls:DockPanel LastChildFill="True">
 			<!--  Left  -->
 			<StackPanel Width="200" controls:DockPanel.Dock="Left">
@@ -61,107 +90,57 @@
 			</StackPanel>
 
 			<!--  Right  -->
-			<controls:DockPanel
+			<ListView
 				Margin="{StaticResource PageItemMiddleMargin_}"
 				controls:DockPanel.Dock="Right"
-				LastChildFill="True">
+				Background="{StaticResource SolidBackgroundFillColorTertiaryBrush}"
+				ContextRequested="ListView_ContextRequested"
+				CornerRadius="5"
+				IsItemClickEnabled="True"
+				ItemClick="ListView_ItemClick"
+				ItemsSource="{x:Bind ViewModel.Model.Colors, Mode=OneWay}"
+				SelectionMode="None">
+				<ListView.Resources>
+					<x:Double x:Key="ListViewItemMinWidth">10</x:Double>
+					<x:Double x:Key="ListViewItemMinHeight">24</x:Double>
+				</ListView.Resources>
 
-				<controls:DockPanel controls:DockPanel.Dock="Top" LastChildFill="True">
-					<Button
-						Padding="2,0"
-						controls:DockPanel.Dock="Left"
-						Command="{x:Bind ViewModel.AddColorCommand}">
-						<StackPanel Orientation="Horizontal" Spacing="{StaticResource PageItemTopRightButtonIconSpacing_}">
-							<tabler:TablerIcon Symbol="Plus" />
-							<TextBlock x:Uid="Monitor_AddColor" />
-						</StackPanel>
-					</Button>
+				<ListView.ItemTemplate>
+					<DataTemplate x:DataType="models:MonitorColorThreshold">
+						<Grid
+							Margin="-10,0,4,0"
+							HorizontalAlignment="Stretch"
+							ColumnSpacing="5">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="Auto" />
+								<ColumnDefinition Width="*" />
+							</Grid.ColumnDefinitions>
 
-					<Button
-						controls:DockPanel.Dock="Right"
-						Click="DeleteSelfButton_Click"
-						Style="{StaticResource SmallCloseButtonStyle_}">
-						<tabler:TablerIcon Symbol="X" />
+							<Border
+								Grid.Column="0"
+								Width="20"
+								Height="20"
+								Margin="2"
+								controls:DockPanel.Dock="Left"
+								Background="{x:Bind SolidColorBrush, Mode=OneWay}"
+								BorderBrush="Gray"
+								BorderThickness="1"
+								CornerRadius="2" />
 
-						<ToolTipService.ToolTip>
-							<ToolTip x:Uid="Monitor_Delete_Tooltip" />
-						</ToolTipService.ToolTip>
-					</Button>
-
-					<Border controls:DockPanel.Dock="Right" BorderThickness="0" />
-				</controls:DockPanel>
-
-				<ListView
-					Margin="{StaticResource PageItemVerticalMargin_}"
-					VerticalAlignment="Stretch"
-					controls:DockPanel.Dock="Bottom"
-					Background="{StaticResource SolidBackgroundFillColorTertiaryBrush}"
-					CornerRadius="5"
-					ItemsSource="{x:Bind ViewModel.Model.Colors, Mode=OneWay}"
-					ScrollViewer.VerticalScrollBarVisibility="Visible"
-					SelectionMode="None">
-					<ListView.Resources>
-						<x:Double x:Key="ListViewItemMinWidth">10</x:Double>
-						<x:Double x:Key="ListViewItemMinHeight">24</x:Double>
-					</ListView.Resources>
-
-					<ListView.ItemTemplate>
-						<DataTemplate x:DataType="models:MonitorColorThreshold">
-							<Grid
-								Margin="-10,0,0,0"
-								HorizontalAlignment="Stretch"
-								ColumnSpacing="2">
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="Auto" />
-								</Grid.ColumnDefinitions>
-
-								<Button
-									Grid.Column="0"
-									Padding="2"
-									HorizontalAlignment="Stretch"
-									VerticalAlignment="Center"
-									HorizontalContentAlignment="Left"
-									Click="EditColorButton_Click"
-									CommandParameter="{x:Bind}">
-									<Button.Resources>
-										<ResourceDictionary>
-											<StaticResource x:Key="ButtonBackground" ResourceKey="ControlFillColorTransparentBrush" />
-											<StaticResource x:Key="ButtonBorderBrush" ResourceKey="ControlFillColorTransparentBrush" />
-										</ResourceDictionary>
-									</Button.Resources>
-
-									<controls:DockPanel LastChildFill="True">
-										<Border
-											Width="20"
-											Height="20"
-											controls:DockPanel.Dock="Left"
-											Background="{x:Bind SolidColorBrush, Mode=OneWay}"
-											BorderBrush="Gray"
-											BorderThickness="1"
-											CornerRadius="2" />
-
-										<StackPanel Margin="5,0,0,0" controls:DockPanel.Dock="Right">
-											<TextBlock Text="{x:Bind Threshold, Converter={StaticResource TemperatureConverter}, Mode=OneWay}" Visibility="{x:Bind IsNormal, Converter={StaticResource VisibilityConverter}}" />
-											<TextBlock Text="Base Color" Visibility="{x:Bind IsNormal, Converter={StaticResource VisibilityConverter}, ConverterParameter=True}" />
-										</StackPanel>
-									</controls:DockPanel>
-								</Button>
-
-								<Button
-									Grid.Column="1"
-									Margin="4"
-									Click="DeleteColorButton_Click"
-									CommandParameter="{x:Bind}"
-									IsEnabled="{x:Bind IsNormal}"
-									Style="{StaticResource SmallCloseButtonStyle_}">
-									<tabler:TablerIcon FontSize="{StaticResource PageItemIconFontSize_}" Symbol="X" />
-								</Button>
-							</Grid>
-						</DataTemplate>
-					</ListView.ItemTemplate>
-				</ListView>
-			</controls:DockPanel>
+							<StackPanel Grid.Column="1">
+								<TextBlock
+									VerticalAlignment="Stretch"
+									Text="{x:Bind Threshold, Converter={StaticResource TemperatureConverter}, Mode=OneWay}"
+									Visibility="{x:Bind IsNormal, Converter={StaticResource VisibilityConverter}}" />
+								<TextBlock
+									x:Uid="Monitor_BaseColor"
+									VerticalAlignment="Stretch"
+									Visibility="{x:Bind IsNormal, Converter={StaticResource VisibilityConverter}, ConverterParameter=True}" />
+							</StackPanel>
+						</Grid>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
 		</controls:DockPanel>
 	</Border>
 </local:MonitorViewBase>

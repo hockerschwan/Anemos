@@ -26,11 +26,25 @@ public sealed partial class SensorsPage : Page
         {
             Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
             PrimaryButtonStyle = Application.Current.Resources["DangerButtonStyle_"] as Style,
-            Title = "Dialog_DeleteSensor_Title".GetLocalized(),
+            Title = "Dialog_Delete_Title".GetLocalized(),
             PrimaryButtonText = "Dialog_Delete".GetLocalized(),
             IsSecondaryButtonEnabled = false,
             CloseButtonText = "Dialog_Cancel".GetLocalized(),
             Content = "Dialog_Delete_Content".GetLocalized().Replace("$", name),
+        };
+        return await App.GetService<ShellPage>().OpenDialog(dialog);
+    }
+
+    public static async Task<bool> OpenSourceDialog(string id)
+    {
+        var dialog = new CustomSensorSourcesDialog(id)
+        {
+            Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+            PrimaryButtonStyle = Application.Current.Resources["AccentButtonStyle"] as Style,
+            Title = "Select sources",
+            PrimaryButtonText = "Dialog_OK".GetLocalized(),
+            IsSecondaryButtonEnabled = false,
+            CloseButtonText = "Dialog_Cancel".GetLocalized(),
         };
         return await App.GetService<ShellPage>().OpenDialog(dialog);
     }

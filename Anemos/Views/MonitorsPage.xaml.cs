@@ -33,7 +33,7 @@ public sealed partial class MonitorsPage : Page
         {
             Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
             PrimaryButtonStyle = Application.Current.Resources["DangerButtonStyle_"] as Style,
-            Title = "Dialog_DeleteMonitor_Title".GetLocalized(),
+            Title = "Dialog_Delete_Title".GetLocalized(),
             PrimaryButtonText = "Dialog_Delete".GetLocalized(),
             IsSecondaryButtonEnabled = false,
             CloseButtonText = "Dialog_Cancel".GetLocalized(),

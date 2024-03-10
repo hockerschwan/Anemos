@@ -172,9 +172,6 @@
   <data name="Sensor_AddSource.Text" xml:space="preserve">
     <value>Add Source</value>
   </data>
-  <data name="Sensors_Add_ToolTip.Content" xml:space="preserve">
-    <value>Add Sensor</value>
-  </data>
   <data name="Sensor_EditName_ToolTip.Content" xml:space="preserve">
     <value>Edit Name</value>
   </data>
@@ -223,7 +220,7 @@
   <data name="Curves_AddLatch_ToolTip.Content" xml:space="preserve">
     <value>Add Latch</value>
   </data>
-  <data name="Curve_EditCurve.Text" xml:space="preserve">
+  <data name="Curve_ContextFlyout_EditCurve.Text" xml:space="preserve">
     <value>Edit</value>
   </data>
   <data name="Curve_EditName_ToolTip.Content" xml:space="preserve">
@@ -235,14 +232,8 @@
   <data name="Dialog_Delete" xml:space="preserve">
     <value>Delete</value>
   </data>
-  <data name="Dialog_DeleteCurve_Title" xml:space="preserve">
-    <value>Delete Curve</value>
-  </data>
-  <data name="Dialog_DeleteSensor_Title" xml:space="preserve">
-    <value>Delete Sensor</value>
-  </data>
   <data name="Dialog_Delete_Content" xml:space="preserve">
-    <value>Are you sure to delete $?</value>
+    <value>Are you sure you want to delete $?</value>
     <comment>$ will be replaced with name</comment>
   </data>
   <data name="Dialog_Exit" xml:space="preserve">
@@ -264,7 +255,7 @@
   <data name="Fan_EditName_ToolTip.Content" xml:space="preserve">
     <value>Edit Name</value>
   </data>
-  <data name="Curve_Delete_ToolTip.Content" xml:space="preserve">
+  <data name="Curve_ContextFlyout_Delete.Text" xml:space="preserve">
     <value>Delete</value>
   </data>
   <data name="Fans_ProfileAdd_ToolTip.Content" xml:space="preserve">
@@ -288,17 +279,11 @@
   <data name="Fans_UseRules.OnContent" xml:space="preserve">
     <value>Using Rules</value>
   </data>
-  <data name="Fan_Hide_ToolTip.Content" xml:space="preserve">
-    <value>Hide</value>
-  </data>
-  <data name="Sensor_Delete_ToolTip.Content" xml:space="preserve">
-    <value>Delete</value>
+  <data name="Fan_ContextFlyout_Hide.Text" xml:space="preserve">
+    <value>Hide Fan</value>
   </data>
   <data name="FanProfileRename_Title" xml:space="preserve">
     <value>Edit Name</value>
-  </data>
-  <data name="Dialog_DeleteFanProfile_Title" xml:space="preserve">
-    <value>Delete Profile</value>
   </data>
   <data name="FanOptions_DeltaDown.Header" xml:space="preserve">
     <value>Speed Change Limit Down [%/Cycle]</value>
@@ -317,9 +302,6 @@
   </data>
   <data name="FanOptions_Title" xml:space="preserve">
     <value>Fan Options</value>
-  </data>
-  <data name="Dialog_DeleteRule_Title" xml:space="preserve">
-    <value>Delete Rule</value>
   </data>
   <data name="Fan_ControlModeNames_Constant" xml:space="preserve">
     <value>Constant</value>
@@ -348,23 +330,8 @@
   <data name="RuleTimeEditor_Title" xml:space="preserve">
     <value>Edit Condition (Time)</value>
   </data>
-  <data name="Rule_AddCondition.Text" xml:space="preserve">
-    <value>Add Condition</value>
-  </data>
-  <data name="Rule_ConditionTypeNames_Process" xml:space="preserve">
-    <value>Process</value>
-  </data>
-  <data name="Rule_ConditionTypeNames_Sensor" xml:space="preserve">
-    <value>Sensor</value>
-  </data>
-  <data name="Rule_ConditionTypeNames_Time" xml:space="preserve">
-    <value>Time</value>
-  </data>
   <data name="Rule_DecreasePriority_ToolTip.Content" xml:space="preserve">
     <value>Decrease Priority</value>
-  </data>
-  <data name="Rule_Delete_ToolTip.Content" xml:space="preserve">
-    <value>Delete</value>
   </data>
   <data name="Rule_IncreasePriority_ToolTip.Content" xml:space="preserve">
     <value>Increase Priority</value>
@@ -473,28 +440,67 @@
   <data name="Shell_Monitors.Content" xml:space="preserve">
     <value>Notify Icon Monitors</value>
   </data>
-  <data name="Monitor_AddColor.Text" xml:space="preserve">
-    <value>Add Color</value>
-  </data>
-  <data name="Monitor_Delete_Tooltip.Content" xml:space="preserve">
-    <value>Delete</value>
-  </data>
   <data name="Monitor_TypeNames_Current" xml:space="preserve">
     <value>Current Value</value>
   </data>
   <data name="Monitor_TypeNames_History" xml:space="preserve">
     <value>History</value>
   </data>
-  <data name="Dialog_DeleteMonitor_Title" xml:space="preserve">
-    <value>Delete</value>
-  </data>
-  <data name="Dialog_Delete2_Content" xml:space="preserve">
-    <value>Are you sure?</value>
-  </data>
   <data name="MonitorColorEditor_Title" xml:space="preserve">
     <value>Edit Color</value>
   </data>
   <data name="MonitorColorEditor_NB_Threshold.Header" xml:space="preserve">
-    <value>Threshold</value>
+    <value>Threshold [℃]</value>
+  </data>
+  <data name="Monitor_BaseColor.Text" xml:space="preserve">
+    <value>Base Color</value>
+  </data>
+  <data name="Monitor_ContextFlyout_AddColor.Text" xml:space="preserve">
+    <value>Add Color</value>
+  </data>
+  <data name="Monitor_ContextFlyout_DeleteColor.Text" xml:space="preserve">
+    <value>Delete Color</value>
+  </data>
+  <data name="Monitor_ContextFlyout_DeleteSelf.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Monitor_ContextFlyout_EditColor.Text" xml:space="preserve">
+    <value>Edit Color</value>
+  </data>
+  <data name="Rule_ContextFlyout_AddCondition.Text" xml:space="preserve">
+    <value>Add Condition</value>
+  </data>
+  <data name="Rule_ContextFlyout_DeleteCondition.Text" xml:space="preserve">
+    <value>Delete Condition</value>
+  </data>
+  <data name="Rule_ContextFlyout_DeleteSelf.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Rule_ContextFlyout_EditCondition.Text" xml:space="preserve">
+    <value>Edit Condition</value>
+  </data>
+  <data name="Rule_ContextFlyout_Process.Text" xml:space="preserve">
+    <value>Process</value>
+  </data>
+  <data name="Rule_ContextFlyout_Sensor.Text" xml:space="preserve">
+    <value>Sensor</value>
+  </data>
+  <data name="Rule_ContextFlyout_Time.Text" xml:space="preserve">
+    <value>Time</value>
+  </data>
+  <data name="Sensors_Add_ToolTip.Content" xml:space="preserve">
+    <value>Add Sensor</value>
+  </data>
+  <data name="Sensor_ContextFlyout_DeleteSelf.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Sensor_ContextFlyout_EditSource.Text" xml:space="preserve">
+    <value>Edit Source</value>
+  </data>
+  <data name="Dialog_Delete2_Content" xml:space="preserve">
+    <value>Are you sure?</value>
+  </data>
+  <data name="Dialog_Delete_Title" xml:space="preserve">
+    <value>Delete</value>
   </data>
 </root>

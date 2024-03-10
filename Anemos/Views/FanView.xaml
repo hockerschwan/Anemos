@@ -21,7 +21,13 @@
 		</Style>
 	</UserControl.Resources>
 
-	<Border Style="{StaticResource PageItemContainerBorderStyle_}">
+	<Border ContextRequested="Border_ContextRequested" Style="{StaticResource PageItemContainerBorderStyle_}">
+		<Border.ContextFlyout>
+			<MenuFlyout x:Name="ContextMenu">
+				<ToggleMenuFlyoutItem x:Uid="Fan_ContextFlyout_Hide" IsChecked="{x:Bind ViewModel.Model.IsHidden, Mode=TwoWay}" />
+			</MenuFlyout>
+		</Border.ContextFlyout>
+
 		<controls:DockPanel LastChildFill="True">
 			<!--  Left  -->
 			<StackPanel Width="200" controls:DockPanel.Dock="Left">
@@ -139,54 +145,10 @@
 			</StackPanel>
 
 			<!--  Right  -->
-			<Grid
+			<plot:PlotControl
+				x:Name="PlotControl1"
 				Margin="{StaticResource PageItemMiddleMargin_}"
-				controls:DockPanel.Dock="Right"
-				PointerEntered="Grid_PointerEntered"
-				PointerExited="Grid_PointerExited">
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto" />
-					<RowDefinition Height="*" />
-				</Grid.RowDefinitions>
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="*" />
-					<ColumnDefinition Width="Auto" />
-				</Grid.ColumnDefinitions>
-
-				<controls:DockPanel
-					x:Name="PlotOverlay"
-					Grid.Row="0"
-					Grid.Column="0"
-					Grid.ColumnSpan="2"
-					Padding="5"
-					HorizontalAlignment="Stretch"
-					Background="{StaticResource PlotOverlayBackgroundBrush_}"
-					Canvas.ZIndex="5"
-					LastChildFill="True"
-					Visibility="Collapsed">
-					<ToggleButton
-						controls:DockPanel.Dock="Right"
-						IsChecked="{x:Bind ViewModel.Model.IsHidden, Mode=TwoWay}"
-						Style="{StaticResource FanHideButtonStyle_}">
-						<tabler:TablerIcon Symbol="Minus" />
-
-						<ToolTipService.ToolTip>
-							<ToolTip x:Uid="Fan_Hide_ToolTip" />
-						</ToolTipService.ToolTip>
-					</ToggleButton>
-
-					<Border controls:DockPanel.Dock="Right" BorderThickness="0" />
-				</controls:DockPanel>
-
-				<plot:PlotControl
-					x:Name="PlotControl1"
-					Grid.Row="0"
-					Grid.RowSpan="2"
-					Grid.Column="0"
-					Grid.ColumnSpan="2"
-					VerticalAlignment="Stretch"
-					Background="{StaticResource SolidBackgroundFillColorTertiaryBrush}" />
-			</Grid>
+				controls:DockPanel.Dock="Right" />
 		</controls:DockPanel>
 	</Border>
 </UserControl>

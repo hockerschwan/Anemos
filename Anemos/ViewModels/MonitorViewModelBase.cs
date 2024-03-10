@@ -2,7 +2,6 @@
 using Anemos.Helpers;
 using Anemos.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Anemos.ViewModels;
@@ -45,8 +44,7 @@ public partial class MonitorViewModelBase : ObservableObject
         _displayTypeIndex = (int)Model.DisplayType;
     }
 
-    [RelayCommand]
-    private void AddColor()
+    public void AddColor()
     {
         Model.AddColor();
     }

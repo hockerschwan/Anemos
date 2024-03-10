@@ -165,7 +165,14 @@ public sealed partial class AdaptiveGrid : Grid
                 {
                     if (item is FrameworkElement elm)
                     {
-                        Children.Add(elm);
+                        if (e.NewStartingIndex == Children.Count)
+                        {
+                            Children.Add(elm);
+                        }
+                        else
+                        {
+                            Children.Insert(e.NewStartingIndex, elm);
+                        }
                     }
                 }
                 break;
@@ -182,9 +189,7 @@ public sealed partial class AdaptiveGrid : Grid
                 }
             case NotifyCollectionChangedAction.Move:
                 {
-                    var elm = Children[e.OldStartingIndex];
-                    Children.RemoveAt(e.OldStartingIndex);
-                    Children.Insert(e.NewStartingIndex, elm);
+                    Children.Move((uint)e.OldStartingIndex, (uint)e.NewStartingIndex);
                     break;
                 }
             case NotifyCollectionChangedAction.Reset:

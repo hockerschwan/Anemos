@@ -326,6 +326,8 @@ public abstract class MonitorModelBase : ObservableObject
 
     public void RemoveColor(MonitorColorThreshold color)
     {
+        if (!color.IsNormal) { return; }
+
         Colors.Remove(color);
         Update(true);
         _monitorService.Save();
