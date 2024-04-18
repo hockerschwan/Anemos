@@ -3,6 +3,7 @@ using Anemos.Helpers;
 using Anemos.Models;
 using CommunityToolkit.Mvvm.Messaging;
 using LibreHardwareMonitor.Hardware;
+using Microsoft.UI.Dispatching;
 using Serilog;
 
 namespace Anemos.Services;
@@ -187,28 +188,31 @@ internal class FanService : IFanService
 
     private void ApplyProfileToFans(FanProfile profile, bool save = false)
     {
-        foreach (var fm in Fans)
+        App.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.High, () =>
         {
-            var item = FirstOrDefault(profile, fm);
-            if (item == null)
+            foreach (var fm in Fans)
             {
-                fm.LoadProfile(new FanSettings_ProfileItem()
+                var item = FirstOrDefault(profile, fm);
+                if (item == null)
                 {
-                    Id = fm.Id,
-                });
+                    fm.LoadProfile(new FanSettings_ProfileItem()
+                    {
+                        Id = fm.Id,
+                    });
+                }
+                else
+                {
+                    fm.LoadProfile(item);
+                }
             }
-            else
-            {
-                fm.LoadProfile(item);
-            }
-        }
-        _messenger.Send<FanProfileSwitchedMessage>(new(profile));
-        Log.Information("[Fan] Profile applied: {name}, Auto={auto}", profile.Name, UseRules);
+            _messenger.Send<FanProfileSwitchedMessage>(new(profile));
+            Log.Information("[Fan] Profile applied: {name}, Auto={auto}", profile.Name, UseRules);
 
-        if (save && _isLoaded)
-        {
-            Save();
-        }
+            if (save && _isLoaded)
+            {
+                Save();
+            }
+        });
 
         static FanSettings_ProfileItem? FirstOrDefault(FanProfile profile, FanModelBase? fm)
         {
@@ -396,7 +400,7 @@ internal class FanService : IFanService
             ADLXWrapper.ADLXWrapper.Initialize();
         }
         await Task.Run(_loadAction);
-        _messenger.Send<FanProfilesChangedMessage>(new(this, nameof(Profiles), Enumerable.Empty<FanProfile>(), Profiles));
+        _messenger.Send<FanProfilesChangedMessage>(new(this, nameof(Profiles), [], Profiles));
         Log.Information("[Fan] Loaded");
     }
 

@@ -93,7 +93,7 @@ internal class RuleService : IRuleService
 
     public void AddRule(RuleArg arg)
     {
-        AddRules(new RuleArg[] { arg });
+        AddRules([arg]);
     }
 
     public void AddRules(IEnumerable<RuleArg> args, bool save = true)
