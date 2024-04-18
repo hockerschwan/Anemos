@@ -18,7 +18,7 @@
 		<WindowsPackageType>None</WindowsPackageType>
 		<StartupObject>Anemos.Program</StartupObject>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<Version>0.3.2.0</Version>
+		<Version>0.3.3.0</Version>
 		<AssemblyVersion>$(Version)</AssemblyVersion>
 		<FileVersion>$(Version)</FileVersion>
 	</PropertyGroup>
@@ -39,16 +39,16 @@
 		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.0.240109" />
 		<PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.0.240109" />
 		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.0.240109" />
-		<PackageReference Include="LibreHardwareMonitorLib" Version="0.9.4-pre272" />
+		<PackageReference Include="LibreHardwareMonitorLib" Version="0.9.4-pre277" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Graphics.Win2D" Version="1.1.1" />
+		<PackageReference Include="Microsoft.Graphics.Win2D" Version="1.2.0" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.3233" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240227000" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240404000" />
 		<PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="2.0.9" />
 		<PackageReference Include="Serilog" Version="3.1.1" />
 		<PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-		<PackageReference Include="System.Security.AccessControl" Version="6.0.0" />
+		<PackageReference Include="System.Security.AccessControl" Version="6.0.1" />
 		<PackageReference Include="WinUIEx" Version="2.3.4" />
 	</ItemGroup>
 

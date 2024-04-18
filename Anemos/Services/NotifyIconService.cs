@@ -3,6 +3,7 @@ using Anemos.Contracts.Services;
 using Anemos.Helpers;
 using Anemos.Views;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.UI.Dispatching;
 using NotifyIconLib;
 using Serilog;
 
@@ -134,12 +135,18 @@ public class NotifyIconService : INotifyIconService
                 App.Current.Shutdown();
                 break;
             case ItemRoles.Rule:
-                _fanService.UseRules = !_fanService.UseRules;
+                App.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.High, () =>
+                {
+                    _fanService.UseRules = !_fanService.UseRules;
+                });
                 break;
             case ItemRoles.Profile:
                 if (item.ProfileId != null)
                 {
-                    _fanService.ManualProfileId = item.ProfileId;
+                    App.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.High, () =>
+                    {
+                        _fanService.ManualProfileId = item.ProfileId;
+                    });
                 }
                 break;
         }
