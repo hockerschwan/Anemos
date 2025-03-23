@@ -18,9 +18,10 @@
 		<WindowsPackageType>None</WindowsPackageType>
 		<StartupObject>Anemos.Program</StartupObject>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<Version>0.3.3.0</Version>
+		<Version>0.3.4.0</Version>
 		<AssemblyVersion>$(Version)</AssemblyVersion>
 		<FileVersion>$(Version)</FileVersion>
+		<LangVersion>preview</LangVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -34,22 +35,29 @@
 
 	<ItemGroup>
 		<PackageReference Include="Chriffizient.PlainlyIpc" Version="0.8.0" />
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-		<PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.0.240109" />
-		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.0.240109" />
-		<PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.0.240109" />
-		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.0.240109" />
-		<PackageReference Include="LibreHardwareMonitorLib" Version="0.9.4-pre277" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Graphics.Win2D" Version="1.2.0" />
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.3233" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240404000" />
-		<PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="2.0.9" />
-		<PackageReference Include="Serilog" Version="3.1.1" />
-		<PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
-		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+		<PackageReference Include="CommunityToolkit.Common" Version="8.4.0" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.1.240916" />
+		<PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.1.240916" />
+		<PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.1.240916" />
+		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.1.240916" />
+		<PackageReference Include="LibreHardwareMonitorLib" Version="0.9.5-pre396" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.3" />
+		<PackageReference Include="Microsoft.Graphics.Win2D" Version="1.3.2" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250310001" />
+		<PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="3.0.0" />
+		<PackageReference Include="Serilog" Version="4.2.0" />
+		<PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
+		<PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
 		<PackageReference Include="System.Security.AccessControl" Version="6.0.1" />
-		<PackageReference Include="WinUIEx" Version="2.3.4" />
+		<PackageReference Include="System.Text.Json" Version="9.0.3" />
+		<PackageReference Include="WinUIEx" Version="2.5.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="System.Collections.Immutable" VersionOverride="9.0.0" />
+		<PackageReference Include="System.Reflection.Metadata" VersionOverride="9.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -10,7 +10,10 @@ public partial class ShellViewModel : ObservableObject
     private readonly IMessenger _messenger;
 
     [ObservableProperty]
-    private object? selected;
+    public partial object? Selected
+    {
+        get; set;
+    }
 
     public INavigationService NavigationService
     {

@@ -151,6 +151,11 @@ internal class LhwmService : ILhwmService
 
             foreach (var subHardware in hardware.SubHardware)
             {
+                if (subHardware is LibreHardwareMonitor.Hardware.Motherboard.Lpc.EC.WindowsEmbeddedController) // e.g. ASUS EC
+                {
+                    continue;
+                }
+
                 foreach (var sensor in subHardware.Sensors)
                 {
                     sensor.ValuesTimeWindow = TimeSpan.Zero;

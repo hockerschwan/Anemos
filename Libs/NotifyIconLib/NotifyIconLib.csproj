@@ -7,14 +7,14 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-		<Version>0.3.3.0</Version>
+		<Version>0.3.4.0</Version>
 		<AssemblyVersion>$(Version)</AssemblyVersion>
 		<FileVersion>$(Version)</FileVersion>
 		<Company>Anemos</Company>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="System.Drawing.Common" Version="8.0.2" />
+		<PackageReference Include="System.Drawing.Common" Version="9.0.3" />
 	</ItemGroup>
 
 	<ItemGroup>
